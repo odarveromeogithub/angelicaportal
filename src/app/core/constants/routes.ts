@@ -1,43 +1,32 @@
-export const adminBasePath = "/admin";
-export const authBasePath = "/auth";
+/**
+ * Storage keys for localStorage
+ */
+export const STORAGE_KEYS = {
+  ACCESS_TOKEN: "access_token",
+  REFRESH_TOKEN: "refresh_token",
+} as const
 
-export const ROUTES = {
-  AUTH: {
-    login: {
-      key: authBasePath + "/",
-    },
-    register: {
-      key: authBasePath + "/register",
-    },
-    register_with_otp: {
-      key: authBasePath + "/register-with-otp",
-    },
-    forgot_password: {
-      key: authBasePath + "/forgot-password",
-    },
-  },
-  ADMIN: {
-    dashboard: {
-      key: adminBasePath + "/dashboard",
-    },
-    products: {
-      key: adminBasePath + "/products",
-    },
-    roles: {
-      key: adminBasePath + "/roles",
-    },
-    users: {
-      key: adminBasePath + "/users",
-    },
-  },
-  USER: {
-    dashboard: {
-      key: "/dashboard",
-    },
-  },
-  SHARED: {
-    profile: {
-      key: "/profile",
-    },
-  },
-};
+/**
+ * Route paths for primary application routes
+ */
+export const APP_ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  REGISTER: "/register",
+  OTP: "/otp",
+  ANGELICA_LIFE_PLAN: "/angelica",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
+  DASHBOARD: "/dashboard",
+} as const
+
+/**
+ * Public routes (no authentication required)
+ */
+export const PUBLIC_ROUTES = [
+  APP_ROUTES.LOGIN,
+  APP_ROUTES.REGISTER,
+  APP_ROUTES.FORGOT_PASSWORD,
+  APP_ROUTES.RESET_PASSWORD,
+  APP_ROUTES.OTP,
+] as const

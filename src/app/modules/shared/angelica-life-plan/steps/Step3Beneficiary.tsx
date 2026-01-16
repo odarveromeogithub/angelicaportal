@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { BeneficiaryFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
-import { Input } from "@/app/core/components/ui/input";
-import { Label } from "@/app/core/components/ui/label";
+import { FormField, FormSelect } from "@/app/core/components/form";
 import { Trash2, Plus } from "lucide-react";
 import {
   AlertDialog,
@@ -14,12 +13,11 @@ import {
   AlertDialogTitle,
 } from "@/app/core/components/ui/alert-dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/core/components/ui/select";
+  FIELD_CLASSES,
+  GENDER_OPTIONS,
+  GRID_LAYOUTS,
+} from "@/app/core/constants/angelica-life-plan";
+import { cn } from "@/app/core/lib/utils";
 
 interface Step3BeneficiaryProps {
   data: BeneficiaryFormData[];
@@ -114,7 +112,7 @@ export default function Step3Beneficiary({
                     variant="ghost"
                     size="sm"
                     className="h-7 sm:h-8 w-7 sm:w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    title="Delete this beneficiary"
+                    aria-label={`Delete beneficiary ${index + 1}`}
                   >
                     <Trash2 className="size-3 sm:size-4" />
                   </Button>
@@ -126,181 +124,151 @@ export default function Step3Beneficiary({
 
         {currentBeneficiary && (
           <div className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="firstName" className="text-xs sm:text-sm font-semibold">
-                  First Name
-                </Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  value={currentBeneficiary.firstName}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "firstName",
-                      e.target.value
-                    )
-                  }
-                  placeholder="First Name"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+            <div className={GRID_LAYOUTS.threeColumns}>
+              <FormField
+                label="First Name"
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={currentBeneficiary.firstName}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "firstName",
+                    e.target.value
+                  )
+                }
+                placeholder="First Name"
+                required
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="middleName" className="text-xs sm:text-sm font-semibold">
-                  Middle Name
-                </Label>
-                <Input
-                  id="middleName"
-                  type="text"
-                  value={currentBeneficiary.middleName}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "middleName",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Middle Name"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+              <FormField
+                label="Middle Name"
+                id="middleName"
+                name="middleName"
+                type="text"
+                value={currentBeneficiary.middleName}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "middleName",
+                    e.target.value
+                  )
+                }
+                placeholder="Middle Name"
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="lastName" className="text-xs sm:text-sm font-semibold">
-                  Last Name
-                </Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  value={currentBeneficiary.lastName}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "lastName",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Last Name"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+              <FormField
+                label="Last Name"
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={currentBeneficiary.lastName}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "lastName",
+                    e.target.value
+                  )
+                }
+                placeholder="Last Name"
+                required
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="nameExtension" className="text-xs sm:text-sm font-semibold">
-                  Name Extension
-                </Label>
-                <Input
-                  id="nameExtension"
-                  type="text"
-                  value={currentBeneficiary.nameExtension}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "nameExtension",
-                      e.target.value
-                    )
-                  }
-                  placeholder="ex. Jr, Sr, III..."
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+            <div className={GRID_LAYOUTS.threeColumns}>
+              <FormField
+                label="Name Extension"
+                id="nameExtension"
+                name="nameExtension"
+                type="text"
+                value={currentBeneficiary.nameExtension}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "nameExtension",
+                    e.target.value
+                  )
+                }
+                placeholder="ex. Jr, Sr, III..."
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="age" className="text-xs sm:text-sm font-semibold">
-                  Age
-                </Label>
-                <Input
-                  id="age"
-                  type="number"
-                  value={currentBeneficiary.age}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "age",
-                      e.target.value
-                    )
-                  }
-                  placeholder="ex. 24"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+              <FormField
+                label="Age"
+                id="age"
+                name="age"
+                type="number"
+                value={currentBeneficiary.age}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "age",
+                    e.target.value
+                  )
+                }
+                placeholder="ex. 24"
+                required
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="gender" className="text-xs sm:text-sm font-semibold">
-                  Gender
-                </Label>
-                <Select
-                  value={currentBeneficiary.gender}
-                  onValueChange={(value) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "gender",
-                      value
-                    )
-                  }
-                >
-                  <SelectTrigger className="w-full h-9 sm:h-10 rounded-lg border-gray-200 text-sm">
-                    <SelectValue placeholder="Select Gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormSelect
+                label="Gender"
+                id="gender"
+                value={currentBeneficiary.gender}
+                onValueChange={(value) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "gender",
+                    value
+                  )
+                }
+                options={GENDER_OPTIONS}
+                placeholder="Select Gender"
+                required
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="address" className="text-xs sm:text-sm font-semibold">
-                  Address
-                </Label>
-                <Input
-                  id="address"
-                  type="text"
-                  value={currentBeneficiary.address}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "address",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Address"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+            <div className={GRID_LAYOUTS.twoColumns}>
+              <FormField
+                label="Address"
+                id="address"
+                name="address"
+                type="text"
+                value={currentBeneficiary.address}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "address",
+                    e.target.value
+                  )
+                }
+                placeholder="Address"
+                required
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="relationship" className="text-xs sm:text-sm font-semibold">
-                  Relationship
-                </Label>
-                <Input
-                  id="relationship"
-                  type="text"
-                  value={currentBeneficiary.relationship}
-                  onChange={(e) =>
-                    handleBeneficiaryChange(
-                      editingIndex ?? 0,
-                      "relationship",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Relationship"
-                  className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-                />
-              </div>
+              <FormField
+                label="Relationship"
+                id="relationship"
+                name="relationship"
+                type="text"
+                value={currentBeneficiary.relationship}
+                onChange={(e) =>
+                  handleBeneficiaryChange(
+                    editingIndex ?? 0,
+                    "relationship",
+                    e.target.value
+                  )
+                }
+                placeholder="Relationship"
+                required
+              />
             </div>
           </div>
         )}
 
         <Button
           onClick={handleAddBeneficiary}
-          className="w-full h-10 sm:h-11 mt-6 sm:mt-8 px-6 rounded-lg !bg-blue-100 text-xs sm:text-sm font-semibold uppercase tracking-wide !text-blue-600 hover:!bg-blue-200 flex items-center justify-center gap-2"
+          className={cn("w-full mt-6 sm:mt-8 flex items-center justify-center gap-2", FIELD_CLASSES.button.base, FIELD_CLASSES.button.light)}
+          aria-label="Add new beneficiary"
         >
           <Plus className="size-4" />
           Add Beneficiary
@@ -311,14 +279,16 @@ export default function Step3Beneficiary({
         <Button
           onClick={onBack}
           variant="outline"
-          className="h-10 sm:h-11 px-6 sm:px-8 rounded-lg text-xs sm:text-sm font-semibold uppercase tracking-wide flex-1 sm:flex-none"
+          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+          aria-label="Go back to previous step"
         >
           Back
         </Button>
         <Button
           onClick={onNext}
           disabled={!isComplete}
-          className="h-10 sm:h-11 px-6 sm:px-8 rounded-lg !bg-blue-600 text-xs sm:text-sm font-semibold uppercase tracking-wide !text-white hover:!bg-blue-700 disabled:!bg-gray-300 disabled:cursor-not-allowed flex-1 sm:flex-none"
+          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
+          aria-label="Proceed to final step"
         >
           Next
         </Button>
@@ -333,10 +303,12 @@ export default function Step3Beneficiary({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="h-9 sm:h-10 rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn(FIELD_CLASSES.button.secondary, "h-9 sm:h-10")}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteIndex !== null && handleRemoveBeneficiary(deleteIndex)}
-              className="h-9 sm:h-10 rounded-lg !bg-red-600 hover:!bg-red-700 !text-white"
+              className={cn(FIELD_CLASSES.button.danger)}
             >
               Delete
             </AlertDialogAction>

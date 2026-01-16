@@ -5,6 +5,13 @@ import { Button } from "@/app/core/components/ui/button";
 import { Label } from "@/app/core/components/ui/label";
 import { Checkbox } from "@/app/core/components/ui/checkbox";
 import { UploadCloud, X, CheckCircle2 } from "lucide-react";
+import {
+  SIGNATURE_CONFIG,
+  MAX_FILE_SIZE_BYTES,
+  ACCEPTED_FILE_TYPES,
+  FIELD_CLASSES,
+} from "@/app/core/constants/angelica-life-plan";
+import { cn } from "@/app/core/lib/utils";
 
 interface Step4SubmitProps {
   onBack: () => void;
@@ -31,8 +38,7 @@ export default function Step4Submit({
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file && (file.type.startsWith("image/") || file.type === "application/pdf")) {
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size <= maxSize) {
+      if (file.size <= MAX_FILE_SIZE_BYTES) {
         setIdFile(file);
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -45,12 +51,9 @@ export default function Step4Submit({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif"],
-      "application/pdf": [".pdf"],
-    },
+    accept: ACCEPTED_FILE_TYPES,
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: MAX_FILE_SIZE_BYTES,
   });
 
   useEffect(() => {
@@ -82,11 +85,11 @@ export default function Step4Submit({
       resizeCanvas();
       
       signaturePadRef.current = new SignaturePad(canvasRef.current, {
-        penColor: "#000",
-        backgroundColor: "#fff",
-        minWidth: 1.5,
-        maxWidth: 3,
-        throttle: 16,
+        penColor: SIGNATURE_CONFIG.penColor,
+        backgroundColor: SIGNATURE_CONFIG.backgroundColor,
+        minWidth: SIGNATURE_CONFIG.minWidth,
+        maxWidth: SIGNATURE_CONFIG.maxWidth,
+        throttle: SIGNATURE_CONFIG.throttle,
       });
 
       window.addEventListener("resize", resizeCanvas);
@@ -139,14 +142,16 @@ export default function Step4Submit({
               type="button"
               onClick={clearSignature}
               variant="outline"
-              className="h-9 sm:h-10 rounded-lg text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
+              className={cn(FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+              aria-label="Clear signature"
             >
               Clear
             </Button>
             <Button
               type="button"
               onClick={confirmSignature}
-              className="h-9 sm:h-10 px-4 sm:px-6 rounded-lg !bg-blue-600 text-xs sm:text-sm font-semibold uppercase tracking-wide !text-white hover:!bg-blue-700 disabled:!bg-gray-300 disabled:cursor-not-allowed flex-1 sm:flex-none"
+              className={cn(FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
+              aria-label="Confirm signature"
             >
               ✓ Signature Confirmed
             </Button>
@@ -269,14 +274,16 @@ export default function Step4Submit({
         <Button
           onClick={onBack}
           variant="outline"
-          className="h-10 sm:h-11 px-4 sm:px-8 rounded-lg text-xs sm:text-sm font-semibold uppercase tracking-wide flex-1 sm:flex-none"
+          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+          aria-label="Go back to previous step"
         >
           Back
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={!isComplete || isLoading}
-          className="h-10 sm:h-11 px-4 sm:px-8 rounded-lg !bg-green-600 text-xs sm:text-sm font-semibold uppercase tracking-wide !text-white hover:!bg-green-700 disabled:!bg-gray-300 disabled:cursor-not-allowed flex-1 sm:flex-none"
+          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.success, "flex-1 sm:flex-none")}
+          aria-label="Submit form"
         >
           {isLoading ? "Submitting..." : "Submit"}
         </Button>

@@ -1,14 +1,15 @@
 import type { PlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
-import { Input } from "@/app/core/components/ui/input";
-import { Label } from "@/app/core/components/ui/label";
+import { FormField } from "@/app/core/components/form/FormField";
+import { FormSelect } from "@/app/core/components/form/FormSelect";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/core/components/ui/select";
+  PLAN_TYPES,
+  PAYMENT_MODES,
+  PAYMENT_TERMS,
+  GRID_LAYOUTS,
+  FIELD_CLASSES,
+} from "@/app/core/constants/angelica-life-plan";
+import { cn } from "@/app/core/lib/utils";
 
 interface Step1PlanProps {
   data: PlanFormData;
@@ -43,154 +44,111 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
       <div>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Plan Data</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="salesCounselorName" className="text-xs sm:text-sm font-semibold">
-              Sales Counselor Name
-            </Label>
-            <Input
-              id="salesCounselorName"
-              name="salesCounselorName"
-              type="text"
-              value={data.salesCounselorName}
-              onChange={handleInputChange}
-              placeholder="CLIENT PORTAL (MINDANAO 2)"
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+        <div className={cn(GRID_LAYOUTS.threeColumns, GRID_LAYOUTS.spacing)}>
+          <FormField
+            label="Sales Counselor Name"
+            id="salesCounselorName"
+            name="salesCounselorName"
+            value={data.salesCounselorName}
+            onChange={handleInputChange}
+            placeholder="CLIENT PORTAL (MINDANAO 2)"
+            required
+            autoFocus
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="salesCounselorCode" className="text-xs sm:text-sm font-semibold">
-              Sales Counselor Code
-            </Label>
-            <Input
-              id="salesCounselorCode"
-              name="salesCounselorCode"
-              type="text"
-              value={data.salesCounselorCode}
-              onChange={handleInputChange}
-              placeholder="M-005-46-000-04248"
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+          <FormField
+            label="Sales Counselor Code"
+            id="salesCounselorCode"
+            name="salesCounselorCode"
+            value={data.salesCounselorCode}
+            onChange={handleInputChange}
+            placeholder="M-005-46-000-04248"
+            required
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="salesCounselorReferral" className="text-xs sm:text-sm font-semibold">
-              Sales Counselor Referral
-            </Label>
-            <Input
-              id="salesCounselorReferral"
-              name="salesCounselorReferral"
-              type="text"
-              value={data.salesCounselorReferral}
-              onChange={handleInputChange}
-              placeholder="https://sc.cclpi.com.ph:8080/#/referral/4f030d0434..."
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+          <FormField
+            label="Sales Counselor Referral"
+            id="salesCounselorReferral"
+            name="salesCounselorReferral"
+            value={data.salesCounselorReferral}
+            onChange={handleInputChange}
+            placeholder="https://sc.cclpi.com.ph:8080/#/referral/..."
+            required
+          />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="contactPrice" className="text-xs sm:text-sm font-semibold">
-              Contact Price
-            </Label>
-            <Input
-              id="contactPrice"
-              name="contactPrice"
-              type="number"
-              value={data.contactPrice}
-              onChange={handleInputChange}
-              placeholder="30000"
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+        <div className={cn(GRID_LAYOUTS.fourColumns, GRID_LAYOUTS.spacing)}>
+          <FormField
+            label="Contact Price"
+            id="contactPrice"
+            name="contactPrice"
+            type="number"
+            value={data.contactPrice}
+            onChange={handleInputChange}
+            placeholder="30000"
+            required
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="planType" className="text-xs sm:text-sm font-semibold">
-              Plan Type
-            </Label>
-            <Select value={data.planType} onValueChange={(value) => onChange({ ...data, planType: value })}>
-              <SelectTrigger className="w-full h-9 sm:h-10 rounded-lg border-gray-200 text-sm">
-                <SelectValue placeholder="Select Plan Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Angelica Life Plan 5">Angelica Life Plan 5</SelectItem>
-                <SelectItem value="Angelica Life Plan 10">Angelica Life Plan 10</SelectItem>
-                <SelectItem value="Angelica Life Plan 15">Angelica Life Plan 15</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <FormSelect
+            label="Plan Type"
+            id="planType"
+            value={data.planType}
+            onValueChange={(value) => onChange({ ...data, planType: value })}
+            options={PLAN_TYPES}
+            placeholder="Select Plan Type"
+            required
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="modeOfPayment" className="text-xs sm:text-sm font-semibold">
-              Mode of Payment
-            </Label>
-            <Select value={data.modeOfPayment} onValueChange={(value) => onChange({ ...data, modeOfPayment: value })}>
-              <SelectTrigger className="w-full h-9 sm:h-10 rounded-lg border-gray-200 text-sm">
-                <SelectValue placeholder="Select Payment Mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Monthly">Monthly</SelectItem>
-                <SelectItem value="Quarterly">Quarterly</SelectItem>
-                <SelectItem value="Annual">Annual</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <FormSelect
+            label="Mode of Payment"
+            id="modeOfPayment"
+            value={data.modeOfPayment}
+            onValueChange={(value) => onChange({ ...data, modeOfPayment: value })}
+            options={PAYMENT_MODES}
+            placeholder="Select Payment Mode"
+            required
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="termOfPay" className="text-xs sm:text-sm font-semibold">
-              Term of Pay
-            </Label>
-            <Select value={data.termOfPay} onValueChange={(value) => onChange({ ...data, termOfPay: value })}>
-              <SelectTrigger className="w-full h-9 sm:h-10 rounded-lg border-gray-200 text-sm">
-                <SelectValue placeholder="Select Term" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Installment">Installment</SelectItem>
-                <SelectItem value="Single Premium">Single Premium</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <FormSelect
+            label="Term of Pay"
+            id="termOfPay"
+            value={data.termOfPay}
+            onValueChange={(value) => onChange({ ...data, termOfPay: value })}
+            options={PAYMENT_TERMS}
+            placeholder="Select Term"
+            required
+          />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="installment" className="text-xs sm:text-sm font-semibold">
-              Installment
-            </Label>
-            <Input
-              id="installment"
-              name="installment"
-              type="number"
-              value={data.installment}
-              onChange={handleInputChange}
-              placeholder="540.00"
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+        <div className={GRID_LAYOUTS.twoColumns}>
+          <FormField
+            label="Installment"
+            id="installment"
+            name="installment"
+            type="number"
+            value={data.installment}
+            onChange={handleInputChange}
+            placeholder="540.00"
+            required
+          />
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="docStamp" className="text-xs sm:text-sm font-semibold">
-              Doc Stamp
-            </Label>
-            <Input
-              id="docStamp"
-              name="docStamp"
-              type="number"
-              value={data.docStamp}
-              onChange={handleInputChange}
-              placeholder="60.00"
-              className="h-9 sm:h-10 rounded-lg border-gray-200 text-sm"
-            />
-          </div>
+          <FormField
+            label="Doc Stamp"
+            id="docStamp"
+            name="docStamp"
+            type="number"
+            value={data.docStamp}
+            onChange={handleInputChange}
+            placeholder="60.00"
+            required
+          />
         </div>
       </div>
 
       <Button
         onClick={onNext}
         disabled={!isComplete}
-        className="w-full h-10 sm:h-11 px-6 sm:px-8 rounded-lg !bg-blue-600 text-xs sm:text-sm font-semibold uppercase tracking-wide !text-white hover:!bg-blue-700 disabled:!bg-gray-300 disabled:cursor-not-allowed"
+        className={cn("w-full", FIELD_CLASSES.button.base, FIELD_CLASSES.button.primary)}
       >
         Next
       </Button>

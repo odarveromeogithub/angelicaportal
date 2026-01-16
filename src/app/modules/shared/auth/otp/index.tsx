@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { ChevronLeft, Clock } from "lucide-react"
 import { toast } from "sonner"
@@ -12,7 +12,10 @@ import {
   CardFooter,
   CardHeader,
 } from "@/app/core/components/ui/card"
-import { Input } from "@/app/core/components/ui/input"
+import { OTPInput } from "@/app/core/components/form"
+import { AUTH_CLASSES, AUTH_MESSAGES, OTP_CONFIG } from "@/app/core/constants/auth"
+import { otpSchema } from "@/app/core/schemas/auth.schema"
+import { APP_ROUTES } from "@/app/core/constants/routes"
 
 export default function OtpVerification() {
   const navigate = useNavigate()
@@ -20,24 +23,24 @@ export default function OtpVerification() {
   const { setToken } = useAuth()
   const email = location.state?.email as string
 
-  const [otp, setOtp] = useState(["", "", "", "", "", ""])
-  const [timeLeft, setTimeLeft] = useState(300) // 5 minutes
+  const [otp, setOtp] = useState<string[]>(Array(OTP_CONFIG.length).fill(""))
+  const [timeLeft, setTimeLeft] = useState(OTP_CONFIG.expiryMinutes * 60)
   const [wrongAttempts, setWrongAttempts] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [resendCooldown, setResendCooldown] = useState(0)
 
   // Redirect if no email passed
   useEffect(() => {
     if (!email) {
-      navigate("/register")
+      navigate(APP_ROUTES.REGISTER)
     }
   }, [email, navigate])
 
   // Timer countdown
   useEffect(() => {
     if (timeLeft <= 0) {
-      toast.error("OTP expired. Please go back and try again.")
-      navigate("/register")
+      toast.error(AUTH_MESSAGES.otp.expired)
+      navigate(APP_ROUTES.REGISTER)
       return
     }
 
@@ -48,67 +51,73 @@ export default function OtpVerification() {
     return () => clearInterval(timer)
   }, [timeLeft, navigate])
 
-  const handleInputChange = (index: number, value: string) => {
-    // Only allow numbers
-    if (!/^\d*$/.test(value)) return
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return
 
-    const newOtp = [...otp]
-    newOtp[index] = value.slice(-1) // Only keep last digit
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1)
+    }, 1000)
 
-    setOtp(newOtp)
-
-    // Auto-focus to next input
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus()
-    }
-  }
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus()
-    }
-  }
+    return () => clearInterval(timer)
+  }, [resendCooldown])
 
   const handleVerifyOtp = async () => {
     const otpCode = otp.join("")
 
-    if (otpCode.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP")
-      return
+    try {
+      await otpSchema.validate({ otp: otpCode, email });
+    } catch (error: unknown) {
+      const firstError = error instanceof Error ? error.message : "Validation failed";
+      if (firstError) {
+        toast.error(firstError);
+      }
+      return;
     }
 
     setIsLoading(true)
 
     try {
       // TODO: Replace with actual OTP verification API call
-      // For now, simulate verification with mock data
       if (otpCode === "123456") {
-        toast.success("OTP verified successfully!")
-        // Set token and redirect to dashboard after success
-        setToken("temp_auth_token_" + Date.now()) // Replace with actual token from API
+        toast.success(AUTH_MESSAGES.otp.success)
+        setToken("temp_auth_token_" + Date.now())
         setTimeout(() => {
-          navigate("/dashboard")
+          navigate(APP_ROUTES.DASHBOARD)
         }, 1500)
       } else {
         const newWrongAttempts = wrongAttempts + 1
         setWrongAttempts(newWrongAttempts)
 
-        if (newWrongAttempts >= 3) {
-          toast.error("Too many wrong attempts. Returning to register.")
+        if (newWrongAttempts >= OTP_CONFIG.maxAttempts) {
+          toast.error(AUTH_MESSAGES.otp.maxAttempts)
           setTimeout(() => {
-            navigate("/register")
+            navigate(APP_ROUTES.REGISTER)
           }, 2000)
         } else {
-          toast.error(`Wrong OTP. ${3 - newWrongAttempts} attempts remaining.`)
-          setOtp(["", "", "", "", "", ""])
-          inputRefs.current[0]?.focus()
+          toast.error(`${AUTH_MESSAGES.otp.wrongAttempt} ${OTP_CONFIG.maxAttempts - newWrongAttempts} attempts remaining.`)
+          setOtp(Array(OTP_CONFIG.length).fill(""))
         }
       }
     } catch {
-      toast.error("Failed to verify OTP. Please try again.")
+      toast.error(AUTH_MESSAGES.otp.error)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleResendOtp = () => {
+    if (resendCooldown > 0) {
+      toast.error(`Please wait ${resendCooldown} seconds before resending`)
+      return
+    }
+
+    // TODO: Replace with actual resend OTP API call
+    toast.success("OTP resent successfully")
+    setResendCooldown(OTP_CONFIG.resendDelaySeconds)
+    setTimeLeft(OTP_CONFIG.expiryMinutes * 60)
+    setOtp(Array(OTP_CONFIG.length).fill(""))
+    setWrongAttempts(0)
   }
 
   const formatTime = (seconds: number) => {
@@ -118,7 +127,7 @@ export default function OtpVerification() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center px-4 py-10">
+    <div className={AUTH_CLASSES.container}>
       <form
         onSubmit={(event) => {
           event.preventDefault()
@@ -127,7 +136,7 @@ export default function OtpVerification() {
         className="w-full max-w-md"
       >
         
-        <Card className="rounded-[32px] border border-blue-100 bg-white/95 shadow-[0_28px_70px_-40px_rgba(14,66,120,0.5)]">
+        <Card className={AUTH_CLASSES.card}>
            <CardAction className="self-start p-0 pl-7">
               <Button
                 type="button"
@@ -164,27 +173,16 @@ export default function OtpVerification() {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 px-6 pb-0 sm:px-10">
-            <div className="flex justify-center gap-3">
-              {otp.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={(element) => {
-                    inputRefs.current[index] = element
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(event) => handleInputChange(index, event.target.value)}
-                  onKeyDown={(event) => handleKeyDown(index, event)}
-                  placeholder="-"
-                  className="h-14 w-12 rounded-xl border-2 border-blue-200 bg-white text-center text-2xl font-bold text-blue-600 placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                />
-              ))}
-            </div>
+            <OTPInput
+              id="otp"
+              value={otp}
+              onChange={setOtp}
+              length={OTP_CONFIG.length}
+              disabled={isLoading}
+            />
 
-            <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
-              <Clock className="size-4" />
+            <div className="flex items-center justify-center gap-2 text-sm text-slate-600" role="timer" aria-live="polite">
+              <Clock className="size-4" aria-hidden="true" />
               <span>Time remaining: {formatTime(timeLeft)}</span>
             </div>
           </CardContent>
@@ -192,17 +190,29 @@ export default function OtpVerification() {
           <CardFooter className="flex flex-col gap-3 px-6 pb-8 sm:px-10">
             <Button
               type="submit"
-              disabled={isLoading || otp.join("").length !== 6}
-              className="h-12 w-full rounded-full !bg-[#0d6efd] text-sm font-semibold uppercase tracking-wide !text-white shadow-md transition hover:!bg-[#0b5ed7] disabled:!bg-[#0d6efd]/60"
+              disabled={isLoading || otp.join("").length !== OTP_CONFIG.length}
+              className={AUTH_CLASSES.button.primary}
+              aria-label="Verify OTP code"
             >
               {isLoading ? "Verifying..." : "Verify OTP"}
             </Button>
 
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleResendOtp}
+              disabled={resendCooldown > 0}
+              className={AUTH_CLASSES.button.ghost}
+              aria-label={resendCooldown > 0 ? `Resend available in ${resendCooldown} seconds` : "Resend OTP"}
+            >
+              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend OTP"}
+            </Button>
+
             {wrongAttempts > 0 && (
-              <div className="rounded-xl bg-yellow-50 px-4 py-3 text-center text-sm text-yellow-700">
-                {wrongAttempts === 1 && "1 wrong attempt. 2 attempts remaining."}
-                {wrongAttempts === 2 && "2 wrong attempts. 1 attempt remaining."}
-                {wrongAttempts >= 3 && "Maximum attempts reached."}
+              <div className="rounded-xl bg-yellow-50 px-4 py-3 text-center text-sm text-yellow-700" role="alert" aria-live="assertive">
+                {wrongAttempts === 1 && `1 wrong attempt. ${OTP_CONFIG.maxAttempts - 1} attempts remaining.`}
+                {wrongAttempts === 2 && `2 wrong attempts. ${OTP_CONFIG.maxAttempts - 2} attempt remaining.`}
+                {wrongAttempts >= OTP_CONFIG.maxAttempts && "Maximum attempts reached."}
               </div>
             )}
           </CardFooter>

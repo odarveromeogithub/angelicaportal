@@ -1,4 +1,4 @@
-export interface PlanFormData {
+export interface IPlanFormData {
   salesCounselorName: string;
   salesCounselorCode: string;
   salesCounselorReferral: string;
@@ -10,7 +10,7 @@ export interface PlanFormData {
   docStamp: number | string;
 }
 
-export interface PlanholderFormData {
+export interface IPlanholderFormData {
   firstName: string;
   middleName: string;
   lastName: string;
@@ -28,7 +28,7 @@ export interface PlanholderFormData {
   zipCode: string;
 }
 
-export interface BeneficiaryFormData {
+export interface IBeneficiaryFormData {
   firstName: string;
   middleName: string;
   lastName: string;
@@ -39,10 +39,10 @@ export interface BeneficiaryFormData {
   relationship: string;
 }
 
-export interface AngelicaLifePlanFormData {
-  plan: PlanFormData;
-  planholder: PlanholderFormData;
-  beneficiaries: BeneficiaryFormData[];
+export interface IAngelicaLifePlanFormData {
+  plan: IPlanFormData;
+  planholder: IPlanholderFormData;
+  beneficiaries: IBeneficiaryFormData[];
   planholder_signature: string;
   id_upload: File | null;
   agree_to_consent: boolean;
