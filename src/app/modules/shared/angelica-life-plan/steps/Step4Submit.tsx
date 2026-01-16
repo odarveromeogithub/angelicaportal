@@ -34,6 +34,7 @@ export default function Step4Submit({
   const [agreeToConsent, setAgreeToConsent] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const signaturePadRef = useRef<SignaturePad | null>(null);
+  const [signatureConfirmed, setSignatureConfirmed] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -101,6 +102,7 @@ export default function Step4Submit({
     if (signaturePadRef.current) {
       signaturePadRef.current.clear();
       setSignature("");
+      setSignatureConfirmed(false);
     }
   };
 
@@ -108,11 +110,11 @@ export default function Step4Submit({
     if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
       const dataURL = signaturePadRef.current.toDataURL("image/png");
       setSignature(dataURL);
+      setSignatureConfirmed(true);
     }
   };
 
-  const isComplete = signature && idFile && agreeToConsent;
-
+  const isComplete = signatureConfirmed && idFile && agreeToConsent;
   const handleSubmit = () => {
     if (isComplete) {
       onSubmit({
@@ -153,7 +155,7 @@ export default function Step4Submit({
               className={cn(FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
               aria-label="Confirm signature"
             >
-              ✓ Signature Confirmed
+              {signatureConfirmed ? "✓ Signature Confirmed" : "Confirm Signature"}
             </Button>
           </div>
         </div>
