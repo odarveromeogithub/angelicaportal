@@ -107,8 +107,8 @@ export default function Login() {
         <Card className={AUTH_CLASSES.card}>
           <CardHeader className="items-center gap-5 text-center">
             <div className="flex items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-3xl font-extrabold text-blue-600">C</span>
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
+                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
               </div>
               <div className="leading-tight">
                 <h1 className="text-[38px] font-black tracking-wide text-blue-600">
@@ -143,7 +143,7 @@ export default function Login() {
                   placeholder="Username"
                   required
                   autoFocus
-                  className="h-12 rounded-2xl border-blue-200 bg-white pl-12 pr-4 text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
+                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                 />
                 <UserRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
               </div>
@@ -158,7 +158,7 @@ export default function Login() {
                   onChange={(e) => handleChange("password", e.target.value)}
                   placeholder="Password"
                   required
-                  className="h-12 rounded-2xl border-blue-200 bg-white pl-12 pr-20 text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
+                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                 />
                 <KeyRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
                 <Button
@@ -166,7 +166,7 @@ export default function Login() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-4 top-[48px] -translate-y-1/2 h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                  className="absolute right-3 sm:right-4 top-[42px] sm:top-[45px] md:top-[48px] -translate-y-1/2 h-6 sm:h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? "Hide" : "Show"}

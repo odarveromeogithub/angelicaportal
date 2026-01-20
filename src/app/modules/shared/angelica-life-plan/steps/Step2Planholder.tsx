@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { PlanholderFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { IPlanholderFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField } from "@/app/core/components/form/FormField";
 import { FormSelect } from "@/app/core/components/form/FormSelect";
@@ -18,8 +18,8 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step2PlanholderProps {
-  data: PlanholderFormData;
-  onChange: (data: PlanholderFormData) => void;
+  data: IPlanholderFormData;
+  onChange: (data: IPlanholderFormData) => void;
   onBack: () => void;
   onNext: () => void;
 }

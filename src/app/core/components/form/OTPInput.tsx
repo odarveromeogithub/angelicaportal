@@ -99,7 +99,7 @@ export function OTPInput({
             disabled={disabled}
             aria-label={`Digit ${index + 1} of ${length}`}
             aria-invalid={!!error}
-            className={`h-14 w-12 rounded-xl border-2 bg-white text-center text-2xl font-bold text-blue-600 placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 ${
+            className={`h-11 sm:h-12 md:h-14 w-10 sm:w-11 md:w-12 rounded-lg sm:rounded-xl border-2 bg-white text-center text-xl sm:text-2xl font-bold text-blue-600 placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 ${
               error ? "border-red-300" : "border-blue-200"
             }`}
           />

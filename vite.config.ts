@@ -11,4 +11,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Optimize chunking strategy
+    rollupOptions: {
+      output: {
+        // Manual chunks for better code splitting
+        manualChunks: {
+          // Vendor chunks
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-utils": ["lucide-react", "sonner"],
+        },
+      },
+    },
+    // Increase chunk size warning threshold
+    chunkSizeWarningLimit: 1000,
+  },
 })
+

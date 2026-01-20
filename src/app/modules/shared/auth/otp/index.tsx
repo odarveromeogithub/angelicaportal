@@ -152,8 +152,8 @@ export default function OtpVerification() {
             </CardAction>
           <CardHeader className="items-center gap-4 text-center">
             <div className="flex items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-3xl font-extrabold text-blue-600">C</span>
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
+                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
               </div>
               <div className="leading-tight">
                 <h1 className="text-[38px] font-black tracking-wide text-blue-600">

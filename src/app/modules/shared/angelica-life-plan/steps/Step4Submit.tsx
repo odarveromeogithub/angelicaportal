@@ -101,6 +101,7 @@ export default function Step4Submit({
   const clearSignature = () => {
     if (signaturePadRef.current) {
       signaturePadRef.current.clear();
+      signaturePadRef.current.on(); // Enable drawing
       setSignature("");
       setSignatureConfirmed(false);
     }
@@ -111,6 +112,7 @@ export default function Step4Submit({
       const dataURL = signaturePadRef.current.toDataURL("image/png");
       setSignature(dataURL);
       setSignatureConfirmed(true);
+      signaturePadRef.current.off(); // Disable drawing
     }
   };
 
@@ -132,11 +134,17 @@ export default function Step4Submit({
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
             Planholder Signature
           </h2>
-          <div className="border-2 border-gray-300 rounded-lg bg-white overflow-hidden">
+          <div className={cn(
+            "border-2 rounded-lg bg-white overflow-hidden",
+            signatureConfirmed ? "border-green-400" : "border-gray-300"
+          )}>
             <canvas
               ref={canvasRef}
-              className="w-full block bg-white touch-none"
-              style={{ cursor: "crosshair", height: "200px" }}
+              className={cn(
+                "w-full block bg-white",
+                signatureConfirmed ? "cursor-not-allowed opacity-90 pointer-events-none" : "cursor-crosshair touch-none"
+              )}
+              style={{ height: "200px" }}
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4">

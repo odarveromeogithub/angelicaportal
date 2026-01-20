@@ -103,9 +103,15 @@ export default function Register() {
   // Check if form is valid for enabling submit button
   const isFormValid = () => {
     try {
-      registerSchema.validateSync(formData);
+      // Check if all required fields are filled first
+      if (!formData.email || !formData.first_name || !formData.last_name || !formData.contact_no || !formData.area) {
+        return false;
+      }
+      // Then validate with schema
+      registerSchema.validateSync(formData, { abortEarly: false });
       return true;
-    } catch {
+    } catch (error) {
+      console.error("Validation error:", error);
       return false;
     }
   };
@@ -145,8 +151,8 @@ export default function Register() {
           </CardAction>
           <CardHeader className="items-center gap-4 text-center">
             <div className="flex items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-3xl font-extrabold text-blue-600">C</span>
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
+                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
               </div>
               <div className="leading-tight">
                 <CardTitle className="text-[38px] font-black tracking-wide text-blue-600">
@@ -294,7 +300,7 @@ export default function Register() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowConfirmation(false)}
-                className={AUTH_CLASSES.button.outline}
+                className={`${AUTH_CLASSES.button.outline} w-full sm:flex-1`}
                 aria-label="Go back to edit form"
               >
                 Go Back
@@ -302,7 +308,7 @@ export default function Register() {
               <Button
                 type="button"
                 onClick={handleConfirmRegister}
-                className={AUTH_CLASSES.button.primary}
+                className={`${AUTH_CLASSES.button.primary} sm:flex-1`}
                 aria-label="Confirm registration"
               >
                 Confirm

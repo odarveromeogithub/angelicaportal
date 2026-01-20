@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BeneficiaryFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { IBeneficiaryFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import { Trash2, Plus } from "lucide-react";
@@ -20,8 +20,8 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step3BeneficiaryProps {
-  data: BeneficiaryFormData[];
-  onChange: (data: BeneficiaryFormData[]) => void;
+  data: IBeneficiaryFormData[];
+  onChange: (data: IBeneficiaryFormData[]) => void;
   onBack: () => void;
   onNext: () => void;
 }
@@ -36,7 +36,7 @@ export default function Step3Beneficiary({
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
   const handleAddBeneficiary = () => {
-    const newBeneficiary: BeneficiaryFormData = {
+    const newBeneficiary: IBeneficiaryFormData = {
       firstName: "",
       middleName: "",
       lastName: "",
@@ -60,7 +60,7 @@ export default function Step3Beneficiary({
 
   const handleBeneficiaryChange = (
     index: number,
-    field: keyof BeneficiaryFormData,
+    field: keyof IBeneficiaryFormData,
     value: string | number
   ) => {
     const updated = [...data];

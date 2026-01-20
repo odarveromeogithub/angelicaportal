@@ -1,26 +1,26 @@
-// Dashboard CSS Classes
+// Dashboard CSS Classes - Enhanced Responsive Design
 export const DASHBOARD_CLASSES = {
-  container: "min-h-screen bg-gray-100",
+  container: "min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50",
   header: {
-    wrapper: "bg-white shadow-lg",
-    content: "mx-auto flex max-w-7xl items-center justify-between px-4 py-4",
+    wrapper: "bg-white border-b border-gray-200 shadow-sm",
+    content: "mx-auto w-full max-w-7xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6",
     logo: {
-      title: "text-2xl font-bold text-indigo-600",
-      subtitle: "text-sm text-indigo-400",
+      title: "text-xl sm:text-2xl md:text-3xl font-bold text-indigo-600 break-words",
+      subtitle: "text-xs sm:text-sm text-indigo-400 mt-1 sm:mt-0",
     },
   },
-  main: "mx-auto max-w-7xl px-4 py-8",
+  main: "mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12",
   card: {
-    main: "border-indigo-100 bg-white",
-    info: "rounded-2xl border-indigo-200 bg-indigo-50/80",
+    main: "border border-indigo-100 bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow",
+    info: "rounded-lg sm:rounded-xl md:rounded-2xl border border-indigo-200 bg-indigo-50/80 shadow-xs hover:shadow-sm transition-all",
   },
   button: {
-    logout: "h-10 rounded-full px-5 text-sm font-semibold bg-red-600 text-white hover:bg-red-700",
+    logout: "h-9 sm:h-10 md:h-11 rounded-full px-4 sm:px-5 md:px-6 text-xs sm:text-sm md:text-base font-semibold bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-colors",
   },
   userInfo: {
-    label: "text-sm font-semibold uppercase tracking-wide text-indigo-600",
-    value: "text-2xl text-indigo-900",
-    valueSmall: "text-lg text-indigo-900 break-words",
+    label: "text-xs sm:text-sm font-semibold uppercase tracking-wide text-indigo-600",
+    value: "text-lg sm:text-xl md:text-2xl text-indigo-900 font-bold mt-1",
+    valueSmall: "text-sm sm:text-base md:text-lg text-indigo-900 break-words font-semibold mt-1",
   },
 } as const
 

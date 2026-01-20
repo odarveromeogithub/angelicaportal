@@ -7,10 +7,10 @@ import Step2Planholder from "./steps/Step2Planholder.tsx";
 import Step3Beneficiary from "./steps/Step3Beneficiary.tsx";
 import Step4Submit from "./steps/Step4Submit.tsx";
 import type {
-  AngelicaLifePlanFormData,
-  BeneficiaryFormData,
-  PlanFormData,
-  PlanholderFormData,
+  IAngelicaLifePlanFormData,
+  IBeneficiaryFormData,
+  IPlanFormData,
+  IPlanholderFormData,
 } from "@/app/core/interfaces/angelica-life-plan.interface";
 
 export default function AngelicaLifePlan() {
@@ -18,7 +18,7 @@ export default function AngelicaLifePlan() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState<AngelicaLifePlanFormData>({
+  const [formData, setFormData] = useState<IAngelicaLifePlanFormData>({
     plan: {
       salesCounselorName: "",
       salesCounselorCode: "",
@@ -64,15 +64,15 @@ export default function AngelicaLifePlan() {
     agree_to_consent: false,
   });
 
-  const handlePlanChange = (data: PlanFormData) => {
+  const handlePlanChange = (data: IPlanFormData) => {
     setFormData({ ...formData, plan: data });
   };
 
-  const handlePlanholderChange = (data: PlanholderFormData) => {
+  const handlePlanholderChange = (data: IPlanholderFormData) => {
     setFormData({ ...formData, planholder: data });
   };
 
-  const handleBeneficiariesChange = (data: BeneficiaryFormData[]) => {
+  const handleBeneficiariesChange = (data: IBeneficiaryFormData[]) => {
     setFormData({ ...formData, beneficiaries: data });
   };
 
@@ -156,38 +156,38 @@ export default function AngelicaLifePlan() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-2 sm:px-4 py-6 sm:py-10">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-2 sm:px-3 md:px-4 lg:px-6 py-4 sm:py-6 md:py-8 lg:py-10">
+      <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <div className="flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-md">
-              <span className="text-xl sm:text-2xl font-extrabold text-blue-600">C</span>
+        <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
+            <div className="flex h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl border-2 border-blue-500 bg-white shadow-md hover:shadow-lg transition-shadow">
+              <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-blue-600">C</span>
             </div>
             <div className="leading-tight text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-wide text-blue-600">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-wide text-blue-600 break-words">
                 CCLPI Plans
               </h1>
-              <p className="text-base sm:text-lg italic text-blue-500">Angelica Life Plan</p>
+              <p className="text-sm sm:text-base md:text-lg italic text-blue-500 mt-0.5">Angelica Life Plan</p>
             </div>
           </div>
         </div>
 
-        {/* Step Indicator */}
-        <div className="flex flex-wrap justify-center items-center mb-8 sm:mb-12 gap-2 sm:gap-3">
+        {/* Step Indicator - Responsive */}
+        <div className="flex flex-wrap justify-center items-center mb-6 sm:mb-8 md:mb-10 lg:mb-12 gap-1 sm:gap-2 md:gap-3">
           {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center gap-2 sm:gap-3">
+            <div key={step.number} className="flex items-center gap-1 sm:gap-2 md:gap-3">
               <div
-                className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full font-bold text-xs sm:text-sm transition-all flex-shrink-0 ${
+                className={`flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 rounded-full font-bold text-xs sm:text-sm md:text-base transition-all flex-shrink-0 ${
                   currentStep >= step.number
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-white shadow-md"
                     : "bg-gray-300 text-gray-700"
                 }`}
               >
                 {step.number}
               </div>
               <p
-                className={`hidden sm:block ml-2 font-semibold text-xs sm:text-sm transition-all ${
+                className={`hidden sm:block text-xs sm:text-sm md:text-base font-semibold transition-all ${
                   currentStep >= step.number
                     ? "text-blue-600"
                     : "text-gray-500"
@@ -197,7 +197,7 @@ export default function AngelicaLifePlan() {
               </p>
               {index < steps.length - 1 && (
                 <div
-                  className={`w-10 sm:w-16 h-1 mx-1 sm:mx-2 rounded transition-all ${
+                  className={`w-8 sm:w-12 md:w-16 lg:w-20 h-1 mx-0.5 sm:mx-1 md:mx-2 rounded transition-all ${
                     currentStep > step.number
                       ? "bg-blue-600"
                       : "bg-gray-300"
@@ -208,8 +208,8 @@ export default function AngelicaLifePlan() {
           ))}
         </div>
 
-        {/* Form Content */}
-        <Card className="rounded-xl sm:rounded-2xl border-blue-100 bg-white/95 shadow-xl p-4 sm:p-8">
+        {/* Form Content - Responsive Card */}
+        <Card className="rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 bg-white/95 shadow-lg md:shadow-xl p-3 sm:p-5 md:p-6 lg:p-8">
           <CardContent className="p-0">
             {currentStep === 1 && (
               <Step1Plan

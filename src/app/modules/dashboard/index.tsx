@@ -50,17 +50,17 @@ export default function Dashboard() {
 
       <main className={DASHBOARD_CLASSES.main}>
         <Card className={DASHBOARD_CLASSES.card.main}>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-3xl text-gray-900">Dashboard</CardTitle>
-            <CardDescription className="text-base text-gray-600">
+          <CardHeader className="px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-4 sm:pb-5">
+            <CardTitle className="text-2xl sm:text-3xl md:text-4xl text-gray-900">Dashboard</CardTitle>
+            <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
               {DASHBOARD_MESSAGES.welcome}
             </CardDescription>
           </CardHeader>
           {user?.data && (
-            <CardContent>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <CardContent className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <Card className={DASHBOARD_CLASSES.card.info}>
-                  <CardHeader className="px-6 py-5">
+                  <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
                     <CardDescription className={DASHBOARD_CLASSES.userInfo.label}>
                       First Name
                     </CardDescription>
@@ -70,7 +70,7 @@ export default function Dashboard() {
                   </CardHeader>
                 </Card>
                 <Card className={DASHBOARD_CLASSES.card.info}>
-                  <CardHeader className="px-6 py-5">
+                  <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
                     <CardDescription className={DASHBOARD_CLASSES.userInfo.label}>
                       Last Name
                     </CardDescription>
@@ -80,7 +80,7 @@ export default function Dashboard() {
                   </CardHeader>
                 </Card>
                 <Card className={DASHBOARD_CLASSES.card.info}>
-                  <CardHeader className="px-6 py-5">
+                  <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
                     <CardDescription className={DASHBOARD_CLASSES.userInfo.label}>
                       Email
                     </CardDescription>
