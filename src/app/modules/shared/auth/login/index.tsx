@@ -10,12 +10,14 @@ import {
   CardFooter,
   CardHeader,
 } from "@/app/core/components/ui/card"
-import { Input } from "@/app/core/components/ui/input"
-import { Label } from "@/app/core/components/ui/label"
+import { FormField } from "@/app/core/components/form"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
 import { login, resetLogin } from "@/app/core/state/reducer/auth"
 import type { RootState } from "@/app/core/state/store"
 import { useAuth } from "@/app/core/context/useAuth"
+import { AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
+import { loginSchema } from "@/app/core/schemas/auth.schema"
+import { APP_ROUTES } from "@/app/core/constants/routes"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -32,28 +34,25 @@ export default function Login() {
 
   useEffect(() => {
     if (loginState.success) {
-      // Dismiss loading toast
       if (loadingToastId) {
         toast.dismiss(loadingToastId)
       }
-      // Set the token from the login response
       if (loginState.data?.access_token) {
         setToken(loginState.data.access_token)
       }
-      toast.success("Login successful! Redirecting to dashboard...")
+      toast.success(AUTH_MESSAGES.login.success)
       setTimeout(() => {
-        navigate("/dashboard")
+        navigate(APP_ROUTES.DASHBOARD)
       }, 1500)
     }
   }, [loginState.success, navigate, loadingToastId, setToken, loginState.data])
 
   useEffect(() => {
     if (loginState.error) {
-      // Dismiss loading toast
       if (loadingToastId) {
         toast.dismiss(loadingToastId)
       }
-      toast.error("Invalid email or password. Please try again.")
+      toast.error(AUTH_MESSAGES.login.error)
     }
   }, [loginState.error, loadingToastId])
 
@@ -63,35 +62,53 @@ export default function Login() {
     }
   }, [dispatch])
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = event.target
+  const handleChange = (name: string, value: string) => {
     setCredentials((prev) => ({
       ...prev,
       [name]: value,
     }))
   }
 
+  const validateForm = async () => {
+    try {
+      await loginSchema.validate(credentials);
+      return true;
+    } catch (error: unknown) {
+      const firstError = error instanceof Error ? error.message : "Validation failed";
+      if (firstError) {
+        toast.error(firstError);
+      }
+      return false;
+    }
+  };
+
+  const isFormValid = () => {
+    try {
+      loginSchema.validateSync(credentials);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!credentials.email || !credentials.password) {
-      toast.error("Please enter both email and password")
+    if (!validateForm()) {
       return
     }
-    const toastId = toast.loading("Signing in...")
+    const toastId = toast.loading(AUTH_MESSAGES.login.loading)
     setLoadingToastId(toastId)
     dispatch(login(credentials))
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center px-4 py-10">
+    <div className={AUTH_CLASSES.container}>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <Card className="rounded-[32px] border border-blue-100 bg-white/95 shadow-[0_28px_70px_-40px_rgba(14,66,120,0.5)]">
+        <Card className={AUTH_CLASSES.card}>
           <CardHeader className="items-center gap-5 text-center">
             <div className="flex items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-3xl font-extrabold text-blue-600">C</span>
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
+                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
               </div>
               <div className="leading-tight">
                 <h1 className="text-[38px] font-black tracking-wide text-blue-600">
@@ -109,52 +126,48 @@ export default function Login() {
 
           <CardContent className="flex flex-col gap-6 px-6 pb-0 sm:px-10">
             {loginState.error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              <div className={AUTH_CLASSES.error}>
                 Incorrect email or password. Please try again.
               </div>
             )}
 
             <div className="flex flex-col gap-4">
               <div className="relative">
-                <Label htmlFor="email" className="sr-only">
-                  Email
-                </Label>
-                <Input
+                <FormField
+                  label="Email"
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="username"
                   value={credentials.email}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange("email", e.target.value)}
                   placeholder="Username"
-                  className="h-12 rounded-2xl border-blue-200 bg-white px-12 text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                   required
+                  autoFocus
+                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                 />
-                <UserRound className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-blue-500" />
+                <UserRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
               </div>
 
               <div className="relative">
-                <Label htmlFor="password" className="sr-only">
-                  Password
-                </Label>
-                <Input
+                <FormField
+                  label="Password"
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
                   value={credentials.password}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange("password", e.target.value)}
                   placeholder="Password"
-                  className="h-12 rounded-2xl border-blue-200 bg-white px-12 text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                   required
+                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
                 />
-                <KeyRound className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-blue-500" />
+                <KeyRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                  className="absolute right-3 sm:right-4 top-[42px] sm:top-[45px] md:top-[48px] -translate-y-1/2 h-6 sm:h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? "Hide" : "Show"}
                 </Button>
@@ -165,8 +178,9 @@ export default function Login() {
           <CardFooter className="flex flex-col gap-4 px-6 pb-8 sm:px-10">
             <Button
               type="submit"
-              disabled={loginState.loading}
-              className="h-12 w-full rounded-full !bg-black text-sm font-semibold uppercase tracking-wide !text-white shadow-md transition hover:!bg-black/90 disabled:!bg-black/60"
+              disabled={loginState.loading || !isFormValid()}
+              className={AUTH_CLASSES.button.dark}
+              aria-label="Sign in to your account"
             >
               {loginState.loading ? "Signing in..." : "Login"}
             </Button>
@@ -174,14 +188,15 @@ export default function Login() {
             <Button
               type="button"
               asChild
-              className="h-12 w-full rounded-full border-0 !bg-[#f5b400] text-sm font-semibold uppercase tracking-wide !text-white shadow-md transition hover:!bg-[#dba100]"
+              className={AUTH_CLASSES.button.yellow}
             >
-              <Link to="/register">Register Here</Link>
+              <Link to="/register" aria-label="Create new account">Register Here</Link>
             </Button>
 
             <Link
               to="#"
-              className="text-sm font-medium !text-blue-500 hover:!text-blue-600"
+              className={AUTH_CLASSES.link}
+              aria-label="Get help logging in"
             >
               having trouble logging in?
             </Link>

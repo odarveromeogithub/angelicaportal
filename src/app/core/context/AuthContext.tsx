@@ -1,4 +1,5 @@
 import { createContext, useState, type ReactNode } from "react";
+import { STORAGE_KEYS } from "../constants/routes";
 
 interface AuthContextType {
   token: string | null;
@@ -10,23 +11,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(() => {
-    // Initialize state from localStorage
-    return localStorage.getItem("access_token");
+    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   });
 
   const setToken = (newToken: string | null) => {
     if (newToken) {
-      localStorage.setItem("access_token", newToken);
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken);
       setTokenState(newToken);
     } else {
-      localStorage.removeItem("access_token");
+      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
       setTokenState(null);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     setTokenState(null);
   };
 

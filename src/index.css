@@ -189,3 +189,20 @@ h1 {
 
 /* These base styles are applied via Tailwind defaults */
 
+/* Fix calendar and popover backgrounds */
+[data-slot="popover-content"] .rdp {
+  background-color: white !important;
+}
+
+.rdp {
+  background-color: white !important;
+}
+
+[role="dialog"] {
+  background-color: white !important;
+}
+
+/* Fix AlertDialog background */
+[role="alertdialog"] {
+  background-color: white !important;
+}
