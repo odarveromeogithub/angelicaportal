@@ -12,6 +12,18 @@ export const MOCK_LOGIN_CREDENTIALS: LoginPayload[] = [
     password: "Admin123!",
   },
   {
+    email: "client@example.com",
+    password: "Client123!",
+  },
+  {
+    email: "sc@example.com",
+    password: "SC123!",
+  },
+  {
+    email: "um@example.com",
+    password: "UM123!",
+  },
+  {
     email: "user@example.com",
     password: "User123!",
   },
@@ -45,7 +57,7 @@ export const MOCK_OAUTH_RESPONSE: IOauth = {
  * This is what the API might return for user information
  */
 export const MOCK_USER_DATA: IUser = {
-  id: 1,
+  id: 5,
   name: "Test User",
   email: "test@example.com",
   username: "testuser",
@@ -87,6 +99,81 @@ export const MOCK_USERS_BY_ROLE = {
       updated_at: new Date().toISOString(),
     },
   },
+  client: {
+    credentials: {
+      email: "client@example.com",
+      password: "Client123!",
+    },
+    oauth: {
+      token_type: "Bearer",
+      expires_in: 3600,
+      access_token: "mock_client_token_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      refresh_token: "mock_client_refresh_token",
+    },
+    user: {
+      id: 2,
+      name: "Client User",
+      email: "client@example.com",
+      username: "clientuser",
+      first_name: "Client",
+      last_name: "User",
+      contact_number: "+63900000002",
+      role: "client" as const,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  },
+  sc: {
+    credentials: {
+      email: "sc@example.com",
+      password: "SC123!",
+    },
+    oauth: {
+      token_type: "Bearer",
+      expires_in: 3600,
+      access_token: "mock_sc_token_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      refresh_token: "mock_sc_refresh_token",
+    },
+    user: {
+      id: 3,
+      name: "Sales Counselor",
+      email: "sc@example.com",
+      username: "salescounselor",
+      first_name: "Sales",
+      last_name: "Counselor",
+      contact_number: "+63900000003",
+      role: "sc" as const,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  },
+  um: {
+    credentials: {
+      email: "um@example.com",
+      password: "UM123!",
+    },
+    oauth: {
+      token_type: "Bearer",
+      expires_in: 3600,
+      access_token: "mock_um_token_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      refresh_token: "mock_um_refresh_token",
+    },
+    user: {
+      id: 4,
+      name: "User Manager",
+      email: "um@example.com",
+      username: "usermanager",
+      first_name: "User",
+      last_name: "Manager",
+      contact_number: "+63900000004",
+      role: "um" as const,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  },
   user: {
     credentials: {
       email: "user@example.com",
@@ -99,13 +186,13 @@ export const MOCK_USERS_BY_ROLE = {
       refresh_token: "mock_user_refresh_token",
     },
     user: {
-      id: 2,
+      id: 6,
       name: "Regular User",
       email: "user@example.com",
       username: "regularuser",
       first_name: "Regular",
       last_name: "User",
-      contact_number: "+63900000002",
+      contact_number: "+63900000006",
       role: "client" as const,
       is_active: true,
       created_at: new Date().toISOString(),
@@ -133,6 +220,15 @@ export const getMockOAuthResponse = (email: string): IOauth | null => {
   if (email === "admin@example.com") {
     return MOCK_USERS_BY_ROLE.admin.oauth;
   }
+  if (email === "client@example.com") {
+    return MOCK_USERS_BY_ROLE.client.oauth;
+  }
+  if (email === "sc@example.com") {
+    return MOCK_USERS_BY_ROLE.sc.oauth;
+  }
+  if (email === "um@example.com") {
+    return MOCK_USERS_BY_ROLE.um.oauth;
+  }
   if (email === "user@example.com") {
     return MOCK_USERS_BY_ROLE.user.oauth;
   }
@@ -148,6 +244,15 @@ export const getMockOAuthResponse = (email: string): IOauth | null => {
 export const getMockUserData = (email: string): IUser | null => {
   if (email === "admin@example.com") {
     return MOCK_USERS_BY_ROLE.admin.user;
+  }
+  if (email === "client@example.com") {
+    return MOCK_USERS_BY_ROLE.client.user;
+  }
+  if (email === "sc@example.com") {
+    return MOCK_USERS_BY_ROLE.sc.user;
+  }
+  if (email === "um@example.com") {
+    return MOCK_USERS_BY_ROLE.um.user;
   }
   if (email === "user@example.com") {
     return MOCK_USERS_BY_ROLE.user.user;

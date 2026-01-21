@@ -10,7 +10,6 @@ const OtpVerification = lazy(() => import("./modules/shared/auth/otp"));
 
 // Lazy load dashboard and forms
 const AngelicaLifePlan = lazy(() => import("./modules/shared/angelica-life-plan"));
-const Dashboard = lazy(() => import("./modules/dashboard"));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -63,14 +62,7 @@ const AppRoute = () => {
 
       {/* Protected routes */}
       <Route element={<AuthGuard />}>
-        <Route 
-          path={APP_ROUTES.DASHBOARD} 
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <Dashboard />
-            </Suspense>
-          } 
-        />
+        {/* Add protected routes here */}
       </Route>
     </Routes>
   );

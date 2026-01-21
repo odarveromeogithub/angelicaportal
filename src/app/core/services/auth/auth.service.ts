@@ -53,25 +53,22 @@ export const registerRequest = async (payload: RegisterUserParam) => {
   return httpClient.post("/api/v1/auth/register", payload);
 };
 
-export const getUserData = async () => {
+export const getUserData = async (userEmail?: string) => {
   // Use mock data if enabled
   if (USE_MOCK_DATA) {
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // Get email from localStorage to return corresponding mock user
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      // Try to extract email from mock data (in real scenario, decode JWT)
-      // For demo, return default mock user
-      const mockUser = getMockUserData("test@example.com") || MOCK_USER_DATA;
-      return {
-        data: mockUser,
-        status: 200,
-        statusText: "OK",
-      };
-    }
-    throw new Error("No token found");
+    // Get email to return corresponding mock user
+    const email = userEmail || localStorage.getItem("access_token");
+    
+    // Return mock user data based on email
+    const mockUser = getMockUserData(email || "test@example.com") || MOCK_USER_DATA;
+    return {
+      data: mockUser,
+      status: 200,
+      statusText: "OK",
+    };
   }
 
   return httpClient.get("/api/v1/auth/user");

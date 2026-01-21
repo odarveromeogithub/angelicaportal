@@ -24,9 +24,12 @@ function* loginRequestSaga(action: LoginRequestActionPayload) {
     const response: AxiosResponse = yield call(loginRequest, action.payload);
     yield put(loginSuccess(response.data));
     
-    // Fetch user data after successful login
+    // Fetch user data after successful login - pass the email
     try {
-      const userResponse: AxiosResponse = yield call(getUserData);
+      const userResponse: AxiosResponse = yield call(
+        getUserData,
+        action.payload.email
+      );
       yield put(setUser(userResponse.data));
     } catch (userError: unknown) {
       console.error("Failed to fetch user data:", userError);

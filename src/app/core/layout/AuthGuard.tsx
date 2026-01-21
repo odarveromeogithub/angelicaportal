@@ -13,9 +13,9 @@ const AuthGuard = () => {
         return <Navigate to={APP_ROUTES.LOGIN} replace />;
     }
 
-    // if already logged in and trying to access public routes → redirect to dashboard
+    // if already logged in and trying to access public routes → redirect to angelica
     if (isPublicPage && token) {
-        return <Navigate to={APP_ROUTES.DASHBOARD} replace />;
+        return <Navigate to={APP_ROUTES.ANGELICA_LIFE_PLAN} replace />;
     }
 
     // else render nested route content

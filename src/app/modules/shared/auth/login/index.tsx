@@ -42,7 +42,7 @@ export default function Login() {
       }
       toast.success(AUTH_MESSAGES.login.success)
       setTimeout(() => {
-        navigate(APP_ROUTES.DASHBOARD)
+          navigate(APP_ROUTES.ANGELICA_LIFE_PLAN)
       }, 1500)
     }
   }, [loginState.success, navigate, loadingToastId, setToken, loginState.data])

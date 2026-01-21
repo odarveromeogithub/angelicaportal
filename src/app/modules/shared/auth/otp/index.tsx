@@ -83,7 +83,7 @@ export default function OtpVerification() {
         toast.success(AUTH_MESSAGES.otp.success)
         setToken("temp_auth_token_" + Date.now())
         setTimeout(() => {
-          navigate(APP_ROUTES.DASHBOARD)
+            navigate(APP_ROUTES.ANGELICA_LIFE_PLAN)
         }, 1500)
       } else {
         const newWrongAttempts = wrongAttempts + 1
