@@ -4,7 +4,14 @@ import type { LoginPayload } from "../state/types/auth";
 
 /**
  * Mock Login Credentials
- * Use these credentials to test the login functionality
+ * Use these credentials to test the login functionality with different roles:
+ * 
+ * ADMIN: admin@example.com / Admin123!
+ * CLIENT: client@example.com / Client123!
+ * SALES COUNSELOR (SC): sc@example.com / SC123!@
+ * USER MANAGER (UM): um@example.com / UM123!@
+ * 
+ * Note: UM role has admin-level access
  */
 export const MOCK_LOGIN_CREDENTIALS: LoginPayload[] = [
   {
@@ -17,28 +24,20 @@ export const MOCK_LOGIN_CREDENTIALS: LoginPayload[] = [
   },
   {
     email: "sc@example.com",
-    password: "SC123!",
+    password: "SC12345!",
   },
   {
     email: "um@example.com",
-    password: "UM123!",
-  },
-  {
-    email: "user@example.com",
-    password: "User123!",
-  },
-  {
-    email: "test@example.com",
-    password: "Test123!",
+    password: "UM12345!",
   },
 ];
 
 /**
- * Default test credentials
+ * Default test credentials - CLIENT role
  */
 export const DEFAULT_TEST_LOGIN: LoginPayload = {
-  email: "test@example.com",
-  password: "Test123!",
+  email: "client@example.com",
+  password: "Client123!",
 };
 
 /**
@@ -53,15 +52,14 @@ export const MOCK_OAUTH_RESPONSE: IOauth = {
 };
 
 /**
- * Mock User Data
- * This is what the API might return for user information
+ * Mock User Data - Default CLIENT user
  */
 export const MOCK_USER_DATA: IUser = {
   id: 5,
-  name: "Test User",
-  email: "test@example.com",
-  username: "testuser",
-  first_name: "Test",
+  name: "Client User",
+  email: "client@example.com",
+  username: "clientuser",
+  first_name: "Client",
   last_name: "User",
   contact_number: "+63912345678",
   role: "client",
@@ -127,7 +125,7 @@ export const MOCK_USERS_BY_ROLE = {
   sc: {
     credentials: {
       email: "sc@example.com",
-      password: "SC123!",
+      password: "SC123!@",
     },
     oauth: {
       token_type: "Bearer",
@@ -152,7 +150,7 @@ export const MOCK_USERS_BY_ROLE = {
   um: {
     credentials: {
       email: "um@example.com",
-      password: "UM123!",
+      password: "UM123!@",
     },
     oauth: {
       token_type: "Bearer",
@@ -169,31 +167,6 @@ export const MOCK_USERS_BY_ROLE = {
       last_name: "Manager",
       contact_number: "+63900000004",
       role: "um" as const,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  },
-  user: {
-    credentials: {
-      email: "user@example.com",
-      password: "User123!",
-    },
-    oauth: {
-      token_type: "Bearer",
-      expires_in: 3600,
-      access_token: "mock_user_token_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
-      refresh_token: "mock_user_refresh_token",
-    },
-    user: {
-      id: 6,
-      name: "Regular User",
-      email: "user@example.com",
-      username: "regularuser",
-      first_name: "Regular",
-      last_name: "User",
-      contact_number: "+63900000006",
-      role: "client" as const,
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -229,13 +202,7 @@ export const getMockOAuthResponse = (email: string): IOauth | null => {
   if (email === "um@example.com") {
     return MOCK_USERS_BY_ROLE.um.oauth;
   }
-  if (email === "user@example.com") {
-    return MOCK_USERS_BY_ROLE.user.oauth;
-  }
-  if (email === "test@example.com") {
-    return MOCK_OAUTH_RESPONSE;
-  }
-  return null;
+  return MOCK_OAUTH_RESPONSE;
 };
 
 /**
@@ -254,11 +221,5 @@ export const getMockUserData = (email: string): IUser | null => {
   if (email === "um@example.com") {
     return MOCK_USERS_BY_ROLE.um.user;
   }
-  if (email === "user@example.com") {
-    return MOCK_USERS_BY_ROLE.user.user;
-  }
-  if (email === "test@example.com") {
-    return MOCK_USER_DATA;
-  }
-  return null;
+  return MOCK_USER_DATA;
 };

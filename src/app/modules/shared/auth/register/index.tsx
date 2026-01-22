@@ -103,15 +103,9 @@ export default function Register() {
   // Check if form is valid for enabling submit button
   const isFormValid = () => {
     try {
-      // Check if all required fields are filled first
-      if (!formData.email || !formData.first_name || !formData.last_name || !formData.contact_no || !formData.area) {
-        return false;
-      }
-      // Then validate with schema
-      registerSchema.validateSync(formData, { abortEarly: false });
+      registerSchema.validateSync(formData);
       return true;
-    } catch (error) {
-      console.error("Validation error:", error);
+    } catch {
       return false;
     }
   };
@@ -149,19 +143,9 @@ export default function Register() {
                 </Link>
               </Button>
           </CardAction>
-          <CardHeader className="items-center gap-4 text-center">
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
-              </div>
-              <div className="leading-tight">
-                <CardTitle className="text-[38px] font-black tracking-wide text-blue-600">
-                  CCLPI
-                </CardTitle>
-                <CardDescription className="text-2xl italic text-blue-500">
-                  Plans
-                </CardDescription>
-              </div>
+          <CardHeader className="flex flex-col items-center justify-center gap-4 text-center">
+            <div className="flex justify-center w-full">
+              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" />
             </div>
             <CardTitle className="text-lg font-semibold uppercase tracking-wider text-slate-700">
               Registration
@@ -295,7 +279,7 @@ export default function Register() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-3 px-6 pb-6 sm:flex-row sm:px-8">
+            <CardFooter className="flex flex-col gap-3 px-5 pb-6 sm:flex-row sm:gap-3 sm:px-8">
               <Button
                 type="button"
                 variant="outline"
@@ -308,7 +292,7 @@ export default function Register() {
               <Button
                 type="button"
                 onClick={handleConfirmRegister}
-                className={`${AUTH_CLASSES.button.primary} sm:flex-1`}
+                className={`${AUTH_CLASSES.button.primary} sm:flex-1 h-10 mt-0`}
                 aria-label="Confirm registration"
               >
                 Confirm

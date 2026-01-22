@@ -1,13 +1,14 @@
 import httpClient from "../../clients/httpclients";
 import type { LoginPayload } from "../../state/types/auth";
 import type { RegisterUserParam } from "../../interfaces/auth.interface";
-import { USE_MOCK_DATA } from "../../config";
+import { USE_MOCK_DATA } from "../../config/env";
 import {
   validateMockCredentials,
   getMockOAuthResponse,
   getMockUserData,
   MOCK_USER_DATA,
 } from "../../mocks/auth.mock";
+import { API_ENDPOINTS } from "../../constants/api";
 
 export const loginRequest = async (payload: LoginPayload) => {
   // Use mock data if enabled
@@ -28,7 +29,7 @@ export const loginRequest = async (payload: LoginPayload) => {
     }
   }
 
-  return httpClient.post("/api/v1/auth/login", payload);
+  return httpClient.post(API_ENDPOINTS.AUTH.LOGIN, payload);
 };
 
 export const registerRequest = async (payload: RegisterUserParam) => {
@@ -50,7 +51,7 @@ export const registerRequest = async (payload: RegisterUserParam) => {
     };
   }
 
-  return httpClient.post("/api/v1/auth/register", payload);
+  return httpClient.post(API_ENDPOINTS.AUTH.REGISTER, payload);
 };
 
 export const getUserData = async (userEmail?: string) => {
@@ -71,5 +72,5 @@ export const getUserData = async (userEmail?: string) => {
     };
   }
 
-  return httpClient.get("/api/v1/auth/user");
+  return httpClient.get(API_ENDPOINTS.AUTH.USER);
 };

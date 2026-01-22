@@ -4,6 +4,7 @@ import type {
     LoginRequestActionPayload,
     RegisterRequestActionPayload,
 } from "../types";
+import { setTokens, clearTokens } from "../../helpers/auth-storage";
 
 const initialState: AuthState = {
     login: {
@@ -43,6 +44,10 @@ const authSlice = createSlice({
                 success: true,
                 error: false,
             };
+            // Store tokens in localStorage when login succeeds
+            if (action.payload?.access_token) {
+                setTokens(action.payload.access_token, action.payload.refresh_token);
+            }
         },
         loginFailure(state) {
             state.login = {
@@ -114,6 +119,8 @@ const authSlice = createSlice({
             state.login = initialState.login;
             state.register = initialState.register;
             state.user = null;
+            // Clear tokens from localStorage
+            clearTokens();
         },
     },
 });

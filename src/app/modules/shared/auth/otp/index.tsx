@@ -4,7 +4,6 @@ import { ChevronLeft, Clock } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/app/core/components/ui/button"
-import { useAuth } from "@/app/core/context/useAuth"
 import {
   Card,
   CardAction,
@@ -16,11 +15,14 @@ import { OTPInput } from "@/app/core/components/form"
 import { AUTH_CLASSES, AUTH_MESSAGES, OTP_CONFIG } from "@/app/core/constants/auth"
 import { otpSchema } from "@/app/core/schemas/auth.schema"
 import { APP_ROUTES } from "@/app/core/constants/routes"
+import { DASHBOARD_ROOT } from "@/app/core/constants/paths"
+import { useAppDispatch } from "@/app/core/state/hooks"
+import { setUser } from "@/app/core/state/reducer/auth"
 
 export default function OtpVerification() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { setToken } = useAuth()
+  const dispatch = useAppDispatch()
   const email = location.state?.email as string
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_CONFIG.length).fill(""))
@@ -81,9 +83,23 @@ export default function OtpVerification() {
       // TODO: Replace with actual OTP verification API call
       if (otpCode === "123456") {
         toast.success(AUTH_MESSAGES.otp.success)
-        setToken("temp_auth_token_" + Date.now())
+        
+        // Set mock user data after successful OTP verification
+        dispatch(setUser({
+          id: Date.now(),
+          email: email,
+          name: "New User",
+          role: "client", // Default role for newly registered users
+          contact_number: "",
+          username: email.split("@")[0],
+          first_name: "New",
+          last_name: "User",
+          middle_name: "",
+          is_active: true,
+        }))
+        
         setTimeout(() => {
-            navigate(APP_ROUTES.ANGELICA_LIFE_PLAN)
+            navigate(DASHBOARD_ROOT.client)
         }, 1500)
       } else {
         const newWrongAttempts = wrongAttempts + 1
@@ -137,6 +153,9 @@ export default function OtpVerification() {
       >
         
         <Card className={AUTH_CLASSES.card}>
+          <CardHeader className="flex flex-col items-center justify-center gap-4 text-center">
+            
+          </CardHeader>
            <CardAction className="self-start p-0 pl-7">
               <Button
                 type="button"
@@ -151,18 +170,8 @@ export default function OtpVerification() {
               </Button>
             </CardAction>
           <CardHeader className="items-center gap-4 text-center">
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
-              </div>
-              <div className="leading-tight">
-                <h1 className="text-[38px] font-black tracking-wide text-blue-600">
-                  CCLPI
-                </h1>
-                <p className="text-2xl italic text-blue-500">
-                  Plans
-                </p>
-              </div>
+            <div className="flex justify-center w-full">
+              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" />
             </div>
             <h2 className="text-lg font-semibold uppercase tracking-wider text-slate-700">
               Verify OTP

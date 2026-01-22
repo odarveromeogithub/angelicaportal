@@ -10,20 +10,20 @@ import {
   CardFooter,
   CardHeader,
 } from "@/app/core/components/ui/card"
-import { FormField } from "@/app/core/components/form"
+import { Input } from "@/app/core/components/ui/input"
+import { Label } from "@/app/core/components/ui/label"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
 import { login, resetLogin } from "@/app/core/state/reducer/auth"
 import type { RootState } from "@/app/core/state/store"
-import { useAuth } from "@/app/core/context/useAuth"
 import { AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
 import { loginSchema } from "@/app/core/schemas/auth.schema"
+import { buildDashboardPath, DASHBOARD_SEGMENTS } from "@/app/core/constants/paths"
 import { APP_ROUTES } from "@/app/core/constants/routes"
 
 export default function Login() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { setToken } = useAuth();
-  const { login: loginState } = useAppSelector((state: RootState) => state.auth)
+  const { login: loginState, user } = useAppSelector((state: RootState) => state.auth)
 
   const [credentials, setCredentials] = useState({
     email: "",
@@ -33,19 +33,29 @@ export default function Login() {
   const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null)
 
   useEffect(() => {
-    if (loginState.success) {
+    if (loginState.success && user?.data) {
+      const userData = user.data;
       if (loadingToastId) {
         toast.dismiss(loadingToastId)
       }
-      if (loginState.data?.access_token) {
-        setToken(loginState.data.access_token)
-      }
       toast.success(AUTH_MESSAGES.login.success)
       setTimeout(() => {
-          navigate(APP_ROUTES.ANGELICA_LIFE_PLAN)
+          // Redirect to dashboard based on user role
+          // Admin and Sales Counselor redirect to Dashboard view
+          // Client redirects to Angelica/Home view
+          let dashboardPath: string;
+          if (userData.role === 'admin' || userData.role === 'um') {
+            dashboardPath = buildDashboardPath('admin', DASHBOARD_SEGMENTS.DASHBOARD);
+          } else if (userData.role === 'sc') {
+            dashboardPath = buildDashboardPath('sales', DASHBOARD_SEGMENTS.DASHBOARD);
+          } else {
+            // Client role
+            dashboardPath = buildDashboardPath('client', DASHBOARD_SEGMENTS.HOME);
+          }
+          navigate(dashboardPath)
       }, 1500)
     }
-  }, [loginState.success, navigate, loadingToastId, setToken, loginState.data])
+  }, [loginState.success, user, navigate, loadingToastId])
 
   useEffect(() => {
     if (loginState.error) {
@@ -91,9 +101,10 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!validateForm()) {
+    const isValid = await validateForm()
+    if (!isValid) {
       return
     }
     const toastId = toast.loading(AUTH_MESSAGES.login.loading)
@@ -105,19 +116,9 @@ export default function Login() {
     <div className={AUTH_CLASSES.container}>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <Card className={AUTH_CLASSES.card}>
-          <CardHeader className="items-center gap-5 text-center">
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-blue-500 bg-white shadow-[0_6px_18px_rgba(40,94,166,0.18)]">
-                <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">C</span>
-              </div>
-              <div className="leading-tight">
-                <h1 className="text-[38px] font-black tracking-wide text-blue-600">
-                  CCLPI
-                </h1>
-                <p className="text-2xl italic text-blue-500">
-                  Plans
-                </p>
-              </div>
+          <CardHeader className="flex flex-col items-center justify-center gap-5 text-center">
+            <div className="flex justify-center w-full">
+              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" />
             </div>
             <p className="text-sm text-slate-600">
               Welcome back! Sign in to continue to CCLPI Plans.
@@ -125,52 +126,57 @@ export default function Login() {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 px-6 pb-0 sm:px-10">
-            {loginState.error && (
-              <div className={AUTH_CLASSES.error}>
-                Incorrect email or password. Please try again.
-              </div>
-            )}
 
             <div className="flex flex-col gap-4">
-              <div className="relative">
-                <FormField
-                  label="Email"
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={credentials.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="Username"
-                  required
-                  autoFocus
-                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
-                />
-                <UserRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                  Email
+                  <span className="text-red-600 ml-1">*</span>
+                </Label>
+                <div className="relative">
+                  <UserRound className="pointer-events-none absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-blue-500" aria-hidden="true" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={credentials.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    placeholder="Username"
+                    required
+                    autoFocus
+                    className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-9 sm:pl-10 md:pl-11 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
+                  />
+                </div>
               </div>
 
-              <div className="relative">
-                <FormField
-                  label="Password"
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={credentials.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  placeholder="Password"
-                  required
-                  className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-10 sm:pl-11 md:pl-12 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
-                />
-                <KeyRound className="pointer-events-none absolute left-4 top-[47px] size-5 -translate-y-1/2 text-blue-500" aria-hidden="true" />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 sm:right-4 top-[42px] sm:top-[45px] md:top-[48px] -translate-y-1/2 h-6 sm:h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </Button>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                  Password
+                  <span className="text-red-600 ml-1">*</span>
+                </Label>
+                <div className="relative">
+                  <KeyRound className="pointer-events-none absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-blue-500" aria-hidden="true" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={credentials.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                    placeholder="Password"
+                    required
+                    className="h-10 sm:h-11 md:h-12 rounded-2xl border-blue-200 bg-white pl-9 sm:pl-10 md:pl-11 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 focus:border-blue-400 focus:ring-blue-200"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-6 sm:h-7 rounded-full px-2 text-xs font-semibold uppercase tracking-wide text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -190,7 +196,7 @@ export default function Login() {
               asChild
               className={AUTH_CLASSES.button.yellow}
             >
-              <Link to="/register" aria-label="Create new account">Register Here</Link>
+              <Link to={APP_ROUTES.REGISTER} aria-label="Create new account">Register Here</Link>
             </Button>
 
             <Link

@@ -1,9 +1,9 @@
-import { StrictMode } from 'react'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { store, persistor } from './app/core/state/store'
-import { AuthProvider } from './app/core/context/AuthContext'
+import { logout } from './app/core/state/reducer/auth'
 import './index.css'
 import Root from './app'
 
@@ -16,6 +16,21 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Listen for 401 unauthorized events from HTTP interceptor
+function AuthListener() {
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      store.dispatch(logout());
+      window.location.href = '/login';
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, []);
+
+  return null;
+}
+
 const root = document.getElementById('root');
 if (!root) {
   console.error('Root element not found');
@@ -23,9 +38,8 @@ if (!root) {
   createRoot(root).render(
     <Provider store={store}>
       <PersistGate loading={<LoadingFallback />} persistor={persistor}>
-        <AuthProvider>
-          <Root />
-        </AuthProvider>
+        <AuthListener />
+        <Root />
       </PersistGate>
     </Provider>,
   );

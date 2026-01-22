@@ -1,8 +1,3 @@
-/**
- * Role-based visibility/permissions for landing page sections
- * Defines what sections are visible for each user role
- */
-
 export type UserRole = "admin" | "client" | "sc" | "um";
 
 export interface RolePermissions {
@@ -23,14 +18,14 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   client: {
     sidebar: {
       angelica: true,
-      dashboard: false, // Client cannot see dashboard
+      dashboard: false,
       settings: true,
       profile: true,
     },
     header: {
       home: true,
       planList: true,
-      waitingList: false, // Client cannot see waiting list
+      waitingList: false,
     },
   },
   admin: {
@@ -74,9 +69,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   },
 };
 
-/**
- * Get permissions for a specific role
- */
 export const getPermissionsForRole = (role: string): RolePermissions => {
   return ROLE_PERMISSIONS[role as UserRole] || ROLE_PERMISSIONS.client;
 };
+

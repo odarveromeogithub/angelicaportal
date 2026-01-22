@@ -4,6 +4,12 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "./reducer/auth";
 import { rootSaga } from "./saga/auth";
+import plansReducer from "./reducer/dashboard/plansSlice";
+import waitingListReducer from "./reducer/dashboard/waitingListSlice";
+import clientListReducer from "./reducer/dashboard/clientListSlice";
+import agentListReducer from "./reducer/dashboard/agentListSlice";
+import usersListReducer from "./reducer/dashboard/usersListSlice";
+import dashboardRootSaga from "./saga/dashboard";
 
 // Persist config
 const persistConfig = {
@@ -21,6 +27,11 @@ const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
   reducer: {
     auth: persistedReducer,
+    dashboard_plans: plansReducer,
+    dashboard_waitingList: waitingListReducer,
+    dashboard_clientList: clientListReducer,
+    dashboard_agentList: agentListReducer,
+    dashboard_usersList: usersListReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -30,8 +41,9 @@ export const store = configureStore({
     }).concat(sagaMiddleware),
 });
 
-// Run the saga
+// Run the sagas
 sagaMiddleware.run(rootSaga);
+sagaMiddleware.run(dashboardRootSaga);
 
 // Create persistor
 export const persistor = persistStore(store);
