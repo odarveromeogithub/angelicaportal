@@ -32,11 +32,15 @@ function* loginRequestSaga(action: LoginRequestActionPayload) {
       );
       yield put(setUser(userResponse.data));
     } catch (userError: unknown) {
-      console.error("Failed to fetch user data:", userError);
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch user data:", userError);
+      }
     }
   } catch (error: unknown) {
     yield put(loginFailure());
-    console.error("Login failed:", error);
+    if (import.meta.env.DEV) {
+      console.error("Login failed:", error);
+    }
   }
 }
 
@@ -46,7 +50,9 @@ function* registerRequestSaga(action: RegisterRequestActionPayload) {
     yield put(registerSuccess(response.data));
   } catch (error: unknown) {
     yield put(registerFailure());
-    console.error("Registration failed:", error);
+    if (import.meta.env.DEV) {
+      console.error("Registration failed:", error);
+    }
   }
 }
 

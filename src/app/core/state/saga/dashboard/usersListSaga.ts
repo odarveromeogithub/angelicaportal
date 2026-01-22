@@ -1,6 +1,6 @@
 import { put, takeLatest, delay } from 'redux-saga/effects';
 import { usersListActions } from '../../reducer/dashboard/usersListSlice';
-import type { SystemUser } from '../../interfaces/dashboard.interface';
+import type { SystemUser } from '../../../interfaces/dashboard.interface';
 
 // Mock data for system users
 const mockUsers: SystemUser[] = [
@@ -91,8 +91,9 @@ function* fetchUsersListSaga() {
     // Simulate API call
     yield delay(500);
     yield put(usersListActions.fetchUsersListSuccess(mockUsers));
-  } catch (error: any) {
-    yield put(usersListActions.fetchUsersListFailure(error.message));
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch users';
+    yield put(usersListActions.fetchUsersListFailure(errorMessage));
   }
 }
 

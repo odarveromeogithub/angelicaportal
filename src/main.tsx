@@ -33,7 +33,9 @@ function AuthListener() {
 
 const root = document.getElementById('root');
 if (!root) {
-  console.error('Root element not found');
+  if (import.meta.env.DEV) {
+    console.error('Root element not found');
+  }
 } else {
   createRoot(root).render(
     <Provider store={store}>

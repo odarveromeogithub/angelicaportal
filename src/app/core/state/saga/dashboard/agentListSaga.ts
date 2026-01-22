@@ -1,6 +1,6 @@
 import { put, takeLatest, delay } from 'redux-saga/effects';
 import { agentListActions } from '../../reducer/dashboard/agentListSlice';
-import type { Agent } from '../../interfaces/dashboard.interface';
+import type { Agent } from '../../../interfaces/dashboard.interface';
 
 // Mock data for agents
 const mockAgents: Agent[] = [
@@ -71,8 +71,9 @@ function* fetchAgentListSaga() {
     // Simulate API call
     yield delay(500);
     yield put(agentListActions.fetchAgentListSuccess(mockAgents));
-  } catch (error: any) {
-    yield put(agentListActions.fetchAgentListFailure(error.message));
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch agents';
+    yield put(agentListActions.fetchAgentListFailure(errorMessage));
   }
 }
 

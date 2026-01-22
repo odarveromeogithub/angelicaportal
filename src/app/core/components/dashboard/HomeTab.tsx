@@ -1,10 +1,12 @@
 import { motion } from 'motion/react';
 import { useSelector } from 'react-redux';
+import { useMemo } from 'react';
 import { Calendar } from 'lucide-react';
-import { selectDashboardUser, selectPlans, selectWaitingList, selectClients } from '../../../core/state/selector/dashboard.selector';
-import { StatCard } from '../../../core/components/dashboard/StatCard';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../core/components/ui/card';
-import { CLIENT_STATS_CONFIG, SALES_STATS_CONFIG } from '../../../core/constants/dashboard-stats';
+import { selectDashboardUser, selectPlans, selectWaitingList, selectClients } from '../../state/selector/dashboard.selector';
+import type { Plan } from '../../interfaces/dashboard.interface';
+import { StatCard } from './StatCard';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { CLIENT_STATS_CONFIG, SALES_STATS_CONFIG } from '../../constants/dashboard-stats';
 
 interface HomeTabProps {
   userRole: 'client' | 'sales' | 'admin';
@@ -16,14 +18,17 @@ export function HomeTab({ userRole }: HomeTabProps) {
   const clientList = useSelector(selectClients);
   const currentUser = useSelector(selectDashboardUser);
 
-  const activePlans = plans.filter((p: any) => p.status === 'Active').length;
-  const pendingPlans = plans.filter((p: any) => p.status === 'Pending').length;
-  const lapsedPlans = plans.filter((p: any) => p.status === 'Lapsed').length;
+  const statistics = useMemo(() => ({
+    activePlans: (plans as Plan[]).filter((p: Plan) => p.status === 'Active').length,
+    pendingPlans: (plans as Plan[]).filter((p: Plan) => p.status === 'Pending').length,
+    lapsedPlans: (plans as Plan[]).filter((p: Plan) => p.status === 'Lapsed').length,
+  }), [plans]);
 
-  // Build stats array with values from selectors
+  const { activePlans, pendingPlans, lapsedPlans } = statistics;
+
   const clientStats = CLIENT_STATS_CONFIG.map(config => ({
     ...config,
-    value: config.title === 'Total Plans' 
+    value: config.title === 'Total Plans'
       ? plans.length
       : config.title === 'Active Plans'
       ? activePlans

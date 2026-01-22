@@ -4,9 +4,9 @@ import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { selectDashboardUser } from '../../state/selector/dashboard.selector';
-import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
-import { DASHBOARD_SEGMENTS, type DashboardRole, buildDashboardPath } from '../../constants/dashboard-paths';
-import { buildMenuItems } from '../../constants/sidebar-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { type DashboardRole, DASHBOARD_SEGMENTS, buildDashboardPath } from '../../constants/dashboard-paths';
+import { buildMenuItems, type MenuItem } from '../../constants/sidebar-menu';
 import { useLogout } from '../../hooks/useLogout';
 
 interface SidebarProps {
@@ -27,7 +27,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
 
   // Custom isActive function for section items (Angelica/Dashboard)
   // These should be active for any path within their section
-  const isItemActive = (item: any) => {
+  const isItemActive = (item: MenuItem) => {
     if (item.isSection) {
       const isSettings = location.pathname === buildDashboardPath(userRole, DASHBOARD_SEGMENTS.SETTINGS);
       const isProfile = location.pathname === buildDashboardPath(userRole, DASHBOARD_SEGMENTS.PROFILE);
@@ -40,7 +40,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
       // For Angelica, active when in angelica section but NOT on dashboard/settings/profile
       if (item.label === 'Angelica') {
         const isDashboard = location.pathname === buildDashboardPath(userRole, DASHBOARD_SEGMENTS.DASHBOARD);
-        const parts = item.path.split('/');
+        const parts = item.path!.split('/');
         const sectionRoot = parts.slice(0, -1).join('/');
         const isInSection = location.pathname.startsWith(sectionRoot);
         
@@ -48,7 +48,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
       }
       
       // Default for other sections
-      const parts = item.path.split('/');
+      const parts = item.path!.split('/');
       const sectionRoot = parts.slice(0, -1).join('/');
       const isInSection = location.pathname.startsWith(sectionRoot);
       return isInSection && !isSettings && !isProfile;

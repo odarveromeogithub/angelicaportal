@@ -1,6 +1,6 @@
 import { put, takeLatest, delay } from 'redux-saga/effects';
 import { waitingListActions } from '../../reducer/dashboard/waitingListSlice';
-import type { WaitingListItem } from '../../interfaces/dashboard.interface';
+import type { WaitingListItem } from '../../../interfaces/dashboard.interface';
 
 function* fetchWaitingList(): Generator<any, void, any> {
   try {
@@ -67,8 +67,9 @@ function* fetchWaitingList(): Generator<any, void, any> {
     ];
     
     yield put(waitingListActions.setWaitingList(mockWaitingList));
-  } catch (error: any) {
-    yield put(waitingListActions.setError(error.message));
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch waiting list';
+    yield put(waitingListActions.setError(errorMessage));
   } finally {
     yield put(waitingListActions.setLoading(false));
   }

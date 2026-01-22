@@ -1,6 +1,6 @@
 import { takeLatest, put, delay } from 'redux-saga/effects';
 import { clientListActions } from '../../reducer/dashboard/clientListSlice';
-import type { ClientPlan } from '../../interfaces/dashboard.interface';
+import type { ClientPlan } from '../../../interfaces/dashboard.interface';
 
 // Mock data for client plans
 const mockClientPlans: ClientPlan[] = [
@@ -87,7 +87,9 @@ function* fetchClientListSaga() {
     yield delay(800);
     yield put(clientListActions.fetchClientListSuccess(mockClientPlans));
   } catch (error) {
-    console.error('Error fetching client list:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error fetching client list:', error);
+    }
   }
 }
 

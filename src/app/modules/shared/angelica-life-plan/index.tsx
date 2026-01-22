@@ -6,6 +6,7 @@ import Step1Plan from "./steps/Step1Plan.tsx";
 import Step2Planholder from "./steps/Step2Planholder.tsx";
 import Step3Beneficiary from "./steps/Step3Beneficiary.tsx";
 import Step4Submit from "./steps/Step4Submit.tsx";
+import { ANGELICA_FORM_STEPS } from "@/app/core/constants/angelica-form-steps";
 import type {
   IAngelicaLifePlanFormData,
   IBeneficiaryFormData,
@@ -139,7 +140,9 @@ export default function AngelicaLifePlan() {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error submitting form:", error);
+      }
       toast.error(
         error instanceof Error ? error.message : "Failed to submit form"
       );
@@ -148,12 +151,8 @@ export default function AngelicaLifePlan() {
     }
   };
 
-  const steps = [
-    { number: 1, label: "Plan" },
-    { number: 2, label: "Planholder" },
-    { number: 3, label: "Beneficiary" },
-    { number: 4, label: "Submit" },
-  ];
+  // Use form steps from constants instead of hardcoded array
+  const steps = ANGELICA_FORM_STEPS;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-2 sm:px-3 md:px-4 lg:px-6 py-4 sm:py-6 md:py-8 lg:py-10">

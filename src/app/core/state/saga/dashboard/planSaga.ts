@@ -11,10 +11,12 @@ function* fetchPlans(): Generator<any, void, any> {
     const plans: Plan[] = yield call(dashboardApi.fetchPlans);
     
     yield put(plansActions.setPlans(plans));
-  } catch (error: any) {
+  } catch (error: unknown) {
     // For development: fall back to mock data if API fails
     if (import.meta.env.DEV) {
-      console.warn('API call failed, using mock data:', error.message);
+      // Log only in development - commented out to avoid unused variable
+      // const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      // Silently use mock data
       const mockPlans: Plan[] = [
         {
           id: '1',
@@ -91,7 +93,8 @@ function* fetchPlans(): Generator<any, void, any> {
       ];
       yield put(plansActions.setPlans(mockPlans));
     } else {
-      yield put(plansActions.setError(error.response?.data?.message || error.message || 'Failed to fetch plans'));
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch plans';
+      yield put(plansActions.setError(errorMessage));
     }
   } finally {
     yield put(plansActions.setLoading(false));
