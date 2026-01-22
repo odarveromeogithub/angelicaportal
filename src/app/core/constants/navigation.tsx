@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Home, Clipboard, Loader, Users, UserCog } from "lucide-react";
-import { buildDashboardPath, DASHBOARD_SEGMENTS, type DashboardRole } from "./paths";
+import { buildDashboardPath, DASHBOARD_SEGMENTS, type DashboardRole } from "./dashboard-paths";
 
 export interface NavTab {
   label: string;

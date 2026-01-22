@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-// Login Schema
+// Login Schema - Request
 export const loginSchema = yup.object().shape({
   email: yup
     .string()
@@ -12,12 +12,21 @@ export const loginSchema = yup.object().shape({
     .required("Password is required"),
 });
 
-// Register Schema
+// Register Schema - Request
+// Matches IUserRegisterRequest interface with password fields and optional extended fields
 export const registerSchema = yup.object().shape({
   email: yup
     .string()
     .required("Email is required")
     .email("Please enter a valid email address (e.g., user@example.com)"),
+  password: yup
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .required("Password is required"),
+  password_confirmation: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Password confirmation is required"),
   first_name: yup
     .string()
     .min(2, "First name must be at least 2 characters")
@@ -40,9 +49,12 @@ export const registerSchema = yup.object().shape({
   area: yup
     .string()
     .required("Please select an area"),
+  username: yup.string().notRequired(),
+  gender: yup.string().notRequired(),
+  birthdate: yup.string().notRequired(),
 });
 
-// OTP Schema
+// OTP Schema - Request
 export const otpSchema = yup.object().shape({
   otp: yup
     .string()
@@ -55,7 +67,33 @@ export const otpSchema = yup.object().shape({
     .required("Email is required"),
 });
 
-// Type exports
+// Login Response Schema
+export const loginResponseSchema = yup.object().shape({
+  access_token: yup.string().required("Access token is required"),
+  user: yup
+    .object()
+    .shape({
+      id: yup.number().required(),
+      email: yup.string().email().required(),
+      name: yup.string().required(),
+      role: yup.string().oneOf(["admin", "client", "sc", "um"]).required(),
+    })
+    .required("User data is required"),
+});
+
+// OTP Response Schema
+export const otpResponseSchema = yup.object().shape({
+  success: yup.boolean().required(),
+  message: yup.string().required(),
+  access_token: yup.string().notRequired(),
+  user: yup.object().notRequired(),
+});
+
+// Type exports - Requests
 export type LoginSchema = yup.InferType<typeof loginSchema>;
 export type RegisterSchema = yup.InferType<typeof registerSchema>;
 export type OTPSchema = yup.InferType<typeof otpSchema>;
+
+// Type exports - Responses
+export type LoginResponseSchema = yup.InferType<typeof loginResponseSchema>;
+export type OTPResponseSchema = yup.InferType<typeof otpResponseSchema>;

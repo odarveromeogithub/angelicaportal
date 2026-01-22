@@ -18,7 +18,7 @@ import { usersListActions } from '../../core/state/reducer/dashboard/usersListSl
 import { selectDashboardUser, selectIsAdmin, selectIsSales } from '../../core/state/selector/auth.selector';
 import { type AppDispatch } from '../../core/state/store';
 import { getTabsForRole } from '../../core/constants/navigation';
-import { getDashboardRoleFromUser } from '../../core/constants/paths';
+import { getDashboardRoleFromUser } from '../../core/constants/dashboard-paths';
 
 export default function AngelicaPage() {
   const dispatch = useDispatch<AppDispatch>();

@@ -17,7 +17,7 @@ import { login, resetLogin } from "@/app/core/state/reducer/auth"
 import type { RootState } from "@/app/core/state/store"
 import { AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
 import { loginSchema } from "@/app/core/schemas/auth.schema"
-import { buildDashboardPath, DASHBOARD_SEGMENTS } from "@/app/core/constants/paths"
+import { buildDashboardPath, DASHBOARD_SEGMENTS } from "@/app/core/constants/dashboard-paths"
 import { APP_ROUTES } from "@/app/core/constants/routes"
 
 export default function Login() {

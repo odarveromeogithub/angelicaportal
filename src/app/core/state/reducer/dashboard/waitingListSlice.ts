@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { WaitingListItem } from '../../interfaces/dashboard.interface';
+import type { WaitingListItem } from '../../../interfaces/dashboard.interface';
 
 interface WaitingListState {
   items: WaitingListItem[];

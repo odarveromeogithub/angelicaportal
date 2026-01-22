@@ -1,6 +1,6 @@
 import type { IUser } from "../interfaces/user.interface";
 import type { DashboardUser, DashboardUserRole } from "../interfaces/dashboard.interface";
-import { buildDashboardPath, DASHBOARD_SEGMENTS, getDashboardRootPath } from "../constants/paths";
+import { buildDashboardPath, DASHBOARD_SEGMENTS, getDashboardRootPath } from "../constants/dashboard-paths";
 
 /**
  * Maps IUser role to DashboardUser role

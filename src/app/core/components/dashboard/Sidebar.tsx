@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { selectDashboardUser } from '../../state/selector/auth.selector';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { DASHBOARD_SEGMENTS, type DashboardRole, buildDashboardPath } from '../../constants/paths';
+import { DASHBOARD_SEGMENTS, type DashboardRole, buildDashboardPath } from '../../constants/dashboard-paths';
 import { useLogout } from '../../hooks/useLogout';
 
 interface SidebarProps {

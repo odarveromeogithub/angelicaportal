@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import AuthGuard from "./core/layout/AuthGuard";
 import { APP_ROUTES } from "./core/constants/routes";
-import { DASHBOARD_ROOT, DASHBOARD_SEGMENTS, buildDashboardPath } from "./core/constants/paths";
+import { DASHBOARD_ROOT, DASHBOARD_SEGMENTS, buildDashboardPath } from "./core/constants/dashboard-paths";
 
 // Lazy load auth components
 const Login = lazy(() => import("./modules/shared/auth/login"));
