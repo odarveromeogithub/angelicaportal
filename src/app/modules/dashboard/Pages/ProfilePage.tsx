@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { selectAuthUser } from '../../../core/state/selector/auth.selector';
 import { useState } from 'react';
-import ErrorBoundary from '../../../core/components/error/ErrorBoundary';
+import { ErrorBoundary } from '../../../core/components/error';
 
 export default function ProfilePage() {
   const location = useLocation();

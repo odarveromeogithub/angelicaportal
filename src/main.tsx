@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { store, persistor } from './app/core/state/store'
-import { logout } from './app/core/state/reducer/auth'
+import { logout } from './app/core/state/reducer/auth';
 import './index.css'
 import Root from './app'
 

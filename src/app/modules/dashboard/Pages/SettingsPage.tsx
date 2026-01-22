@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { Sidebar } from '../../../core/layout/dashboard';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import ErrorBoundary from '../../../core/components/error/ErrorBoundary';
+import { ErrorBoundary } from '../../../core/components/error';
 
 export default function SettingsPage() {
   const location = useLocation();

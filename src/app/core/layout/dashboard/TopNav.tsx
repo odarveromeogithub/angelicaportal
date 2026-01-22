@@ -104,5 +104,3 @@ export function TopNav({ tabs, currentTab, onTabChange, onMenuClick }: TopNavPro
     </TooltipProvider>
   );
 }
-
-export default TopNav;

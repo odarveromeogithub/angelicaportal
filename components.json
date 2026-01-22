@@ -16,7 +16,7 @@
     "utils": "@/app/core/lib/utils",
     "ui": "@/app/core/components/ui",
     "lib": "@/app/core/lib",
-    "hooks": "@/hooks"
+    "hooks": "@/app/core/hooks"
   },
   "registries": {}
 }

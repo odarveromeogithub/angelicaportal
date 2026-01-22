@@ -1,1 +1,1 @@
-export { angelicaLifePlanService, default } from "./angelica-life-plan.service";
+export { angelicaLifePlanService } from "./angelica-life-plan.service";

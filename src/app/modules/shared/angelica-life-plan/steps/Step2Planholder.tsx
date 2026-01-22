@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { IPlanholderFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
-import { FormField } from "@/app/core/components/form/FormField";
-import { FormSelect } from "@/app/core/components/form/FormSelect";
+import { FormField, FormSelect } from "@/app/core/components/form";
 import { Label } from "@/app/core/components/ui/label";
 import { Calendar } from "@/app/core/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/core/components/ui/popover";

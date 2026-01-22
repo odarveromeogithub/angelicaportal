@@ -3,9 +3,7 @@ import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
 import { selectUsers, selectUsersLoading } from '../../../core/state/selector/dashboard.selector';
-import { DashboardHeader } from '../../../core/components/dashboard/DashboardHeader';
-import { SearchBar } from '../../../core/components/dashboard/SearchBar';
-import { EmptyState } from '../../../core/components/dashboard/EmptyState';
+import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
 import { Button } from '../../../core/components/ui/button';
 import { Badge } from '../../../core/components/ui/badge';
 import {

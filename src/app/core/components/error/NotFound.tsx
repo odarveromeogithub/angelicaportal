@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Home, AlertTriangle } from "lucide-react";
 import { Button } from "@/app/core/components/ui/button";
 
-export default function NotFound() {
+export function NotFound() {
   const navigate = useNavigate();
 
   return (
@@ -75,3 +75,5 @@ export default function NotFound() {
     </div>
   );
 }
+
+export default NotFound;

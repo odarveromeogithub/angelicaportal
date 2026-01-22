@@ -15,7 +15,7 @@ import {
 } from "@/app/core/components/ui/card"
 import { FormField, FormSelect, PhoneInput } from "@/app/core/components/form"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
-import { register, resetRegister } from "@/app/core/state/reducer/auth"
+import { register, resetRegister } from "@/app/core/state/reducer/auth";
 import { AREA_OPTIONS, AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
 import { registerSchema } from "@/app/core/schemas/auth.schema"
 import { APP_ROUTES } from "@/app/core/constants/routes"

@@ -4,7 +4,7 @@ import { PUBLIC_ROUTES, APP_ROUTES } from "../../constants/routes";
 import { DASHBOARD_ROOT } from "../../constants/dashboard-paths";
 import { selectIsAuthenticated } from "../../state/selector/auth.selector";
 
-const AuthGuard = () => {
+export const AuthGuard = () => {
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const location = useLocation();
 

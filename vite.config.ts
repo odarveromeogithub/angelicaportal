@@ -15,32 +15,26 @@ export default defineConfig({
     // Optimize chunking strategy
     rollupOptions: {
       output: {
-        // Manual chunks for better code splitting
+        // Manual chunks for better code splitting  
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react'
-            }
+            // Redux state management (separate because it's independent)
             if (
               id.includes('@reduxjs/toolkit') ||
-              id.includes('redux') ||
-              id.includes('react-redux') ||
               id.includes('redux-saga') ||
               id.includes('redux-persist')
             ) {
               return 'vendor-redux'
             }
-            if (id.includes('lucide-react') || id.includes('sonner') || id.includes('framer') || id.includes('motion')) {
-              return 'vendor-ui'
-            }
-            return 'vendor-utils'
+            // All other vendor dependencies in one chunk
+            // This avoids circular dependencies and ensures stable vendor bundle
+            return 'vendor'
           }
           // Split major local feature areas
-          if (id.includes('/src/app/modules/shared/angelica-life-plan/')) {
-            return 'chunk-forms'
-          }
-          if (id.includes('/src/app/core/components/ui/')) {
-            return 'chunk-ui'
+          if (id.includes('/src/app/core/components/ui/') || 
+              id.includes('/src/app/core/components/form/') ||
+              id.includes('/src/app/modules/shared/angelica-life-plan/')) {
+            return 'chunk-components'
           }
           if (id.includes('/src/app/core/state/')) {
             return 'chunk-state'
@@ -49,8 +43,9 @@ export default defineConfig({
         },
       },
     },
-    // Increase chunk size warning threshold
-    chunkSizeWarningLimit: 1000,
+    // Set chunk size warning threshold
+    // Adjusted for vendor bundles which benefit from long-term caching
+    chunkSizeWarningLimit: 850,
   },
 })
 

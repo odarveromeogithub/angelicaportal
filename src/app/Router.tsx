@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import AuthGuard from "./core/layout/auth/AuthGuard";
+import { AuthGuard } from "./core/layout/auth";
 import { APP_ROUTES } from "./core/constants/routes";
 import { DASHBOARD_ROOT, DASHBOARD_SEGMENTS, buildDashboardPath } from "./core/constants/dashboard-paths";
 
@@ -19,7 +19,7 @@ const SettingsPage = lazy(() => import("./modules/dashboard/Pages/SettingsPage")
 const DashboardPage = lazy(() => import("./modules/dashboard/Pages/DashboardPage"));
 
 // Lazy load error pages
-const NotFound = lazy(() => import("./modules/shared/error/NotFound"));
+const NotFound = lazy(() => import("./core/components/error/NotFound").then(module => ({ default: module.NotFound })));
 
 // Loading fallback component
 const LoadingFallback = () => (
