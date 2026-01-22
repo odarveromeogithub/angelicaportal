@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import AuthGuard from "./core/layout/AuthGuard";
+import AuthGuard from "./core/layout/auth/AuthGuard";
 import { APP_ROUTES } from "./core/constants/routes";
 import { DASHBOARD_ROOT, DASHBOARD_SEGMENTS, buildDashboardPath } from "./core/constants/dashboard-paths";
 
@@ -13,10 +13,10 @@ const OtpVerification = lazy(() => import("./modules/shared/auth/otp"));
 const AngelicaLifePlan = lazy(() => import("./modules/shared/angelica-life-plan"));
 
 // Lazy load dashboard pages
-const AngelicaPage = lazy(() => import("./modules/dashboard/AngelicaPage"));
-const ProfilePage = lazy(() => import("./modules/dashboard/ProfilePage"));
-const SettingsPage = lazy(() => import("./modules/dashboard/SettingsPage"));
-const DashboardPage = lazy(() => import("./modules/dashboard/DashboardPage"));
+const AngelicaPage = lazy(() => import("./modules/dashboard/Pages/AngelicaPage"));
+const ProfilePage = lazy(() => import("./modules/dashboard/Pages/ProfilePage"));
+const SettingsPage = lazy(() => import("./modules/dashboard/Pages/SettingsPage"));
+const DashboardPage = lazy(() => import("./modules/dashboard/Pages/DashboardPage"));
 
 // Lazy load error pages
 const NotFound = lazy(() => import("./modules/shared/error/NotFound"));

@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
-import { Search, Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
-import { type RootState } from '../../state/store';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
+import { selectUsers, selectUsersLoading } from '../../../core/state/selector/dashboard.selector';
+import { DashboardHeader } from '../../../core/components/dashboard/DashboardHeader';
+import { SearchBar } from '../../../core/components/dashboard/SearchBar';
+import { EmptyState } from '../../../core/components/dashboard/EmptyState';
+import { Button } from '../../../core/components/ui/button';
+import { Badge } from '../../../core/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -13,16 +15,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from '../../../core/components/ui/table';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../ui/tooltip';
+} from '../../../core/components/ui/tooltip';
 
 export function UsersListTab() {
-  const { users, loading } = useSelector((state: RootState) => state.dashboard_usersList);
+  const users = useSelector(selectUsers);
+  const loading = useSelector(selectUsersLoading);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredUsers = useMemo(() => {
@@ -52,42 +55,30 @@ export function UsersListTab() {
         animate={{ opacity: 1, y: 0 }}
         className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7"
       >
-        {/* Header & Action Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 items-start sm:items-center justify-between">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Users Management</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <p className="text-sm text-gray-500">Manage system users and permissions</p>
-              <Badge variant="secondary" className="font-normal">
-                {filteredUsers.length} {filteredUsers.length === 1 ? 'User' : 'Users'}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 md:gap-3 w-full sm:w-auto">
-            <Button variant="outline" className="gap-2 shadow-sm">
-              <Users className="w-4 h-4" />
-              Batch Create
-            </Button>
-            <Button className="gap-2 shadow-sm">
-              <UserPlus className="w-4 h-4" />
-              Add New User
-            </Button>
-          </div>
-        </div>
+        <DashboardHeader
+          title="Users Management"
+          description="Manage system users and permissions"
+          count={filteredUsers.length}
+          countLabel="Users"
+          actions={
+            <>
+              <Button variant="outline" className="gap-2 shadow-sm">
+                <Users className="w-4 h-4" />
+                Batch Create
+              </Button>
+              <Button className="gap-2 shadow-sm">
+                <UserPlus className="w-4 h-4" />
+                Add New User
+              </Button>
+            </>
+          }
+        />
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-gray-100">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search by username, name, agent code, or type..."
-              value={searchQuery}
-              onChange={(e: any) => setSearchQuery(e.target.value)}
-              className="pl-10 md:pl-11 h-11 text-sm md:text-base border-gray-200 focus:border-blue-300 focus:ring-blue-200"
-            />
-          </div>
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by username, name, agent code, or type..."
+        />
 
         {/* Users List Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -172,11 +163,11 @@ export function UsersListTab() {
           </div>
 
           {filteredUsers.length === 0 && (
-            <div className="text-center py-20 text-gray-500 text-sm md:text-base">
-              <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="font-medium">No users found</p>
-              <p className="text-xs mt-1">Try adjusting your search</p>
-            </div>
+            <EmptyState
+              icon={Users}
+              title="No users found"
+              description="Try adjusting your search"
+            />
           )}
         </div>
       </motion.div>

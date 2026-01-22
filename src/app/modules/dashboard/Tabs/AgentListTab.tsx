@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
-import { Search, Loader2, Users } from 'lucide-react';
-import type { RootState } from '../../state/store';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { Loader2, Users } from 'lucide-react';
+import { selectAgents, selectAgentsLoading } from '../../../core/state/selector/dashboard.selector';
+import { DashboardHeader } from '../../../core/components/dashboard/DashboardHeader';
+import { SearchBar } from '../../../core/components/dashboard/SearchBar';
+import { EmptyState } from '../../../core/components/dashboard/EmptyState';
+import { Badge } from '../../../core/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -12,10 +14,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from '../../../core/components/ui/table';
 
 export function AgentListTab() {
-  const { agents, loading } = useSelector((state: RootState) => state.dashboard_agentList);
+  const agents = useSelector(selectAgents);
+  const loading = useSelector(selectAgentsLoading);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredAgents = useMemo(() => {
@@ -43,30 +46,18 @@ export function AgentListTab() {
       animate={{ opacity: 1, y: 0 }}
       className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7"
     >
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Agent List</h2>
-        <div className="flex items-center gap-2 mt-2 sm:mt-3">
-          <p className="text-xs sm:text-sm text-gray-500">Manage sales counselor agents</p>
-          <Badge variant="secondary" className="font-normal text-xs sm:text-sm">
-            {filteredAgents.length} {filteredAgents.length === 1 ? 'Agent' : 'Agents'}
-          </Badge>
-        </div>
-      </div>
+      <DashboardHeader
+        title="Agent List"
+        description="Manage sales counselor agents"
+        count={filteredAgents.length}
+        countLabel="Agents"
+      />
 
-      {/* Search Bar */}
-      <div className="bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-gray-100">
-        <div className="relative">
-          <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search by code, name, or status..."
-            value={searchQuery}
-            onChange={(e: any) => setSearchQuery(e.target.value)}
-            className="pl-9 sm:pl-10 md:pl-11 h-10 sm:h-11 text-xs sm:text-sm border-gray-200 focus:border-blue-300 focus:ring-blue-200 focus-visible:ring-2"
-          />
-        </div>
-      </div>
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by code, name, or status..."
+      />
 
       {/* Agent List Table */}
       <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -105,11 +96,11 @@ export function AgentListTab() {
         </div>
 
         {filteredAgents.length === 0 && (
-          <div className="text-center py-20 text-gray-500 text-sm md:text-base">
-            <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="font-medium">No agents found</p>
-            <p className="text-xs mt-1">Try adjusting your search</p>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="No agents found"
+            description="Try adjusting your search"
+          />
         )}
       </div>
     </motion.div>

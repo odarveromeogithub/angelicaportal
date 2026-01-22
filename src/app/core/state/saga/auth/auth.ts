@@ -7,17 +7,17 @@ import {
   register,
   registerSuccess,
   registerFailure,
-} from "../reducer";
+} from "../../reducer/auth";
 import {
   loginRequest,
   registerRequest,
   getUserData,
-} from "../../services/auth/auth.service";
+} from "../../../services/auth/auth.service";
 import type { AxiosResponse } from "axios";
 import type {
   LoginRequestActionPayload,
   RegisterRequestActionPayload,
-} from "../types";
+} from "../../types";
 
 function* loginRequestSaga(action: LoginRequestActionPayload) {
   try {

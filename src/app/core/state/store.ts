@@ -3,12 +3,14 @@ import createSagaMiddleware from "redux-saga";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "./reducer/auth";
+import {
+  plansReducer,
+  waitingListReducer,
+  clientListReducer,
+  agentListReducer,
+  usersListReducer,
+} from "./reducer/dashboard";
 import { rootSaga } from "./saga/auth";
-import plansReducer from "./reducer/dashboard/plansSlice";
-import waitingListReducer from "./reducer/dashboard/waitingListSlice";
-import clientListReducer from "./reducer/dashboard/clientListSlice";
-import agentListReducer from "./reducer/dashboard/agentListSlice";
-import usersListReducer from "./reducer/dashboard/usersListSlice";
 import dashboardRootSaga from "./saga/dashboard";
 
 // Persist config

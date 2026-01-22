@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Sidebar } from '../../core/components/dashboard/Sidebar';
+import { Sidebar } from '../../../core/layout/dashboard/Sidebar';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';

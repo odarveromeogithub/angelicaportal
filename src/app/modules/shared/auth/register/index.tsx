@@ -16,15 +16,15 @@ import {
 import { FormField, FormSelect, PhoneInput } from "@/app/core/components/form"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
 import { register, resetRegister } from "@/app/core/state/reducer/auth"
-import type { RootState } from "@/app/core/state/store"
 import { AREA_OPTIONS, AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
 import { registerSchema } from "@/app/core/schemas/auth.schema"
 import { APP_ROUTES } from "@/app/core/constants/routes"
+import { selectRegisterState } from "@/app/core/state/selector/auth.selector"
 
 export default function Register() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { register: registerState } = useAppSelector((state: RootState) => state.auth)
+  const registerState = useAppSelector(selectRegisterState)
 
   const [formData, setFormData] = useState({
     email: "",

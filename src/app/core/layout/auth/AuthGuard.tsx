@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { PUBLIC_ROUTES, APP_ROUTES } from "../constants/routes";
-import { DASHBOARD_ROOT } from "../constants/dashboard-paths";
-import { selectIsAuthenticated } from "../state/selector/auth.selector";
+import { PUBLIC_ROUTES, APP_ROUTES } from "../../constants/routes";
+import { DASHBOARD_ROOT } from "../../constants/dashboard-paths";
+import { selectIsAuthenticated } from "../../state/selector/auth.selector";
 
 const AuthGuard = () => {
     const isAuthenticated = useSelector(selectIsAuthenticated);

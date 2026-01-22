@@ -3,8 +3,8 @@ import type {
     AuthState,
     LoginRequestActionPayload,
     RegisterRequestActionPayload,
-} from "../types";
-import { setTokens, clearTokens } from "../../helpers/auth-storage";
+} from "../../types";
+import { setTokens, clearTokens } from "../../../helpers/auth-storage";
 
 const initialState: AuthState = {
     login: {

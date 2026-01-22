@@ -14,16 +14,17 @@ import { Input } from "@/app/core/components/ui/input"
 import { Label } from "@/app/core/components/ui/label"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
 import { login, resetLogin } from "@/app/core/state/reducer/auth"
-import type { RootState } from "@/app/core/state/store"
 import { AUTH_CLASSES, AUTH_MESSAGES } from "@/app/core/constants/auth"
 import { loginSchema } from "@/app/core/schemas/auth.schema"
 import { buildDashboardPath, DASHBOARD_SEGMENTS } from "@/app/core/constants/dashboard-paths"
 import { APP_ROUTES } from "@/app/core/constants/routes"
+import { selectLoginState, selectAuthUser } from "@/app/core/state/selector/auth.selector"
 
 export default function Login() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { login: loginState, user } = useAppSelector((state: RootState) => state.auth)
+  const loginState = useAppSelector(selectLoginState)
+  const user = useAppSelector(selectAuthUser)
 
   const [credentials, setCredentials] = useState({
     email: "",
@@ -33,8 +34,8 @@ export default function Login() {
   const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null)
 
   useEffect(() => {
-    if (loginState.success && user?.data) {
-      const userData = user.data;
+    if (loginState.success && user) {
+      const userData = user;
       if (loadingToastId) {
         toast.dismiss(loadingToastId)
       }

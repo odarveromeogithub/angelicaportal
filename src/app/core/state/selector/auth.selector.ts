@@ -1,13 +1,13 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { IUser } from "../../interfaces/user.interface";
-import { convertUserToDashboardUser } from "../../helpers/auth.helper";
+import type { AuthState } from "../types/auth";
 import { getAccessToken } from "../../helpers/auth-storage";
 
 /**
  * Select the entire auth state
  */
-export const selectAuth = (state: RootState) => state.auth;
+export const selectAuth = (state: RootState) => state.auth as unknown as AuthState;
 
 /**
  * Select access token from localStorage
@@ -20,72 +20,60 @@ export const selectAccessToken = (): string | null => {
  * Select the authenticated user
  */
 export const selectAuthUser = (state: RootState): IUser | null => {
-  return state.auth.user?.data || null;
+  return (state.auth as unknown as AuthState).user?.data || null;
 };
 
 /**
  * Select if user is authenticated (has token and user data)
  */
 export const selectIsAuthenticated = (state: RootState): boolean => {
-  return !!state.auth.user?.data && !!getAccessToken();
+  return !!(state.auth as unknown as AuthState).user?.data && !!getAccessToken();
 };
 
 /**
  * Select login state
  */
-export const selectLoginState = (state: RootState) => state.auth.login;
+export const selectLoginState = (state: RootState) => (state.auth as unknown as AuthState).login;
 
 /**
  * Select if login is loading
  */
 export const selectIsLoginLoading = (state: RootState): boolean => {
-  return state.auth.login.loading;
+  return (state.auth as unknown as AuthState).login.loading;
 };
 
 /**
  * Select login error
  */
 export const selectLoginError = (state: RootState): string | boolean | null => {
-  return state.auth.login.error;
+  return (state.auth as unknown as AuthState).login.error;
 };
 
 /**
  * Select register state
  */
-export const selectRegisterState = (state: RootState) => state.auth.register;
+export const selectRegisterState = (state: RootState) => (state.auth as unknown as AuthState).register;
 
 /**
  * Select if register is loading
  */
 export const selectIsRegisterLoading = (state: RootState): boolean => {
-  return state.auth.register.loading;
+  return (state.auth as unknown as AuthState).register.loading;
 };
 
 /**
  * Select register error
  */
 export const selectRegisterError = (state: RootState): string | boolean | null => {
-  return state.auth.register.error;
+  return (state.auth as unknown as AuthState).register.error;
 };
 
 /**
  * Select user role
  */
 export const selectUserRole = (state: RootState): IUser["role"] | null => {
-  return state.auth.user?.data?.role || null;
+  return (state.auth as unknown as AuthState).user?.data?.role || null;
 };
-
-/**
- * Select dashboard user (converted from auth user)
- * This replaces the need for a separate dashboard_user slice
- */
-export const selectDashboardUser = createSelector(
-  [selectAuthUser],
-  (user) => {
-    if (!user) return null;
-    return convertUserToDashboardUser(user);
-  }
-);
 
 /**
  * Select if user is admin

@@ -1,21 +1,7 @@
 /**
- * Auth Selectors Index
- * Central export point for all auth-related selectors
+ * Selectors Index
+ * Central export point for all selectors
  */
 
-export {
-  selectAuth,
-  selectAuthUser,
-  selectIsAuthenticated,
-  selectLoginState,
-  selectIsLoginLoading,
-  selectLoginError,
-  selectRegisterState,
-  selectIsRegisterLoading,
-  selectRegisterError,
-  selectUserRole,
-  selectDashboardUser,
-  selectIsAdmin,
-  selectIsSales,
-  selectIsClient,
-} from './auth.selector';
+export * from "./auth.selector";
+export * from "./dashboard.selector";

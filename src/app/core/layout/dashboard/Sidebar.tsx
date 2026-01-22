@@ -3,8 +3,8 @@ import { Home, Settings, User, LogOut, LayoutGrid, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSelector } from 'react-redux';
-import { selectDashboardUser } from '../../state/selector/auth.selector';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { selectDashboardUser } from '../../state/selector/dashboard.selector';
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import { DASHBOARD_SEGMENTS, type DashboardRole, buildDashboardPath } from '../../constants/dashboard-paths';
 import { useLogout } from '../../hooks/useLogout';
 
@@ -203,3 +203,6 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
     </>
   );
 }
+
+
+export default Sidebar;

@@ -1,10 +1,15 @@
 import { motion } from 'motion/react';
 import { Search, Edit, Paperclip } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Input } from '../ui/input';
-import { waitingListActions } from '../../state/reducer/dashboard/waitingListSlice';
-import { type RootState, type AppDispatch } from '../../state/store';
-import { Badge } from '../ui/badge';
+import { waitingListActions } from '../../../core/state/reducer/dashboard/waitingListSlice';
+import { type AppDispatch } from '../../../core/state/store';
+import {
+  selectFilteredWaitingList,
+  selectWaitingListLoading,
+  selectWaitingListSearchQuery
+} from '../../../core/state/selector/dashboard.selector';
+import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
+import { Badge } from '../../../core/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -12,48 +17,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from '../../../core/components/ui/table';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../ui/tooltip';
-import { Button } from '../ui/button';
+} from '../../../core/components/ui/tooltip';
+import { Button } from '../../../core/components/ui/button';
 
 export function WaitingListTab() {
   const dispatch = useDispatch<AppDispatch>();
-  const waitingList = useSelector((state: RootState) => state.dashboard_waitingList);
-
-  const handleWaitingListSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(waitingListActions.setSearchQuery(e.target.value));
-  };
+  const filteredItems = useSelector(selectFilteredWaitingList);
+  const loading = useSelector(selectWaitingListLoading);
+  const searchQuery = useSelector(selectWaitingListSearchQuery);
 
   return (
     <TooltipProvider>
       <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Pending Plans</h2>
-          <div className="flex items-center gap-2 mt-2">
-            <p className="text-sm text-gray-500">Review and manage pending applications</p>
-            <Badge variant="secondary" className="font-normal">
-              {waitingList.filteredItems.length} Pending
-            </Badge>
-          </div>
-        </div>
+        <DashboardHeader
+          title="Pending Plans"
+          description="Review and manage pending applications"
+          count={filteredItems.length}
+          countLabel="Pending"
+        />
 
-        {/* Search Bar */}
-        <div className="bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-            <Input
-              placeholder="Search by name or LPAF number..."
-              value={waitingList.searchQuery}
-              onChange={handleWaitingListSearchChange}
-              className="pl-10 md:pl-11 text-sm md:text-base h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
-            />
-          </div>
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={(value) => dispatch(waitingListActions.setSearchQuery(value))}
+          placeholder="Search by name or LPAF number..."
+        />
 
         {/* Waiting List Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -68,7 +61,7 @@ export function WaitingListTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {waitingList.filteredItems.map((item: any, index: number) => (
+                {filteredItems.map((item: any, index: number) => (
                   <motion.tr
                     key={item.id}
                     initial={{ opacity: 0, x: -20 }}
@@ -112,12 +105,12 @@ export function WaitingListTab() {
             </Table>
           </div>
 
-          {waitingList.filteredItems.length === 0 && !waitingList.loading && (
-            <div className="text-center py-20 text-gray-500 text-sm md:text-base">
-              <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="font-medium">No pending plans found</p>
-              <p className="text-xs mt-1">All applications have been processed</p>
-            </div>
+          {filteredItems.length === 0 && !loading && (
+            <EmptyState
+              icon={Search}
+              title="No pending plans found"
+              description="All applications have been processed"
+            />
           )}
         </div>
       </div>

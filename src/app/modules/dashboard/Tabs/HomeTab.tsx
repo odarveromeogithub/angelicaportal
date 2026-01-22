@@ -1,18 +1,18 @@
 import { motion } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { FileText, Users, Clock, TrendingUp, Calendar } from 'lucide-react';
-import type { RootState } from '../../state/store';
-import { selectDashboardUser } from '../../state/selector/auth.selector';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { selectDashboardUser, selectPlans, selectWaitingList, selectClients } from '../../../core/state/selector/dashboard.selector';
+import { StatCard } from '../../../core/components/dashboard/StatCard';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../core/components/ui/card';
 
 interface HomeTabProps {
   userRole: 'client' | 'sales' | 'admin';
 }
 
 export function HomeTab({ userRole }: HomeTabProps) {
-  const plans = useSelector((state: RootState) => state.dashboard_plans.plans);
-  const waitingList = useSelector((state: RootState) => state.dashboard_waitingList.items);
-  const clientList = useSelector((state: RootState) => state.dashboard_clientList.items);
+  const plans = useSelector(selectPlans);
+  const waitingList = useSelector(selectWaitingList);
+  const clientList = useSelector(selectClients);
   const currentUser = useSelector(selectDashboardUser);
 
   const activePlans = plans.filter((p: any) => p.status === 'Active').length;
@@ -122,29 +122,16 @@ export function HomeTab({ userRole }: HomeTabProps) {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
         {stats.map((stat, index) => (
-          <motion.div
+          <StatCard
             key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card className={`border ${stat.borderColor} hover:shadow-lg transition-all duration-300 h-full`}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-semibold text-gray-600">
-                  {stat.title}
-                </CardTitle>
-                <div className={`p-2.5 rounded-xl ${stat.bgColor}`}>
-                  <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl md:text-4xl font-bold text-gray-900">{stat.value}</div>
-                <p className="text-xs text-gray-500 mt-1.5">
-                  {stat.value === 1 ? stat.title.slice(0, -1) : stat.title}
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            bgColor={stat.bgColor}
+            iconColor={stat.iconColor}
+            borderColor={stat.borderColor}
+            delay={index * 0.1}
+          />
         ))}
       </div>
 

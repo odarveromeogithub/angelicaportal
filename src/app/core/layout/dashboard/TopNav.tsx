@@ -1,15 +1,15 @@
 import { motion } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { Menu, Bell } from 'lucide-react';
-import { selectDashboardUser } from '../../state/selector/auth.selector';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { selectDashboardUser } from '../../state/selector/dashboard.selector';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../ui/tooltip';
+} from '../../components/ui/tooltip';
 
 interface TopNavProps {
   tabs?: Array<{ label: string; path: string; icon?: React.ReactNode }>;
@@ -104,3 +104,5 @@ export function TopNav({ tabs, currentTab, onTabChange, onMenuClick }: TopNavPro
     </TooltipProvider>
   );
 }
+
+export default TopNav;
