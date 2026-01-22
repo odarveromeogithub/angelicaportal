@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
-import { Sidebar } from '../../../core/layout/dashboard/Sidebar';
+import { Sidebar } from '../../../core/layout/dashboard';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import ErrorBoundary from '../../../core/components/error/ErrorBoundary';
 
 export default function SettingsPage() {
   const location = useLocation();
@@ -13,6 +14,7 @@ export default function SettingsPage() {
   const userRole = isAdminRole ? 'admin' : isSalesRole ? 'sales' : 'client';
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-gray-50">
       <Sidebar userRole={userRole} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
@@ -42,5 +44,6 @@ export default function SettingsPage() {
         </motion.main>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

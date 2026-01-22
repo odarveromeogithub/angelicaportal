@@ -1,14 +1,12 @@
 import { motion } from 'motion/react';
+import { useCallback } from 'react';
 import { Loader, Plus, Search } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../../core/components/ui/button';
-import { PlanCard } from '../../../core/components/dashboard/PlanCard';
+import { PlanCard, DashboardHeader, FilterBar, EmptyState } from '../../../core/components/dashboard';
 import { plansActions } from '../../../core/state/reducer/dashboard/plansSlice';
 import { type AppDispatch } from '../../../core/state/store';
 import { selectFilteredPlans, selectPlansLoading, selectPlansSearchQuery, selectPlansStatusFilter } from '../../../core/state/selector/dashboard.selector';
-import { DashboardHeader } from '../../../core/components/dashboard/DashboardHeader';
-import { FilterBar } from '../../../core/components/dashboard/FilterBar';
-import { EmptyState } from '../../../core/components/dashboard/EmptyState';
 
 export function PlanListTab() {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,9 +15,13 @@ export function PlanListTab() {
   const searchQuery = useSelector(selectPlansSearchQuery);
   const statusFilter = useSelector(selectPlansStatusFilter);
 
-  const handleStatusFilterChange = (value: string) => {
+  const handleStatusFilterChange = useCallback((value: string) => {
     dispatch(plansActions.setStatusFilter(value));
-  };
+  }, [dispatch]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    dispatch(plansActions.setSearchQuery(value));
+  }, [dispatch]);
 
   return (
     <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
@@ -38,7 +40,7 @@ export function PlanListTab() {
 
       <FilterBar
         searchValue={searchQuery}
-        onSearchChange={(value) => dispatch(plansActions.setSearchQuery(value))}
+        onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or LPAF number..."
         filterValue={statusFilter}
         onFilterChange={handleStatusFilterChange}

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { SystemUser } from '../../interfaces/dashboard.interface';
+import type { SystemUser } from '../../../interfaces/dashboard.interface';
 
 interface UsersListState {
   users: SystemUser[];

@@ -119,7 +119,7 @@ export default function Login() {
         <Card className={AUTH_CLASSES.card}>
           <CardHeader className="flex flex-col items-center justify-center gap-5 text-center">
             <div className="flex justify-center w-full">
-              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" />
+              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" loading="lazy" />
             </div>
             <p className="text-sm text-slate-600">
               Welcome back! Sign in to continue to CCLPI Plans.

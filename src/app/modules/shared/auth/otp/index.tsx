@@ -171,7 +171,7 @@ export default function OtpVerification() {
             </CardAction>
           <CardHeader className="items-center gap-4 text-center">
             <div className="flex justify-center w-full">
-              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" />
+              <img src="/assets/cclpi-logo.png" alt="CCLPI Plans Logo" className="h-24 object-contain" loading="lazy" />
             </div>
             <h2 className="text-lg font-semibold uppercase tracking-wider text-slate-700">
               Verify OTP

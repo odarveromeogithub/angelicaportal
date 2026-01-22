@@ -16,10 +16,36 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Manual chunks for better code splitting
-        manualChunks: {
-          // Vendor chunks
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-utils": ["lucide-react", "sonner"],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react'
+            }
+            if (
+              id.includes('@reduxjs/toolkit') ||
+              id.includes('redux') ||
+              id.includes('react-redux') ||
+              id.includes('redux-saga') ||
+              id.includes('redux-persist')
+            ) {
+              return 'vendor-redux'
+            }
+            if (id.includes('lucide-react') || id.includes('sonner') || id.includes('framer') || id.includes('motion')) {
+              return 'vendor-ui'
+            }
+            return 'vendor-utils'
+          }
+          // Split major local feature areas
+          if (id.includes('/src/app/modules/shared/angelica-life-plan/')) {
+            return 'chunk-forms'
+          }
+          if (id.includes('/src/app/core/components/ui/')) {
+            return 'chunk-ui'
+          }
+          if (id.includes('/src/app/core/state/')) {
+            return 'chunk-state'
+          }
+          return undefined
         },
       },
     },

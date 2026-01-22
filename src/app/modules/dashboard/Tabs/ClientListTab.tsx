@@ -1,17 +1,15 @@
 import { motion } from 'motion/react';
 import { Search, Edit, Eye, Download, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react';
-import { clientListActions } from '../../../core/state/reducer/dashboard/clientListSlice';
+import { useState, useCallback } from 'react';
+import { clientListActions } from '../../../core/state/reducer/dashboard';
 import type { AppDispatch } from '../../../core/state/store';
 import {
   selectFilteredClients,
   selectClientsSearchQuery,
   selectClientsStatusFilter
 } from '../../../core/state/selector/dashboard.selector';
-import { DashboardHeader } from '../../../core/components/dashboard/DashboardHeader';
-import { FilterBar } from '../../../core/components/dashboard/FilterBar';
-import { EmptyState } from '../../../core/components/dashboard/EmptyState';
+import { DashboardHeader, FilterBar, EmptyState } from '../../../core/components/dashboard';
 import { Badge } from '../../../core/components/ui/badge';
 import {
   DropdownMenu,
@@ -34,13 +32,17 @@ export function ClientListTab() {
   const statusFilter = useSelector(selectClientsStatusFilter);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const handleStatusFilterChange = (value: string) => {
+  const handleStatusFilterChange = useCallback((value: string) => {
     dispatch(clientListActions.setStatusFilter(value));
-  };
+  }, [dispatch]);
 
-  const toggleExpand = (id: string) => {
+  const handleSearchChange = useCallback((value: string) => {
+    dispatch(clientListActions.setSearchQuery(value));
+  }, [dispatch]);
+
+  const handleToggleExpand = useCallback((id: string) => {
     setExpandedId(expandedId === id ? null : id);
-  };
+  }, [expandedId]);
 
   return (
     <TooltipProvider>
@@ -54,7 +56,7 @@ export function ClientListTab() {
 
         <FilterBar
           searchValue={searchQuery}
-          onSearchChange={(value) => dispatch(clientListActions.setSearchQuery(value))}
+          onSearchChange={handleSearchChange}
           searchPlaceholder="Search by name or LPAF number..."
           filterValue={statusFilter}
           onFilterChange={handleStatusFilterChange}
@@ -140,7 +142,7 @@ export function ClientListTab() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => toggleExpand(client.id)}
+                      onClick={() => handleToggleExpand(client.id)}
                       className="h-9 w-9 hover:bg-gray-100"
                     >
                       {expandedId === client.id ? (
@@ -178,7 +180,7 @@ export function ClientListTab() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => toggleExpand(client.id)}
+                      onClick={() => handleToggleExpand(client.id)}
                       className="h-9 w-9"
                     >
                       {expandedId === client.id ? (

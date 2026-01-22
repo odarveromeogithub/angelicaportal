@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Sidebar } from '../../../core/layout/dashboard/Sidebar';
+import { Sidebar } from '../../../core/layout/dashboard';
 import { Button } from '../../../core/components/ui/button';
 import { Camera, Upload, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../core/components/ui/card';
@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { selectAuthUser } from '../../../core/state/selector/auth.selector';
 import { useState } from 'react';
+import ErrorBoundary from '../../../core/components/error/ErrorBoundary';
 
 export default function ProfilePage() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const phoneNumber = currentUser?.contact_number || '+63 912 345 6789';
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-gray-50">
       <Sidebar userRole={userRole} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
@@ -162,5 +164,6 @@ export default function ProfilePage() {
         </motion.main>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

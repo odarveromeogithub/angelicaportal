@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Plan } from '../../interfaces/dashboard.interface';
+import type { Plan } from '../../../interfaces/dashboard.interface';
 
 interface PlansState {
   plans: Plan[];

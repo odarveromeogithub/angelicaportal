@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
-import { Sidebar } from '../../../core/layout/dashboard/Sidebar';
+import { Sidebar } from '../../../core/layout/dashboard';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
+import ErrorBoundary from '../../../core/components/error/ErrorBoundary';
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -14,7 +15,8 @@ export default function DashboardPage() {
   const userName = isAdminRole ? 'Admin' : 'SC1';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
       <Sidebar userRole={userRole} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="md:ml-60">
@@ -57,6 +59,7 @@ export default function DashboardPage() {
           </div>
         </motion.main>
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

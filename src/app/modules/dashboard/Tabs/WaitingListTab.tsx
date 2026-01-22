@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Search, Edit, Paperclip } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
 import { waitingListActions } from '../../../core/state/reducer/dashboard/waitingListSlice';
 import { type AppDispatch } from '../../../core/state/store';
 import {
@@ -32,6 +33,10 @@ export function WaitingListTab() {
   const loading = useSelector(selectWaitingListLoading);
   const searchQuery = useSelector(selectWaitingListSearchQuery);
 
+  const handleSearchChange = useCallback((value: string) => {
+    dispatch(waitingListActions.setSearchQuery(value));
+  }, [dispatch]);
+
   return (
     <TooltipProvider>
       <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
@@ -44,7 +49,7 @@ export function WaitingListTab() {
 
         <SearchBar
           value={searchQuery}
-          onChange={(value) => dispatch(waitingListActions.setSearchQuery(value))}
+          onChange={handleSearchChange}
           placeholder="Search by name or LPAF number..."
         />
 

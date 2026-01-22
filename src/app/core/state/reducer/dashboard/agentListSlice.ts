@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Agent } from '../../interfaces/dashboard.interface';
+import type { Agent } from '../../../interfaces/dashboard.interface';
 
 interface AgentListState {
   agents: Agent[];
