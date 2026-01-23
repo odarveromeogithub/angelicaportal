@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
-import { selectUsers, selectUsersLoading } from '../../../core/state/selector/dashboard.selector';
+import { dashboardApi } from '../../../core/state/api';
 import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
 import { Button } from '../../../core/components/ui/button';
 import { Badge } from '../../../core/components/ui/badge';
@@ -22,8 +21,7 @@ import {
 } from '../../../core/components/ui/tooltip';
 
 export function UsersListTab() {
-  const users = useSelector(selectUsers);
-  const loading = useSelector(selectUsersLoading);
+  const { data: users = [], isLoading: loading } = dashboardApi.useGetUsersQuery();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredUsers = useMemo(() => {

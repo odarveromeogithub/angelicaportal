@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
-import { selectUsers, selectUsersLoading } from '../../state/selector/dashboard.selector';
-import type { SystemUser } from '../../interfaces/dashboard.interface';
+import { dashboardApi } from '../../state/api';
+import type { User } from '../../interfaces/dashboard.interface';
 import { DashboardHeader } from './DashboardHeader';
 import { SearchBar } from './SearchBar';
 import { EmptyState } from './EmptyState';
@@ -25,15 +24,13 @@ import {
 } from '../ui/tooltip';
 
 export function UsersListTab() {
-  const users = useSelector(selectUsers);
-  const loading = useSelector(selectUsersLoading);
+  const { data: users = [], isLoading: loading } = dashboardApi.useGetUsersQuery();
   const [searchQuery, setSearchQuery] = useState('');
-
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) return users;
     const query = searchQuery.toLowerCase();
-    return (users as SystemUser[]).filter(
-      (user: SystemUser) =>
+    return (users as User[]).filter(
+      (user: User) =>
         user.username.toLowerCase().includes(query) ||
         user.name.toLowerCase().includes(query) ||
         user.agentCode.toLowerCase().includes(query) ||

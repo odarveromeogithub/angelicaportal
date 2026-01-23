@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_ENDPOINTS } from '../../constants/api';
 
 /**
  * Base API configuration for RTK Query

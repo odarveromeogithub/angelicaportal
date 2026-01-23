@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Sidebar, TopNav } from '../../../core/layout/dashboard';
 import { HomeTab, PlanListTab, ClientListTab, AgentListTab, UsersListTab, WaitingListTab } from '../Tabs';
-import { plansActions } from '../../../core/state/reducer/dashboard/plansSlice';
-import { waitingListActions, clientListActions, agentListActions, usersListActions } from '../../../core/state/reducer/dashboard';
+import { useAppSelector } from '../../../core/state/hooks';
 import { selectIsAdmin, selectIsSales } from '../../../core/state/selector/auth.selector';
-import { selectDashboardUser } from '../../../core/state/selector/dashboard.selector';
-import { type AppDispatch } from '../../../core/state/store';
 import { getTabsForRole } from '../../../core/constants/navigation';
 import { getDashboardRoleFromUser } from '../../../core/constants/dashboard-paths';
 
 export default function AngelicaPage() {
-  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const navigate = useNavigate();
   
   // Use auth selectors instead of pathname detection
-  const dashboardUser = useSelector(selectDashboardUser);
-  const isAdminRole = useSelector(selectIsAdmin);
-  const isSalesRole = useSelector(selectIsSales);
+  const authUser = useAppSelector((state) => state.auth.user);
+  const dashboardUser = authUser as any; // Cast to access all properties
+  const isAdminRole = useAppSelector(selectIsAdmin);
+  const isSalesRole = useAppSelector(selectIsSales);
   
   const authenticatedUserRole = dashboardUser?.role || 'client';
   const userRole = getDashboardRoleFromUser(authenticatedUserRole as 'admin' | 'client' | 'sc' | 'um');
@@ -31,21 +27,13 @@ export default function AngelicaPage() {
   const userDisplayRole = dashboardUser?.role || 'client';
 
   useEffect(() => {
-    // Fetch plans and waiting list for all users
-    dispatch(plansActions.fetchPlansRequest());
-    dispatch(waitingListActions.fetchWaitingListRequest());
-    
-    // Fetch client list for sales and admin roles
-    if (isSalesRole || isAdminRole) {
-      dispatch(clientListActions.fetchClientListRequest());
+    // RTK Query will automatically fetch data on component mount
+    // No need to dispatch fetch actions
+    // Just navigate to first tab if on root
+    if (location.pathname === `/dashboard/${userRole}`) {
+      navigate(`/dashboard/${userRole}/home`);
     }
-
-    // Fetch agent list and users list for admin role only
-    if (isAdminRole) {
-      dispatch(agentListActions.fetchAgentListRequest());
-      dispatch(usersListActions.fetchUsersListRequest());
-    }
-  }, [dispatch, isSalesRole, isAdminRole]);
+  }, [location.pathname, userRole, navigate]);
 
   const tabs = getTabsForRole(userRole);
 

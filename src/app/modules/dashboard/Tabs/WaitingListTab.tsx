@@ -1,14 +1,7 @@
 import { motion } from 'motion/react';
 import { Search, Edit, Paperclip } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useCallback } from 'react';
-import { waitingListActions } from '../../../core/state/reducer/dashboard/waitingListSlice';
-import { type AppDispatch } from '../../../core/state/store';
-import {
-  selectFilteredWaitingList,
-  selectWaitingListLoading,
-  selectWaitingListSearchQuery
-} from '../../../core/state/selector/dashboard.selector';
+import { useState, useCallback, useMemo } from 'react';
+import { dashboardApi } from '../../../core/state/api';
 import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
 import { Badge } from '../../../core/components/ui/badge';
 import {
@@ -28,14 +21,20 @@ import {
 import { Button } from '../../../core/components/ui/button';
 
 export function WaitingListTab() {
-  const dispatch = useDispatch<AppDispatch>();
-  const filteredItems = useSelector(selectFilteredWaitingList);
-  const loading = useSelector(selectWaitingListLoading);
-  const searchQuery = useSelector(selectWaitingListSearchQuery);
+  const { data: waitingList = [], isLoading: loading } = dashboardApi.useGetWaitingListQuery();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo(() => {
+    return waitingList.filter((item: any) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.policyNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.lpafNo.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [waitingList, searchQuery]);
 
   const handleSearchChange = useCallback((value: string) => {
-    dispatch(waitingListActions.setSearchQuery(value));
-  }, [dispatch]);
+    setSearchQuery(value);
+  }, []);
 
   return (
     <TooltipProvider>

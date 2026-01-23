@@ -14,7 +14,8 @@ export function HomeTab({ userRole }: HomeTabProps) {
   const { data: plans = [] } = dashboardApi.useGetPlansQuery();
   const { data: waitingList = [] } = dashboardApi.useGetWaitingListQuery();
   const { data: clientList = [] } = dashboardApi.useGetClientsQuery();
-  const currentUser = useAppSelector((state) => state.auth.user);
+  const authUser = useAppSelector((state) => state.auth.user);
+  const currentUser = authUser as any; // Cast to access all properties
 
   const activePlans = plans.filter((p: any) => p.status === 'Active').length;
   const pendingPlans = plans.filter((p: any) => p.status === 'Pending').length;

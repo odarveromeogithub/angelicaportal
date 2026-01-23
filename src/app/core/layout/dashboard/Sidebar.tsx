@@ -2,8 +2,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { LogOut, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { useSelector } from 'react-redux';
-import { selectDashboardUser } from '../../state/selector/dashboard.selector';
+import { useAppSelector } from '../../state/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import { DASHBOARD_SEGMENTS, type DashboardRole, buildDashboardPath } from '../../constants/dashboard-paths';
 import { buildMenuItems } from '../../constants/sidebar-menu';
@@ -20,7 +19,8 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
   const location = useLocation();
   
   // Use auth selector to get dashboard user from authenticated user
-  const dashboardUser = useSelector(selectDashboardUser);
+  const authUser = useAppSelector((state) => state.auth.user);
+  const dashboardUser = authUser as any; // Cast to any to access all user properties
 
   // Get menu items from constants with computed paths
   const finalMenuItems = buildMenuItems(userRole);
@@ -74,6 +74,19 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
     return userRole === 'admin' ? 'AD' : userRole === 'sales' ? 'SC' : 'CL';
   };
 
+  // Render user avatar section
+  const renderUserAvatar = () => {
+    const initials = getUserInitials();
+    return (
+      <Avatar className="w-10 h-10 border-2 border-white">
+        <AvatarImage src={dashboardUser?.profile_photo_path} alt={dashboardUser?.name || 'User'} />
+        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
+
   return (
     <>
       {/* Mobile overlay */}
@@ -115,12 +128,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         {/* User Info */}
         <div className="px-4 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-blue-100">
-              {dashboardUser?.avatar && <AvatarImage src={dashboardUser.avatar} alt={dashboardUser.name} />}
-              <AvatarFallback className="bg-blue-50 text-blue-600 font-semibold text-sm">
-                {getUserInitials()}
-              </AvatarFallback>
-            </Avatar>
+            {renderUserAvatar()}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
                 {dashboardUser?.name || (userRole === 'admin' ? 'Admin' : userRole === 'sales' ? 'SC' : 'Client')}

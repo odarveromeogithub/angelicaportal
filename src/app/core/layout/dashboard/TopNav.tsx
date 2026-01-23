@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
-import { useSelector } from 'react-redux';
 import { Menu, Bell } from 'lucide-react';
-import { selectDashboardUser } from '../../state/selector/dashboard.selector';
+import { useAppSelector } from '../../state/hooks';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import {
@@ -20,7 +19,8 @@ interface TopNavProps {
 
 export function TopNav({ tabs, currentTab, onTabChange, onMenuClick }: TopNavProps) {
   // Use auth selector to get dashboard user from authenticated user
-  const dashboardUser = useSelector(selectDashboardUser);
+  const authUser = useAppSelector((state) => state.auth.user);
+  const dashboardUser = authUser as any; // Cast to any to access all user properties
 
   return (
     <TooltipProvider>

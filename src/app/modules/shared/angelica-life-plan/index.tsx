@@ -126,7 +126,7 @@ export default function AngelicaLifePlan() {
       }
 
       // Submit via RTK Query mutation
-      await submitMutation(formDataToSend).unwrap();
+      await submitMutation(formDataToSend as any).unwrap();
 
       toast.success("Form submitted successfully!");
       setTimeout(() => {
