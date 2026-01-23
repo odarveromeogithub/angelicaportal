@@ -5,11 +5,26 @@
 
 // Area/Region Options
 export const AREA_OPTIONS = [
-  { value: "Mindanao 1", label: "Mindanao 1" },
-  { value: "Mindanao 2", label: "Mindanao 2" },
-  { value: "Visayas", label: "Visayas" },
   { value: "Luzon", label: "Luzon" },
-  { value: "NCR", label: "NCR (National Capital Region)" },
+  { value: "Visayas", label: "Visayas" },
+  { value: "Mindanao", label: "Mindanao" },
+  { value: "Other", label: "Other (Abroad)" },
+];
+
+// Country Codes for Phone Input
+export const COUNTRY_CODES = [
+  { value: "+63", label: "🇵🇭 +63", country: "Philippines" },
+  { value: "+1", label: "🇺🇸 +1", country: "USA/Canada" },
+  { value: "+44", label: "🇬🇧 +44", country: "UK" },
+  { value: "+61", label: "🇦🇺 +61", country: "Australia" },
+  { value: "+65", label: "🇸🇬 +65", country: "Singapore" },
+  { value: "+60", label: "🇲🇾 +60", country: "Malaysia" },
+  { value: "+66", label: "🇹🇭 +66", country: "Thailand" },
+  { value: "+81", label: "🇯🇵 +81", country: "Japan" },
+  { value: "+82", label: "🇰🇷 +82", country: "South Korea" },
+  { value: "+86", label: "🇨🇳 +86", country: "China" },
+  { value: "+971", label: "🇦🇪 +971", country: "UAE" },
+  { value: "+966", label: "🇸🇦 +966", country: "Saudi Arabia" },
 ];
 
 // Phone Configuration

@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/core/components/ui/card"
+import { Checkbox } from "@/app/core/components/ui/checkbox"
 import { FormField, FormSelect, PhoneInput } from "@/app/core/components/form"
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks"
 import { register, resetRegister } from "@/app/core/state/reducer/auth";
@@ -32,10 +33,12 @@ export default function Register() {
     middle_name: "",
     last_name: "",
     contact_no: "",
+    country_code: "+63",
     area: "",
   })
 
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null)
 
   useEffect(() => {
@@ -46,13 +49,24 @@ export default function Register() {
       }
       toast.success(AUTH_MESSAGES.register.success)
       setTimeout(() => {
+        // Determine verification method based on area
+        const isPhilippines = formData.area === "Luzon" || formData.area === "Visayas" || formData.area === "Mindanao";
+        const verificationType = isPhilippines ? "phone" : "email";
+        const verificationValue = isPhilippines 
+          ? `${formData.country_code}${formData.contact_no}`
+          : formData.email;
+
         navigate(APP_ROUTES.OTP, {
-          state: { email: formData.email },
+          state: { 
+            email: formData.email,
+            contact_no: verificationValue,
+            verificationType: verificationType,
+          },
         })
         dispatch(resetRegister())
       }, 1500)
     }
-  }, [registerState.success, registerState.data, navigate, dispatch, formData.email, loadingToastId])
+  }, [registerState.success, registerState.data, navigate, dispatch, formData.email, formData.contact_no, formData.country_code, formData.area, loadingToastId])
 
   useEffect(() => {
     if (registerState.error) {
@@ -96,7 +110,7 @@ export default function Register() {
     event.preventDefault()
     const isValid = await validateForm()
     if (isValid) {
-      setShowConfirmation(true)
+      setShowPreview(true)
     }
   }
 
@@ -110,8 +124,11 @@ export default function Register() {
     }
   };
 
-  const handleConfirmRegister = () => {
-    setShowConfirmation(false)
+  const handleSendVerificationCode = () => {
+    if (!agreedToTerms) {
+      toast.error("Please agree to the terms and conditions");
+      return;
+    }
     const toastId = toast.loading(AUTH_MESSAGES.register.loading)
     setLoadingToastId(toastId)
     dispatch(
@@ -119,11 +136,16 @@ export default function Register() {
         email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        contact_no: formData.contact_no,
+        contact_no: formData.contact_no ? `${formData.country_code}${formData.contact_no}` : "",
         area: formData.area,
         middle_name: formData.middle_name,
       })
     )
+  }
+
+  const handleBackToForm = () => {
+    setShowPreview(false)
+    setAgreedToTerms(false)
   }
 
   return (
@@ -169,60 +191,7 @@ export default function Register() {
             )}
 
             <div className="flex flex-col gap-5">
-              <PhoneInput
-                label="Contact Number"
-                id="contact_no"
-                name="contact_no"
-                value={formData.contact_no}
-                onChange={(value) => handleChange("contact_no", value)}
-                placeholder="10 digit number"
-                required
-              />
-
-              <FormField
-                label="Email Address"
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="example@email.com"
-                required
-              />
-
-              <FormField
-                label="First Name"
-                id="first_name"
-                name="first_name"
-                type="text"
-                value={formData.first_name}
-                onChange={(e) => handleChange("first_name", e.target.value)}
-                placeholder="First Name"
-                required
-                autoFocus
-              />
-
-              <FormField
-                label="Middle Name (Optional)"
-                id="middle_name"
-                name="middle_name"
-                type="text"
-                value={formData.middle_name}
-                onChange={(e) => handleChange("middle_name", e.target.value)}
-                placeholder="Middle Name"
-              />
-
-              <FormField
-                label="Last Name"
-                id="last_name"
-                name="last_name"
-                type="text"
-                value={formData.last_name}
-                onChange={(e) => handleChange("last_name", e.target.value)}
-                placeholder="Last Name"
-                required
-              />
-
+              {/* Area Selection - First Field */}
               <FormSelect
                 label="Area"
                 id="area"
@@ -232,6 +201,100 @@ export default function Register() {
                 placeholder="Select Area"
                 required
               />
+
+              {/* Conditional: Phone for PH, Email for International */}
+              {formData.area && (formData.area === "Luzon" || formData.area === "Visayas" || formData.area === "Mindanao") && (
+                <PhoneInput
+                  label="Contact Number"
+                  id="contact_no"
+                  name="contact_no"
+                  value={formData.contact_no}
+                  onChange={(value) => handleChange("contact_no", value)}
+                  placeholder="10 digit number"
+                  required
+                  countryCode={formData.country_code}
+                  onCountryCodeChange={(value) => handleChange("country_code", value)}
+                />
+              )}
+
+              {formData.area === "Other" && (
+                <>
+                  <FormField
+                    label="Email Address"
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    placeholder="example@email.com"
+                    required
+                  />
+                  <PhoneInput
+                    label="Contact Number (Optional)"
+                    id="contact_no"
+                    name="contact_no"
+                    value={formData.contact_no}
+                    onChange={(value) => handleChange("contact_no", value)}
+                    placeholder="Phone number"
+                    required={false}
+                    countryCode={formData.country_code}
+                    onCountryCodeChange={(value) => handleChange("country_code", value)}
+                  />
+                </>
+              )}
+
+              {/* Name Fields - Side by Side */}
+              {formData.area && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                      label="First Name"
+                      id="first_name"
+                      name="first_name"
+                      type="text"
+                      value={formData.first_name}
+                      onChange={(e) => handleChange("first_name", e.target.value)}
+                      placeholder="First Name"
+                      required
+                      autoFocus
+                    />
+
+                    <FormField
+                      label="Last Name"
+                      id="last_name"
+                      name="last_name"
+                      type="text"
+                      value={formData.last_name}
+                      onChange={(e) => handleChange("last_name", e.target.value)}
+                      placeholder="Last Name"
+                      required
+                    />
+                  </div>
+
+                  <FormField
+                    label="Middle Name (Optional)"
+                    id="middle_name"
+                    name="middle_name"
+                    type="text"
+                    value={formData.middle_name}
+                    onChange={(e) => handleChange("middle_name", e.target.value)}
+                    placeholder="Middle Name"
+                  />
+
+                  {/* Show email field for PH users as optional */}
+                  {(formData.area === "Luzon" || formData.area === "Visayas" || formData.area === "Mindanao") && (
+                    <FormField
+                      label="Email Address (Optional)"
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
+                      placeholder="example@email.com"
+                    />
+                  )}
+                </>
+              )}
             </div>
           </CardContent>
 
@@ -240,9 +303,9 @@ export default function Register() {
               type="submit"
               disabled={registerState.loading || !isFormValid()}
               className={AUTH_CLASSES.button.primary}
-              aria-label="Submit registration form"
+              aria-label="Preview registration information"
             >
-              {registerState.loading ? "Processing..." : "Register"}
+              Preview
             </Button>
             {!isFormValid() && (
               <p className={AUTH_CLASSES.success}>
@@ -253,49 +316,96 @@ export default function Register() {
         </Card>
       </form>
 
-      {showConfirmation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md rounded-[24px] border border-blue-100 bg-white py-8 shadow-2xl">
-            <CardHeader className="items-center gap-3 text-center">
+      {showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+          <Card className="w-full max-w-md rounded-[24px] border border-blue-100 bg-white py-6 sm:py-8 shadow-2xl my-4">
+            <CardHeader className="items-center gap-3 text-center px-6 sm:px-8">
               <CardTitle className="text-xl font-semibold text-slate-800">
-                Confirm Registration
+                Preview Registration
               </CardTitle>
               <CardDescription className="text-sm text-slate-600">
-                Please verify that your information is correct
+                Please verify that your information is correct before sending the verification code
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 sm:px-8">
-              <div className="space-y-3 rounded-xl bg-slate-50 p-4">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-slate-600">Email:</span>
-                  <span className="text-sm text-slate-700">{formData.email}</span>
-                </div>
-                <div className="flex justify-between">
+              {/* Information Summary */}
+              <div className="space-y-3 rounded-xl bg-slate-50 p-4 mb-5">
+                <div className="flex justify-between items-start">
                   <span className="text-sm font-medium text-slate-600">Name:</span>
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-slate-700 text-right">
                     {formData.first_name} {formData.middle_name && `${formData.middle_name} `}
                     {formData.last_name}
                   </span>
                 </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-sm font-medium text-slate-600">Area:</span>
+                  <span className="text-sm text-slate-700">{formData.area}</span>
+                </div>
+                {formData.contact_no && (
+                  <div className="flex justify-between items-start">
+                    <span className="text-sm font-medium text-slate-600">Contact:</span>
+                    <span className="text-sm text-slate-700">{formData.country_code}{formData.contact_no}</span>
+                  </div>
+                )}
+                {formData.email && (
+                  <div className="flex justify-between items-start">
+                    <span className="text-sm font-medium text-slate-600">Email:</span>
+                    <span className="text-sm text-slate-700 text-right break-all">{formData.email}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Verification Code Destination Info */}
+              <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 mb-5">
+                <p className="text-xs sm:text-sm text-blue-800 font-medium mb-1">
+                  📱 Verification Code Will Be Sent To:
+                </p>
+                <p className="text-sm text-blue-700 font-semibold">
+                  {(formData.area === "Luzon" || formData.area === "Visayas" || formData.area === "Mindanao")
+                    ? `${formData.country_code}${formData.contact_no}`
+                    : formData.email}
+                </p>
+              </div>
+
+              {/* Terms and Conditions Checkbox */}
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
+                  <Checkbox
+                    id="terms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label
+                    htmlFor="terms"
+                    className="text-xs sm:text-sm text-slate-700 leading-relaxed cursor-pointer"
+                  >
+                    I hereby confirm that the information provided is accurate and correct. I understand and agree that this information will be used for CCLPI Plans Portal purposes and is protected under the{" "}
+                    <span className="font-semibold">Data Privacy Act of 2012 (Republic Act No. 10173)</span>.
+                    CCLPI Plans is committed to safeguarding your personal data and ensuring its confidentiality and security.
+                  </label>
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-3 px-5 pb-6 sm:flex-row sm:gap-3 sm:px-8">
+            <CardFooter className="flex flex-col gap-3 px-6 sm:px-8 pb-6">
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => setShowConfirmation(false)}
-                className={`${AUTH_CLASSES.button.outline} w-full sm:flex-1`}
-                aria-label="Go back to edit form"
+                onClick={handleSendVerificationCode}
+                disabled={!agreedToTerms || registerState.loading}
+                className={`${AUTH_CLASSES.button.primary} w-full`}
+                aria-label="Send verification code"
               >
-                Go Back
+                {registerState.loading ? "Sending..." : "Send Verification Code"}
               </Button>
               <Button
                 type="button"
-                onClick={handleConfirmRegister}
-                className={`${AUTH_CLASSES.button.primary} sm:flex-1 h-10 mt-0`}
-                aria-label="Confirm registration"
+                variant="outline"
+                onClick={handleBackToForm}
+                disabled={registerState.loading}
+                className={`${AUTH_CLASSES.button.outline} w-full`}
+                aria-label="Go back to edit form"
               >
-                Confirm
+                Go Back to Edit
               </Button>
             </CardFooter>
           </Card>

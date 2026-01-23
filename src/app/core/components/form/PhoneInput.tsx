@@ -1,6 +1,7 @@
 import { Label } from "@/app/core/components/ui/label";
-import { AUTH_CLASSES, AUTH_PHONE_CONFIG } from "@/app/core/constants/auth";
+import { AUTH_CLASSES, AUTH_PHONE_CONFIG, COUNTRY_CODES } from "@/app/core/constants/auth";
 import { cn } from "@/app/core/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/core/components/ui/select";
 
 interface PhoneInputProps {
   label: string;
@@ -13,6 +14,8 @@ interface PhoneInputProps {
   error?: string;
   disabled?: boolean;
   className?: string;
+  countryCode?: string;
+  onCountryCodeChange?: (value: string) => void;
 }
 
 export function PhoneInput({
@@ -26,6 +29,8 @@ export function PhoneInput({
   error,
   disabled = false,
   className,
+  countryCode = AUTH_PHONE_CONFIG.countryCode,
+  onCountryCodeChange,
 }: PhoneInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value.replace(/\D/g, '').slice(0, AUTH_PHONE_CONFIG.maxLength);
@@ -41,24 +46,41 @@ export function PhoneInput({
         {label}
         {required && <span className="text-red-600 ml-1">*</span>}
       </Label>
-      <div className={cn(AUTH_CLASSES.phoneWrapper, error && "border-red-500", className)}>
-        <span className={AUTH_CLASSES.phonePrefix}>
-          {AUTH_PHONE_CONFIG.countryCode}
-        </span>
-        <input
-          id={id}
-          name={name}
-          type="text"
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          disabled={disabled}
-          maxLength={AUTH_PHONE_CONFIG.maxLength}
-          className={AUTH_CLASSES.phoneInput}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${id}-error` : undefined}
-          aria-label={`Phone number without country code`}
-        />
+      <div className={cn("flex items-center gap-2", className)}>
+        {onCountryCodeChange ? (
+          <Select value={countryCode} onValueChange={onCountryCodeChange} disabled={disabled}>
+            <SelectTrigger className="w-[120px] h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl border-gray-200">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {COUNTRY_CODES.map((country) => (
+                <SelectItem key={country.value} value={country.value}>
+                  {country.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <span className="flex items-center justify-center w-[120px] h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl border border-gray-200 bg-gray-50 px-3 text-xs sm:text-sm font-semibold text-gray-600">
+            {countryCode}
+          </span>
+        )}
+        <div className={cn(AUTH_CLASSES.phoneWrapper, error && "border-red-500", "flex-1")}>
+          <input
+            id={id}
+            name={name}
+            type="text"
+            value={value}
+            onChange={handleChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            maxLength={AUTH_PHONE_CONFIG.maxLength}
+            className={AUTH_CLASSES.phoneInput}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            aria-label={`Phone number without country code`}
+          />
+        </div>
       </div>
       {error && (
         <p id={`${id}-error`} className={AUTH_CLASSES.error} role="alert">
