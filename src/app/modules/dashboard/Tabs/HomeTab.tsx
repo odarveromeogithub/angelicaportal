@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Calendar } from "lucide-react";
+import { useEffect } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import { StatCard } from "../../../core/components/dashboard/StatCard";
 import {
@@ -13,17 +14,50 @@ import {
   SALES_STATS_CONFIG,
 } from "../../../core/constants/dashboard-stats";
 import { useAppSelector } from "../../../core/state/hooks";
+import { useToast } from "../../../core/hooks/useToast";
 
 interface HomeTabProps {
   userRole: "client" | "sales" | "admin";
 }
 
 export function HomeTab({ userRole }: HomeTabProps) {
-  const { data: plans = [] } = dashboardApi.useGetPlansQuery();
-  const { data: waitingList = [] } = dashboardApi.useGetWaitingListQuery();
-  const { data: clientList = [] } = dashboardApi.useGetClientsQuery();
+  const toast = useToast();
+  const { data: plans = [], isError: plansError } =
+    dashboardApi.useGetPlansQuery();
+  const { data: waitingList = [], isError: waitingListError } =
+    dashboardApi.useGetWaitingListQuery();
+  const { data: clientList = [], isError: clientsError } =
+    dashboardApi.useGetClientsQuery();
   const authUser = useAppSelector((state) => state.auth.user);
   const currentUser = authUser as any; // Cast to access all properties
+
+  // Handle errors with toast notifications
+  useEffect(() => {
+    if (plansError) {
+      toast.error(
+        "Failed to load plans",
+        "Unable to fetch your plans. Please try again.",
+      );
+    }
+  }, [plansError, toast]);
+
+  useEffect(() => {
+    if (waitingListError) {
+      toast.error(
+        "Failed to load waiting list",
+        "Unable to fetch waiting list data. Please try again.",
+      );
+    }
+  }, [waitingListError, toast]);
+
+  useEffect(() => {
+    if (clientsError) {
+      toast.error(
+        "Failed to load clients",
+        "Unable to fetch client data. Please try again.",
+      );
+    }
+  }, [clientsError, toast]);
 
   const activePlans = plans.filter((p: any) => p.status === "Active").length;
   const pendingPlans = plans.filter((p: any) => p.status === "Pending").length;
@@ -55,7 +89,7 @@ export function HomeTab({ userRole }: HomeTabProps) {
   const stats = userRole === "client" ? clientStats : salesStats;
 
   return (
-    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-3 sm:space-y-3 md:space-y-3">
+    <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3 md:space-y-3">
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

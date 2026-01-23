@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
-import { Loader, Plus, Search } from "lucide-react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "../../../core/components/ui/button";
 import {
   PlanCard,
@@ -9,12 +9,28 @@ import {
   EmptyState,
 } from "../../../core/components/dashboard";
 import { dashboardApi } from "../../../core/state/api";
+import { useToast } from "../../../core/hooks/useToast";
+import { Skeleton } from "../../../core/components/ui/skeleton";
 
 export function PlanListTab() {
+  const toast = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const { data: plans = [], isLoading: loading } =
-    dashboardApi.useGetPlansQuery();
+  const {
+    data: plans = [],
+    isLoading: loading,
+    isError,
+  } = dashboardApi.useGetPlansQuery();
+
+  // Show error toast when data fetch fails
+  useEffect(() => {
+    if (isError) {
+      toast.error(
+        "Failed to load plans",
+        "Unable to fetch your plans. Please try again later.",
+      );
+    }
+  }, [isError, toast]);
 
   const filteredPlans = useMemo(() => {
     return plans.filter((plan: any) => {
@@ -36,7 +52,7 @@ export function PlanListTab() {
   }, []);
 
   return (
-    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-3 sm:space-y-3">
+    <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3">
       <DashboardHeader
         title="List of Plans"
         description="Manage and view all your plans"
@@ -67,8 +83,22 @@ export function PlanListTab() {
 
       {/* Plans List */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader className="w-6 h-6 md:w-8 md:h-8 animate-spin text-blue-600" />
+        <div className="space-y-4">
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6"
+            >
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <div className="flex gap-2 pt-2">
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-4">

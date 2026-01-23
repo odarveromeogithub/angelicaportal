@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
+import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import {
   HomeTab,
   PlanListTab,
@@ -59,6 +60,24 @@ export default function AngelicaPage() {
     navigate(path);
   };
 
+  // Generate breadcrumb items from current location
+  const getBreadcrumbItems = () => {
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+    const items = [{ label: "Home", href: "/dashboard" }];
+
+    if (pathSegments.length > 2) {
+      const tabName = pathSegments[2];
+      const tabLabel = tabName
+        .replace(/-/g, " ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+      items.push({ label: tabLabel, href: location.pathname });
+    }
+
+    return items;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar
@@ -81,6 +100,9 @@ export default function AngelicaPage() {
           transition={{ delay: 0.2 }}
           className="content-with-topnav pb-4 mx-auto px-4 sm:px-5 md:px-6"
         >
+          <div className="mb-4">
+            <Breadcrumb items={getBreadcrumbItems()} />
+          </div>
           <Routes>
             <Route index element={<Navigate to="home" replace />} />
             <Route

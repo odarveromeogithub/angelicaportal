@@ -1,12 +1,12 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'motion/react';
-import { Loader2, Users } from 'lucide-react';
-import { dashboardApi } from '../../state/api';
-import type { Agent } from '../../interfaces/dashboard.interface';
-import { DashboardHeader } from './DashboardHeader';
-import { SearchBar } from './SearchBar';
-import { EmptyState } from './EmptyState';
-import { Badge } from '../ui/badge';
+import { useState, useMemo, useEffect } from "react";
+import { motion } from "motion/react";
+import { Loader2, Users } from "lucide-react";
+import { dashboardApi } from "../../state/api";
+import type { Agent } from "../../interfaces/dashboard.interface";
+import { DashboardHeader } from "./DashboardHeader";
+import { SearchBar } from "./SearchBar";
+import { EmptyState } from "./EmptyState";
+import { Badge } from "../ui/badge";
 import {
   Table,
   TableBody,
@@ -14,11 +14,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from "../ui/table";
+import { useToast } from "../../hooks/useToast";
 
 export function AgentListTab() {
-  const { data: agents = [], isLoading: loading } = dashboardApi.useGetAgentsQuery();
-  const [searchQuery, setSearchQuery] = useState('');
+  const toast = useToast();
+  const {
+    data: agents = [],
+    isLoading: loading,
+    isError,
+  } = dashboardApi.useGetAgentsQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Show error toast when data fetch fails
+  useEffect(() => {
+    if (isError) {
+      toast.error(
+        "Failed to load agents",
+        "Unable to fetch agent list. Please try again later.",
+      );
+    }
+  }, [isError, toast]);
 
   const filteredAgents = useMemo(() => {
     if (!searchQuery.trim()) return agents;
@@ -27,7 +43,7 @@ export function AgentListTab() {
       (agent: Agent) =>
         agent.salesCounselorCode.toLowerCase().includes(query) ||
         agent.name.toLowerCase().includes(query) ||
-        agent.scStatus.toLowerCase().includes(query)
+        agent.scStatus.toLowerCase().includes(query),
     );
   }, [agents, searchQuery]);
 
@@ -62,11 +78,17 @@ export function AgentListTab() {
       <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs sm:text-sm font-semibold">Code</TableHead>
-                <TableHead className="text-xs sm:text-sm font-semibold">Name</TableHead>
-                <TableHead className="text-xs sm:text-sm font-semibold">Status</TableHead>
+            <TableHeader className="sticky top-0 bg-gray-50/80 backdrop-blur-sm z-10 border-b border-gray-200">
+              <TableRow className="hover:bg-gray-50/80">
+                <TableHead className="text-xs sm:text-sm font-semibold text-gray-700">
+                  Code
+                </TableHead>
+                <TableHead className="text-xs sm:text-sm font-semibold text-gray-700">
+                  Name
+                </TableHead>
+                <TableHead className="text-xs sm:text-sm font-semibold text-gray-700">
+                  Status
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,11 +100,15 @@ export function AgentListTab() {
                   transition={{ delay: index * 0.03 }}
                   className="group hover:bg-gray-50/50"
                 >
-                  <TableCell className="font-medium">{agent.salesCounselorCode}</TableCell>
+                  <TableCell className="font-medium">
+                    {agent.salesCounselorCode}
+                  </TableCell>
                   <TableCell className="font-medium">{agent.name}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={agent.scStatus === 'Active' ? 'default' : 'secondary'}
+                      variant={
+                        agent.scStatus === "Active" ? "default" : "secondary"
+                      }
                       className="font-semibold"
                     >
                       {agent.scStatus}

@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+﻿import { motion } from "motion/react";
 import {
   Search,
   Edit,
@@ -8,7 +8,7 @@ import {
   ChevronUp,
   MoreVertical,
 } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   DashboardHeader,
@@ -22,19 +22,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../core/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../../core/components/ui/tooltip";
 import { Button } from "../../../core/components/ui/button";
+import { useToast } from "../../../core/hooks/useToast";
+import { Skeleton } from "../../../core/components/ui/skeleton";
 
 export function ClientListTab() {
-  const { data: clients = [] } = dashboardApi.useGetClientsQuery();
+  const toast = useToast();
+  const {
+    data: clients = [],
+    isLoading,
+    isError,
+  } = dashboardApi.useGetClientsQuery();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(
+        "Failed to load clients",
+        "Unable to fetch client list. Please try again later.",
+      );
+    }
+  }, [isError, toast]);
 
   const filteredItems = useMemo(() => {
     return clients.filter((client: any) => {
@@ -63,31 +73,56 @@ export function ClientListTab() {
   );
 
   return (
-    <TooltipProvider>
-      <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13  space-y-3 sm:space-y-3">
-        <DashboardHeader
-          title="List of Client Plans"
-          description="View and manage all client plans"
-          count={filteredItems.length}
-          countLabel="Clients"
-        />
+    <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3">
+      <DashboardHeader
+        title="List of Client Plans"
+        description="View and manage all client plans"
+        count={filteredItems.length}
+        countLabel="Clients"
+      />
 
-        <FilterBar
-          searchValue={searchQuery}
-          onSearchChange={handleSearchChange}
-          searchPlaceholder="Search by name or LPAF number..."
-          filterValue={statusFilter}
-          onFilterChange={handleStatusFilterChange}
-          filterPlaceholder="Filter by status"
-          filterOptions={[
-            { value: "all", label: "All Plans" },
-            { value: "Active", label: "Active Plan" },
-            { value: "Lapsed", label: "Lapsed Plan" },
-            { value: "Pending", label: "Pending Plan" },
-          ]}
-        />
+      <FilterBar
+        searchValue={searchQuery}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Search by name or LPAF number..."
+        filterValue={statusFilter}
+        onFilterChange={handleStatusFilterChange}
+        filterPlaceholder="Filter by status"
+        filterOptions={[
+          { value: "all", label: "All Plans" },
+          { value: "Active", label: "Active Plan" },
+          { value: "Lapsed", label: "Lapsed Plan" },
+          { value: "Pending", label: "Pending Plan" },
+        ]}
+      />
 
-        {/* Client Plans List */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6"
+            >
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-6 w-full" />
+                </div>
+                <Skeleton className="h-8 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-gray-100">
+          <EmptyState
+            icon={Search}
+            title="No clients found"
+            description="Try adjusting your search or filter"
+          />
+        </div>
+      ) : (
         <div className="space-y-4">
           {filteredItems.map((client: any, index: number) => (
             <motion.div
@@ -97,7 +132,6 @@ export function ClientListTab() {
               transition={{ delay: index * 0.05 }}
               className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
             >
-              {/* Main Row */}
               <div className="p-5 md:p-6 flex flex-col lg:flex-row items-start lg:items-center gap-4">
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto">
                   <div>
@@ -136,47 +170,28 @@ export function ClientListTab() {
                 </div>
 
                 <div className="flex items-center gap-2 lg:border-l lg:border-gray-200 lg:pl-4 w-full lg:w-auto justify-end">
-                  {/* Desktop Actions */}
                   <div className="hidden sm:flex items-center gap-1.5">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Edit Client</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 hover:bg-green-50 hover:text-green-600 transition-colors"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>View Details</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Download</TooltipContent>
-                    </Tooltip>
-
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 hover:bg-green-50 hover:text-green-600 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -191,7 +206,6 @@ export function ClientListTab() {
                     </Button>
                   </div>
 
-                  {/* Mobile Actions */}
                   <div className="sm:hidden flex items-center gap-1.5">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -214,7 +228,6 @@ export function ClientListTab() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-
                     <Button
                       variant="ghost"
                       size="icon"
@@ -231,7 +244,6 @@ export function ClientListTab() {
                 </div>
               </div>
 
-              {/* Expanded Details */}
               {expandedId === client.id && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
@@ -288,17 +300,7 @@ export function ClientListTab() {
             </motion.div>
           ))}
         </div>
-
-        {filteredItems.length === 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100">
-            <EmptyState
-              icon={Search}
-              title="No clients found"
-              description="Try adjusting your search or filter"
-            />
-          </div>
-        )}
-      </div>
-    </TooltipProvider>
+      )}
+    </div>
   );
 }

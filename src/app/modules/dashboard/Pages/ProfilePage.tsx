@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
+import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import { Button } from "../../../core/components/ui/button";
 import { Camera, Upload, Edit } from "lucide-react";
 import {
@@ -47,6 +48,14 @@ export default function ProfilePage() {
             className="content-with-topnav-compact pb-10"
           >
             <div className="px-4 sm:px-5 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 space-y-5 sm:space-y-6">
+              <div className="mb-4">
+                <Breadcrumb
+                  items={[
+                    { label: "Home", href: "/dashboard" },
+                    { label: "Profile" },
+                  ]}
+                />
+              </div>
               <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
                 Profile Overview
               </h2>
