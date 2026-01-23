@@ -2,16 +2,20 @@ import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
 import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useAppSelector } from "../../../core/state/hooks";
+import { selectAuthUser } from "../../../core/state/selector/auth.selector";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
 
 export default function DashboardPage() {
-  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Determine user role based on route
-  const isAdminRole = location.pathname.includes("/admin");
-  const userRole = isAdminRole ? "admin" : "sales";
+  // Get user role from Redux auth state (not from pathname)
+  const authUser = useAppSelector(selectAuthUser);
+  const authenticatedUserRole = authUser?.role || "client";
+  const userRole = getDashboardRoleFromUser(
+    authenticatedUserRole as "admin" | "client" | "sc" | "um",
+  );
 
   return (
     <ErrorBoundary>
@@ -36,7 +40,7 @@ export default function DashboardPage() {
               <Breadcrumb
                 items={[
                   { label: "Home", href: "/dashboard" },
-                  { label: "Dashboard" },
+                  { label: "Dashboard", href: "#" },
                 ]}
               />
             </div>

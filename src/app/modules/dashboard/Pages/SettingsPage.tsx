@@ -1,18 +1,21 @@
 import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
 import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
-import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useAppSelector } from "../../../core/state/hooks";
+import { selectAuthUser } from "../../../core/state/selector/auth.selector";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
 
 export default function SettingsPage() {
-  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Determine user role based on route
-  const isAdminRole = location.pathname.includes("/admin");
-  const isSalesRole = location.pathname.includes("/sc");
-  const userRole = isAdminRole ? "admin" : isSalesRole ? "sales" : "client";
+  // Get user role from Redux auth state (not from pathname)
+  const authUser = useAppSelector(selectAuthUser);
+  const authenticatedUserRole = authUser?.role || "client";
+  const userRole = getDashboardRoleFromUser(
+    authenticatedUserRole as "admin" | "client" | "sc" | "um",
+  );
 
   return (
     <ErrorBoundary>
@@ -35,7 +38,7 @@ export default function SettingsPage() {
               <Breadcrumb
                 items={[
                   { label: "Home", href: "/dashboard" },
-                  { label: "Settings" },
+                  { label: "Settings", href: "#" },
                 ]}
               />
             </div>

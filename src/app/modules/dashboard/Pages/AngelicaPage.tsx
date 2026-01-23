@@ -21,6 +21,7 @@ import { useAppSelector } from "../../../core/state/hooks";
 import {
   selectIsAdmin,
   selectIsSales,
+  selectAuthUser,
 } from "../../../core/state/selector/auth.selector";
 import { getTabsForRole } from "../../../core/constants/navigation";
 import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
@@ -30,20 +31,16 @@ export default function AngelicaPage() {
   const navigate = useNavigate();
 
   // Use auth selectors instead of pathname detection
-  const authUser = useAppSelector((state) => state.auth.user);
-  const dashboardUser = authUser as any; // Cast to access all properties
+  const authUser = useAppSelector(selectAuthUser);
   const isAdminRole = useAppSelector(selectIsAdmin);
   const isSalesRole = useAppSelector(selectIsSales);
 
-  const authenticatedUserRole = dashboardUser?.role || "client";
+  const authenticatedUserRole = authUser?.role || "client";
   const userRole = getDashboardRoleFromUser(
     authenticatedUserRole as "admin" | "client" | "sc" | "um",
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Get user role from auth selector (client, sales, admin)
-  const userDisplayRole = dashboardUser?.role || "client";
 
   useEffect(() => {
     // RTK Query will automatically fetch data on component mount
@@ -105,10 +102,7 @@ export default function AngelicaPage() {
           </div>
           <Routes>
             <Route index element={<Navigate to="home" replace />} />
-            <Route
-              path="home"
-              element={<HomeTab userRole={userDisplayRole} />}
-            />
+            <Route path="home" element={<HomeTab userRole={userRole} />} />
             <Route path="plans" element={<PlanListTab />} />
             <Route path="waiting" element={<WaitingListTab />} />
 

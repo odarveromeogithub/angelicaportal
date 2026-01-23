@@ -9,21 +9,21 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../core/components/ui/card";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-import { selectAuthUser } from "../../../core/state/selector/auth.selector";
 import { useState } from "react";
+import { useAppSelector } from "../../../core/state/hooks";
+import { selectAuthUser } from "../../../core/state/selector/auth.selector";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
 
 export default function ProfilePage() {
-  const location = useLocation();
-  const currentUser = useSelector(selectAuthUser);
+  const currentUser = useAppSelector(selectAuthUser);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Determine user role based on route
-  const isAdminRole = location.pathname.includes("/admin");
-  const isSalesRole = location.pathname.includes("/sc");
-  const userRole = isAdminRole ? "admin" : isSalesRole ? "sales" : "client";
+  // Get user role from Redux auth state (not from pathname)
+  const authenticatedUserRole = currentUser?.role || "client";
+  const userRole = getDashboardRoleFromUser(
+    authenticatedUserRole as "admin" | "client" | "sc" | "um",
+  );
 
   // Get user data from current user
   const email = currentUser?.email || "user@example.com";
@@ -47,12 +47,12 @@ export default function ProfilePage() {
             transition={{ delay: 0.2 }}
             className="content-with-topnav-compact pb-10"
           >
-            <div className="px-4 sm:px-5 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 space-y-5 sm:space-y-6">
+            <div className="px-4 sm:px-2 md:px-4 lg:px-6 space-y-3 sm:space-y-3">
               <div className="mb-4">
                 <Breadcrumb
                   items={[
                     { label: "Home", href: "/dashboard" },
-                    { label: "Profile" },
+                    { label: "Profile", href: "#" },
                   ]}
                 />
               </div>
