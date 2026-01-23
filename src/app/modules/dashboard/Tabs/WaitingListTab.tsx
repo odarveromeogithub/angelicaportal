@@ -1,9 +1,13 @@
-import { motion } from 'motion/react';
-import { Search, Edit, Paperclip } from 'lucide-react';
-import { useState, useCallback, useMemo } from 'react';
-import { dashboardApi } from '../../../core/state/api';
-import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
-import { Badge } from '../../../core/components/ui/badge';
+import { motion } from "motion/react";
+import { Search, Edit, Paperclip } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { dashboardApi } from "../../../core/state/api";
+import {
+  DashboardHeader,
+  SearchBar,
+  EmptyState,
+} from "../../../core/components/dashboard";
+import { Badge } from "../../../core/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,24 +15,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../core/components/ui/table';
+} from "../../../core/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../../../core/components/ui/tooltip';
-import { Button } from '../../../core/components/ui/button';
+} from "../../../core/components/ui/tooltip";
+import { Button } from "../../../core/components/ui/button";
 
 export function WaitingListTab() {
-  const { data: waitingList = [], isLoading: loading } = dashboardApi.useGetWaitingListQuery();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { data: waitingList = [], isLoading: loading } =
+    dashboardApi.useGetWaitingListQuery();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredItems = useMemo(() => {
-    return waitingList.filter((item: any) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.policyNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.lpafNo.toLowerCase().includes(searchQuery.toLowerCase())
+    return waitingList.filter(
+      (item: any) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.policyNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.lpafNo.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [waitingList, searchQuery]);
 
@@ -38,7 +44,7 @@ export function WaitingListTab() {
 
   return (
     <TooltipProvider>
-      <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
+      <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7">
         <DashboardHeader
           title="Pending Plans"
           description="Review and manage pending applications"
@@ -77,7 +83,11 @@ export function WaitingListTab() {
                       <div className="flex gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
@@ -86,7 +96,11 @@ export function WaitingListTab() {
 
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                            >
                               <Paperclip className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
@@ -99,7 +113,10 @@ export function WaitingListTab() {
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="bg-yellow-50 text-yellow-700 border-yellow-200 font-semibold">
+                      <Badge
+                        variant="secondary"
+                        className="bg-yellow-50 text-yellow-700 border-yellow-200 font-semibold"
+                      >
                         {item.status}
                       </Badge>
                     </TableCell>

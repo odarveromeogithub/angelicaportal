@@ -1,20 +1,28 @@
-import { motion } from 'motion/react';
-import { useCallback, useMemo, useState } from 'react';
-import { Loader, Plus, Search } from 'lucide-react';
-import { Button } from '../../../core/components/ui/button';
-import { PlanCard, DashboardHeader, FilterBar, EmptyState } from '../../../core/components/dashboard';
-import { dashboardApi } from '../../../core/state/api';
+import { motion } from "motion/react";
+import { useCallback, useMemo, useState } from "react";
+import { Loader, Plus, Search } from "lucide-react";
+import { Button } from "../../../core/components/ui/button";
+import {
+  PlanCard,
+  DashboardHeader,
+  FilterBar,
+  EmptyState,
+} from "../../../core/components/dashboard";
+import { dashboardApi } from "../../../core/state/api";
 
 export function PlanListTab() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const { data: plans = [], isLoading: loading } = dashboardApi.useGetPlansQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const { data: plans = [], isLoading: loading } =
+    dashboardApi.useGetPlansQuery();
 
   const filteredPlans = useMemo(() => {
     return plans.filter((plan: any) => {
-      const matchesSearch = plan.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           plan.lpafNumber.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || plan.status === statusFilter;
+      const matchesSearch =
+        plan.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        plan.lpafNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || plan.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [plans, searchQuery, statusFilter]);
@@ -28,7 +36,7 @@ export function PlanListTab() {
   }, []);
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
+    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7">
       <DashboardHeader
         title="List of Plans"
         description="Manage and view all your plans"
@@ -50,10 +58,10 @@ export function PlanListTab() {
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
         filterOptions={[
-          { value: 'all', label: 'All Plans' },
-          { value: 'Active', label: 'Active Plan' },
-          { value: 'Lapsed', label: 'Lapsed Plan' },
-          { value: 'Pending', label: 'Pending Plan' },
+          { value: "all", label: "All Plans" },
+          { value: "Active", label: "Active Plan" },
+          { value: "Lapsed", label: "Lapsed Plan" },
+          { value: "Pending", label: "Pending Plan" },
         ]}
       />
 

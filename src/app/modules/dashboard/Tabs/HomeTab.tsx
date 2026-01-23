@@ -1,13 +1,21 @@
-import { motion } from 'motion/react';
-import { Calendar } from 'lucide-react';
-import { dashboardApi } from '../../../core/state/api';
-import { StatCard } from '../../../core/components/dashboard/StatCard';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../core/components/ui/card';
-import { CLIENT_STATS_CONFIG, SALES_STATS_CONFIG } from '../../../core/constants/dashboard-stats';
-import { useAppSelector } from '../../../core/state/hooks';
+import { motion } from "motion/react";
+import { Calendar } from "lucide-react";
+import { dashboardApi } from "../../../core/state/api";
+import { StatCard } from "../../../core/components/dashboard/StatCard";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../core/components/ui/card";
+import {
+  CLIENT_STATS_CONFIG,
+  SALES_STATS_CONFIG,
+} from "../../../core/constants/dashboard-stats";
+import { useAppSelector } from "../../../core/state/hooks";
 
 interface HomeTabProps {
-  userRole: 'client' | 'sales' | 'admin';
+  userRole: "client" | "sales" | "admin";
 }
 
 export function HomeTab({ userRole }: HomeTabProps) {
@@ -17,35 +25,37 @@ export function HomeTab({ userRole }: HomeTabProps) {
   const authUser = useAppSelector((state) => state.auth.user);
   const currentUser = authUser as any; // Cast to access all properties
 
-  const activePlans = plans.filter((p: any) => p.status === 'Active').length;
-  const pendingPlans = plans.filter((p: any) => p.status === 'Pending').length;
-  const lapsedPlans = plans.filter((p: any) => p.status === 'Lapsed').length;
+  const activePlans = plans.filter((p: any) => p.status === "Active").length;
+  const pendingPlans = plans.filter((p: any) => p.status === "Pending").length;
+  const lapsedPlans = plans.filter((p: any) => p.status === "Lapsed").length;
 
   // Build stats array with values from selectors
-  const clientStats = CLIENT_STATS_CONFIG.map(config => ({
+  const clientStats = CLIENT_STATS_CONFIG.map((config) => ({
     ...config,
-    value: config.title === 'Total Plans' 
-      ? plans.length
-      : config.title === 'Active Plans'
-      ? activePlans
-      : pendingPlans + waitingList.length
+    value:
+      config.title === "Total Plans"
+        ? plans.length
+        : config.title === "Active Plans"
+          ? activePlans
+          : pendingPlans + waitingList.length,
   }));
 
-  const salesStats = SALES_STATS_CONFIG.map(config => ({
+  const salesStats = SALES_STATS_CONFIG.map((config) => ({
     ...config,
-    value: config.title === 'Total Clients'
-      ? clientList.length
-      : config.title === 'Active Plans'
-      ? activePlans
-      : config.title === 'Pending Applications'
-      ? waitingList.length
-      : plans.length
+    value:
+      config.title === "Total Clients"
+        ? clientList.length
+        : config.title === "Active Plans"
+          ? activePlans
+          : config.title === "Pending Applications"
+            ? waitingList.length
+            : plans.length,
   }));
 
-  const stats = userRole === 'client' ? clientStats : salesStats;
+  const stats = userRole === "client" ? clientStats : salesStats;
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7 md:space-y-8">
+    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7 md:space-y-8">
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -58,17 +68,28 @@ export function HomeTab({ userRole }: HomeTabProps) {
               Welcome, {currentUser?.name}! 👋
             </h1>
             <p className="text-blue-50 text-base md:text-lg max-w-2xl">
-              {userRole === 'client'
-                ? 'Track and manage your plans in one place'
-                : userRole === 'sales'
-                ? 'Manage your clients and their plans efficiently'
-                : 'Comprehensive overview of all system activities'}
+              {userRole === "client"
+                ? "Track and manage your plans in one place"
+                : userRole === "sales"
+                  ? "Manage your clients and their plans efficiently"
+                  : "Comprehensive overview of all system activities"}
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm bg-blue-600/50 rounded-lg px-3 py-2">
             <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-            <span className="sm:hidden">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <span className="hidden sm:inline">
+              {new Date().toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+            <span className="sm:hidden">
+              {new Date().toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
           </div>
         </div>
       </motion.div>
@@ -90,7 +111,7 @@ export function HomeTab({ userRole }: HomeTabProps) {
       </div>
 
       {/* Quick Summary */}
-      {userRole === 'client' && (
+      {userRole === "client" && (
         <Card>
           <CardHeader>
             <CardTitle>Plan Summary</CardTitle>
@@ -99,15 +120,21 @@ export function HomeTab({ userRole }: HomeTabProps) {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-sm text-green-700 font-medium">Active</p>
-                <p className="text-2xl font-bold text-green-900 mt-1">{activePlans}</p>
+                <p className="text-2xl font-bold text-green-900 mt-1">
+                  {activePlans}
+                </p>
               </div>
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm text-red-700 font-medium">Lapsed</p>
-                <p className="text-2xl font-bold text-red-900 mt-1">{lapsedPlans}</p>
+                <p className="text-2xl font-bold text-red-900 mt-1">
+                  {lapsedPlans}
+                </p>
               </div>
               <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <p className="text-sm text-yellow-700 font-medium">Pending</p>
-                <p className="text-2xl font-bold text-yellow-900 mt-1">{pendingPlans}</p>
+                <p className="text-2xl font-bold text-yellow-900 mt-1">
+                  {pendingPlans}
+                </p>
               </div>
             </div>
           </CardContent>

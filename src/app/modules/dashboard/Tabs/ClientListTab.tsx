@@ -46,7 +46,7 @@ export function ClientListTab() {
 
   return (
     <TooltipProvider>
-      <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7">
+      <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7">
         <DashboardHeader
           title="List of Client Plans"
           description="View and manage all client plans"

@@ -1,9 +1,13 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'motion/react';
-import { Loader2, Users } from 'lucide-react';
-import { dashboardApi } from '../../../core/state/api';
-import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
-import { Badge } from '../../../core/components/ui/badge';
+import { useState, useMemo } from "react";
+import { motion } from "motion/react";
+import { Loader2, Users } from "lucide-react";
+import { dashboardApi } from "../../../core/state/api";
+import {
+  DashboardHeader,
+  SearchBar,
+  EmptyState,
+} from "../../../core/components/dashboard";
+import { Badge } from "../../../core/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,11 +15,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../core/components/ui/table';
+} from "../../../core/components/ui/table";
 
 export function AgentListTab() {
-  const { data: agents = [], isLoading: loading } = dashboardApi.useGetAgentsQuery();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { data: agents = [], isLoading: loading } =
+    dashboardApi.useGetAgentsQuery();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredAgents = useMemo(() => {
     if (!searchQuery.trim()) return agents;
@@ -24,7 +29,7 @@ export function AgentListTab() {
       (agent: any) =>
         agent.salesCounselorCode.toLowerCase().includes(query) ||
         agent.name.toLowerCase().includes(query) ||
-        agent.scStatus.toLowerCase().includes(query)
+        agent.scStatus.toLowerCase().includes(query),
     );
   }, [agents, searchQuery]);
 
@@ -40,7 +45,7 @@ export function AgentListTab() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 space-y-6 sm:space-y-7"
+      className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7"
     >
       <DashboardHeader
         title="Agent List"
@@ -61,9 +66,15 @@ export function AgentListTab() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-xs sm:text-sm font-semibold">Code</TableHead>
-                <TableHead className="text-xs sm:text-sm font-semibold">Name</TableHead>
-                <TableHead className="text-xs sm:text-sm font-semibold">Status</TableHead>
+                <TableHead className="text-xs sm:text-sm font-semibold">
+                  Code
+                </TableHead>
+                <TableHead className="text-xs sm:text-sm font-semibold">
+                  Name
+                </TableHead>
+                <TableHead className="text-xs sm:text-sm font-semibold">
+                  Status
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,11 +86,15 @@ export function AgentListTab() {
                   transition={{ delay: index * 0.03 }}
                   className="group hover:bg-gray-50/50"
                 >
-                  <TableCell className="font-medium">{agent.salesCounselorCode}</TableCell>
+                  <TableCell className="font-medium">
+                    {agent.salesCounselorCode}
+                  </TableCell>
                   <TableCell className="font-medium">{agent.name}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={agent.scStatus === 'Active' ? 'default' : 'secondary'}
+                      variant={
+                        agent.scStatus === "Active" ? "default" : "secondary"
+                      }
                       className="font-semibold"
                     >
                       {agent.scStatus}
