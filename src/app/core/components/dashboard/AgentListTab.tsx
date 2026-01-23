@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { Loader2, Users } from 'lucide-react';
-import { selectAgents, selectAgentsLoading } from '../../state/selector/dashboard.selector';
+import { dashboardApi } from '../../state/api';
 import type { Agent } from '../../interfaces/dashboard.interface';
 import { DashboardHeader } from './DashboardHeader';
 import { SearchBar } from './SearchBar';
@@ -18,8 +17,7 @@ import {
 } from '../ui/table';
 
 export function AgentListTab() {
-  const agents = useSelector(selectAgents);
-  const loading = useSelector(selectAgentsLoading);
+  const { data: agents = [], isLoading: loading } = dashboardApi.useGetAgentsQuery();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredAgents = useMemo(() => {

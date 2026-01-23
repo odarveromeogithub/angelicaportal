@@ -3,15 +3,8 @@ import createSagaMiddleware from "redux-saga";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "./reducer/auth/auth";
-import {
-  plansReducer,
-  waitingListReducer,
-  clientListReducer,
-  agentListReducer,
-  usersListReducer,
-} from "./reducer/dashboard";
+import { baseApi } from "./api";
 import { rootSaga } from "./saga/auth";
-import dashboardRootSaga from "./saga/dashboard";
 
 // Persist config
 const persistConfig = {
@@ -29,23 +22,20 @@ const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
   reducer: {
     auth: persistedReducer,
-    dashboard_plans: plansReducer,
-    dashboard_waitingList: waitingListReducer,
-    dashboard_clientList: clientListReducer,
-    dashboard_agentList: agentListReducer,
-    dashboard_usersList: usersListReducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
-    }).concat(sagaMiddleware),
+    })
+    .concat(sagaMiddleware)
+    .concat(baseApi.middleware),
 });
 
 // Run the sagas
 sagaMiddleware.run(rootSaga);
-sagaMiddleware.run(dashboardRootSaga);
 
 // Create persistor
 export const persistor = persistStore(store);

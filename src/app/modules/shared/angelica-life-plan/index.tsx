@@ -7,6 +7,7 @@ import Step2Planholder from "./steps/Step2Planholder.tsx";
 import Step3Beneficiary from "./steps/Step3Beneficiary.tsx";
 import Step4Submit from "./steps/Step4Submit.tsx";
 import { ANGELICA_FORM_STEPS } from "@/app/core/constants/angelica-form-steps";
+import { angelicaLifePlanApi } from "@/app/core/state/api";
 import type {
   IAngelicaLifePlanFormData,
   IBeneficiaryFormData,
@@ -18,6 +19,7 @@ export default function AngelicaLifePlan() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitMutation] = angelicaLifePlanApi.useSubmitAngelicaLifePlanMutation();
 
   const [formData, setFormData] = useState<IAngelicaLifePlanFormData>({
     plan: {
@@ -98,6 +100,7 @@ export default function AngelicaLifePlan() {
   }) => {
     setIsLoading(true);
     try {
+      setIsLoading(true);
       // Create FormData for multipart submission
       const formDataToSend = new FormData();
 
@@ -122,18 +125,8 @@ export default function AngelicaLifePlan() {
         formDataToSend.append("id_upload", submitData.id_upload);
       }
 
-      // Submit to your backend
-      const response = await fetch("/api/angelica-life-plan/submit", {
-        method: "POST",
-        body: formDataToSend,
-        headers: {
-          // Don't set Content-Type for FormData, browser will set it automatically
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit form");
-      }
+      // Submit via RTK Query mutation
+      await submitMutation(formDataToSend).unwrap();
 
       toast.success("Form submitted successfully!");
       setTimeout(() => {

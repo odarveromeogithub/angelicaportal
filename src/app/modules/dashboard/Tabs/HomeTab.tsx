@@ -1,20 +1,20 @@
 import { motion } from 'motion/react';
-import { useSelector } from 'react-redux';
 import { Calendar } from 'lucide-react';
-import { selectDashboardUser, selectPlans, selectWaitingList, selectClients } from '../../../core/state/selector/dashboard.selector';
+import { dashboardApi } from '../../../core/state/api';
 import { StatCard } from '../../../core/components/dashboard/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../core/components/ui/card';
 import { CLIENT_STATS_CONFIG, SALES_STATS_CONFIG } from '../../../core/constants/dashboard-stats';
+import { useAppSelector } from '../../../core/state/hooks';
 
 interface HomeTabProps {
   userRole: 'client' | 'sales' | 'admin';
 }
 
 export function HomeTab({ userRole }: HomeTabProps) {
-  const plans = useSelector(selectPlans);
-  const waitingList = useSelector(selectWaitingList);
-  const clientList = useSelector(selectClients);
-  const currentUser = useSelector(selectDashboardUser);
+  const { data: plans = [] } = dashboardApi.useGetPlansQuery();
+  const { data: waitingList = [] } = dashboardApi.useGetWaitingListQuery();
+  const { data: clientList = [] } = dashboardApi.useGetClientsQuery();
+  const currentUser = useAppSelector((state) => state.auth.user);
 
   const activePlans = plans.filter((p: any) => p.status === 'Active').length;
   const pendingPlans = plans.filter((p: any) => p.status === 'Pending').length;

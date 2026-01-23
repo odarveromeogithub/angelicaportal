@@ -1,1 +1,0 @@
-export { angelicaLifePlanService } from "./angelica-life-plan.service";

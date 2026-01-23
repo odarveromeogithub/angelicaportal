@@ -45,6 +45,8 @@ export interface WaitingListItem {
   status: string;
 }
 
+export type WaitingList = WaitingListItem; // Alias for consistency
+
 export interface Client {
   id: string;
   name: string;
@@ -60,7 +62,7 @@ export interface Agent {
   scStatus: 'Active' | 'Expired';
 }
 
-export interface SystemUser {
+export interface User {
   id: string;
   username: string;
   name: string;
@@ -68,6 +70,8 @@ export interface SystemUser {
   userType: 'ADMIN' | 'SC';
   contactNo: string;
 }
+
+export type SystemUser = User; // Alias for backward compatibility
 
 export type DashboardUserRole = 'client' | 'sales' | 'admin';
 

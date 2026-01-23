@@ -1,14 +1,7 @@
 import { motion } from 'motion/react';
 import { Search, Edit, Eye, Download, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useState, useCallback } from 'react';
-import { clientListActions } from '../../../core/state/reducer/dashboard';
-import type { AppDispatch } from '../../../core/state/store';
-import {
-  selectFilteredClients,
-  selectClientsSearchQuery,
-  selectClientsStatusFilter
-} from '../../../core/state/selector/dashboard.selector';
+import { useState, useCallback, useMemo } from 'react';
+import { dashboardApi } from '../../../core/state/api';
 import { DashboardHeader, FilterBar, EmptyState } from '../../../core/components/dashboard';
 import { Badge } from '../../../core/components/ui/badge';
 import {
@@ -26,19 +19,26 @@ import {
 import { Button } from '../../../core/components/ui/button';
 
 export function ClientListTab() {
-  const dispatch = useDispatch<AppDispatch>();
-  const filteredItems = useSelector(selectFilteredClients);
-  const searchQuery = useSelector(selectClientsSearchQuery);
-  const statusFilter = useSelector(selectClientsStatusFilter);
+  const { data: clients = [] } = dashboardApi.useGetClientsQuery();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredItems = useMemo(() => {
+    return clients.filter((client: any) => {
+      const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || client.accountStatus === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [clients, searchQuery, statusFilter]);
 
   const handleStatusFilterChange = useCallback((value: string) => {
-    dispatch(clientListActions.setStatusFilter(value));
-  }, [dispatch]);
+    setStatusFilter(value);
+  }, []);
 
   const handleSearchChange = useCallback((value: string) => {
-    dispatch(clientListActions.setSearchQuery(value));
-  }, [dispatch]);
+    setSearchQuery(value);
+  }, []);
 
   const handleToggleExpand = useCallback((id: string) => {
     setExpandedId(expandedId === id ? null : id);
