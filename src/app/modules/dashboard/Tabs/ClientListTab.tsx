@@ -1,33 +1,48 @@
-import { motion } from 'motion/react';
-import { Search, Edit, Eye, Download, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
-import { useState, useCallback, useMemo } from 'react';
-import { dashboardApi } from '../../../core/state/api';
-import { DashboardHeader, FilterBar, EmptyState } from '../../../core/components/dashboard';
-import { Badge } from '../../../core/components/ui/badge';
+import { motion } from "motion/react";
+import {
+  Search,
+  Edit,
+  Eye,
+  Download,
+  ChevronDown,
+  ChevronUp,
+  MoreVertical,
+} from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { dashboardApi } from "../../../core/state/api";
+import {
+  DashboardHeader,
+  FilterBar,
+  EmptyState,
+} from "../../../core/components/dashboard";
+import { Badge } from "../../../core/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../core/components/ui/dropdown-menu';
+} from "../../../core/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../../../core/components/ui/tooltip';
-import { Button } from '../../../core/components/ui/button';
+} from "../../../core/components/ui/tooltip";
+import { Button } from "../../../core/components/ui/button";
 
 export function ClientListTab() {
   const { data: clients = [] } = dashboardApi.useGetClientsQuery();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredItems = useMemo(() => {
     return clients.filter((client: any) => {
-      const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || client.accountStatus === statusFilter;
+      const matchesSearch = client.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || client.accountStatus === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [clients, searchQuery, statusFilter]);
@@ -40,13 +55,16 @@ export function ClientListTab() {
     setSearchQuery(value);
   }, []);
 
-  const handleToggleExpand = useCallback((id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  }, [expandedId]);
+  const handleToggleExpand = useCallback(
+    (id: string) => {
+      setExpandedId(expandedId === id ? null : id);
+    },
+    [expandedId],
+  );
 
   return (
     <TooltipProvider>
-      <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7">
+      <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13  space-y-3 sm:space-y-3">
         <DashboardHeader
           title="List of Client Plans"
           description="View and manage all client plans"
@@ -62,10 +80,10 @@ export function ClientListTab() {
           onFilterChange={handleStatusFilterChange}
           filterPlaceholder="Filter by status"
           filterOptions={[
-            { value: 'all', label: 'All Plans' },
-            { value: 'Active', label: 'Active Plan' },
-            { value: 'Lapsed', label: 'Lapsed Plan' },
-            { value: 'Pending', label: 'Pending Plan' },
+            { value: "all", label: "All Plans" },
+            { value: "Active", label: "Active Plan" },
+            { value: "Lapsed", label: "Lapsed Plan" },
+            { value: "Pending", label: "Pending Plan" },
           ]}
         />
 
@@ -83,24 +101,32 @@ export function ClientListTab() {
               <div className="p-5 md:p-6 flex flex-col lg:flex-row items-start lg:items-center gap-4">
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">LPAF</p>
+                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      LPAF
+                    </p>
                     <p className="text-base font-bold text-gray-900 truncate">
                       {client.policyNo} | {client.lpafNo}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Full Name</p>
-                    <p className="text-base font-bold text-gray-900 truncate">{client.name}</p>
+                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      Full Name
+                    </p>
+                    <p className="text-base font-bold text-gray-900 truncate">
+                      {client.name}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Status</p>
+                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      Status
+                    </p>
                     <Badge
                       variant={
-                        client.status === 'Active'
-                          ? 'default'
-                          : client.status === 'Lapsed'
-                          ? 'destructive'
-                          : 'secondary'
+                        client.status === "Active"
+                          ? "default"
+                          : client.status === "Lapsed"
+                            ? "destructive"
+                            : "secondary"
                       }
                       className="font-semibold"
                     >
@@ -114,7 +140,11 @@ export function ClientListTab() {
                   <div className="hidden sm:flex items-center gap-1.5">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </TooltipTrigger>
@@ -123,7 +153,11 @@ export function ClientListTab() {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-green-50 hover:text-green-600 transition-colors">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 hover:bg-green-50 hover:text-green-600 transition-colors"
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
                       </TooltipTrigger>
@@ -132,7 +166,11 @@ export function ClientListTab() {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                        >
                           <Download className="w-4 h-4" />
                         </Button>
                       </TooltipTrigger>
@@ -204,25 +242,45 @@ export function ClientListTab() {
                   <div className="p-4 md:p-5 lg:p-6 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Plan Type</p>
-                        <p className="text-base font-bold text-gray-900">{client.planType}</p>
+                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                          Plan Type
+                        </p>
+                        <p className="text-base font-bold text-gray-900">
+                          {client.planType}
+                        </p>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Contract Price</p>
-                        <p className="text-base font-bold text-gray-900">{client.contractPrice}</p>
+                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                          Contract Price
+                        </p>
+                        <p className="text-base font-bold text-gray-900">
+                          {client.contractPrice}
+                        </p>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Email</p>
-                        <p className="text-base font-bold text-gray-900 break-all">{client.email}</p>
+                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                          Email
+                        </p>
+                        <p className="text-base font-bold text-gray-900 break-all">
+                          {client.email}
+                        </p>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Contact</p>
-                        <p className="text-base font-bold text-gray-900">{client.contactNumber}</p>
+                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                          Contact
+                        </p>
+                        <p className="text-base font-bold text-gray-900">
+                          {client.contactNumber}
+                        </p>
                       </div>
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">Address</p>
-                      <p className="text-base font-bold text-gray-900">{client.address}</p>
+                      <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                        Address
+                      </p>
+                      <p className="text-base font-bold text-gray-900">
+                        {client.address}
+                      </p>
                     </div>
                   </div>
                 </motion.div>

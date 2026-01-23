@@ -1,10 +1,22 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'motion/react';
-import { Loader2, UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from 'lucide-react';
-import { dashboardApi } from '../../../core/state/api';
-import { DashboardHeader, SearchBar, EmptyState } from '../../../core/components/dashboard';
-import { Button } from '../../../core/components/ui/button';
-import { Badge } from '../../../core/components/ui/badge';
+import { useState, useMemo } from "react";
+import { motion } from "motion/react";
+import {
+  Loader2,
+  UserPlus,
+  Users,
+  Edit,
+  RotateCw,
+  Mail,
+  Trash2,
+} from "lucide-react";
+import { dashboardApi } from "../../../core/state/api";
+import {
+  DashboardHeader,
+  SearchBar,
+  EmptyState,
+} from "../../../core/components/dashboard";
+import { Button } from "../../../core/components/ui/button";
+import { Badge } from "../../../core/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -12,17 +24,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../core/components/ui/table';
+} from "../../../core/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../../../core/components/ui/tooltip';
+} from "../../../core/components/ui/tooltip";
 
 export function UsersListTab() {
-  const { data: users = [], isLoading: loading } = dashboardApi.useGetUsersQuery();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { data: users = [], isLoading: loading } =
+    dashboardApi.useGetUsersQuery();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) return users;
@@ -32,7 +45,7 @@ export function UsersListTab() {
         user.username.toLowerCase().includes(query) ||
         user.name.toLowerCase().includes(query) ||
         user.agentCode.toLowerCase().includes(query) ||
-        user.userType.toLowerCase().includes(query)
+        user.userType.toLowerCase().includes(query),
     );
   }, [users, searchQuery]);
 
@@ -49,7 +62,7 @@ export function UsersListTab() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7"
+        className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-3 sm:space-y-3"
       >
         <DashboardHeader
           title="Users Management"
@@ -103,7 +116,11 @@ export function UsersListTab() {
                       <div className="flex items-center gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
@@ -112,7 +129,11 @@ export function UsersListTab() {
 
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 transition-colors">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                            >
                               <RotateCw className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
@@ -121,17 +142,25 @@ export function UsersListTab() {
 
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                            >
                               <Mail className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Send Email</TooltipContent>
                         </Tooltip>
 
-                        {user.userType === 'SC' && (
+                        {user.userType === "SC" && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 hover:text-red-600 transition-colors">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
@@ -140,18 +169,26 @@ export function UsersListTab() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm font-medium">{user.username}</TableCell>
+                    <TableCell className="font-mono text-sm font-medium">
+                      {user.username}
+                    </TableCell>
                     <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="font-medium text-gray-600">{user.agentCode}</TableCell>
+                    <TableCell className="font-medium text-gray-600">
+                      {user.agentCode}
+                    </TableCell>
                     <TableCell>
                       <Badge
-                        variant={user.userType === 'ADMIN' ? 'default' : 'secondary'}
+                        variant={
+                          user.userType === "ADMIN" ? "default" : "secondary"
+                        }
                         className="font-semibold"
                       >
                         {user.userType}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-600">{user.contactNo}</TableCell>
+                    <TableCell className="text-gray-600">
+                      {user.contactNo}
+                    </TableCell>
                   </motion.tr>
                 ))}
               </TableBody>

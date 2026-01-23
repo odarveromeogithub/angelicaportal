@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
-import { Input } from '../ui/input';
+import { Search } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface SearchBarProps {
   value: string;
@@ -11,11 +11,13 @@ interface SearchBarProps {
 export function SearchBar({
   value,
   onChange,
-  placeholder = 'Search...',
-  className = '',
+  placeholder = "Search...",
+  className = "",
 }: SearchBarProps) {
   return (
-    <div className={`bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-gray-100 ${className}`}>
+    <div
+      className={`bg-white rounded-2xl p-3 md:p-4 shadow-sm border border-gray-100 ${className}`}
+    >
       <div className="relative">
         <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
         <Input

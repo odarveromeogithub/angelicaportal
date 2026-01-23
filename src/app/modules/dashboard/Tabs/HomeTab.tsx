@@ -55,7 +55,7 @@ export function HomeTab({ userRole }: HomeTabProps) {
   const stats = userRole === "client" ? clientStats : salesStats;
 
   return (
-    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7 md:space-y-8">
+    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-3 sm:space-y-3 md:space-y-3">
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

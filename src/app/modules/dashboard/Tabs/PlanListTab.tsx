@@ -36,7 +36,7 @@ export function PlanListTab() {
   }, []);
 
   return (
-    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-6 sm:space-y-7">
+    <div className="py-11 sm:py-8 md:py-14 lg:py-16 xl:py-13 space-y-3 sm:space-y-3">
       <DashboardHeader
         title="List of Plans"
         description="Manage and view all your plans"

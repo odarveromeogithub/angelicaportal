@@ -1,12 +1,12 @@
-import { Search } from 'lucide-react';
-import { Input } from '../ui/input';
+import { Search } from "lucide-react";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from "../ui/select";
 
 interface FilterOption {
   value: string;
@@ -27,15 +27,17 @@ interface FilterBarProps {
 export function FilterBar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = "Search...",
   filterValue,
   onFilterChange,
-  filterPlaceholder = 'Filter',
+  filterPlaceholder = "Filter",
   filterOptions = [],
-  className = '',
+  className = "",
 }: FilterBarProps) {
   return (
-    <div className={`bg-white p-6 md:p-7 rounded-2xl shadow-sm border border-gray-100 ${className}`}>
+    <div
+      className={`bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 ${className}`}
+    >
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
