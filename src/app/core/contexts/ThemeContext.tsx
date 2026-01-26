@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 type Theme = "light" | "dark" | "system";
 
@@ -11,10 +12,19 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+// Public routes that should not have theme styling
+const PUBLIC_ROUTES_NO_THEME = ["/login", "/register", "/otp", "/angelica"];
+
+function ThemeProviderContent({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
+  const location = useLocation();
+
+  // Check if current route should have theme applied
+  const shouldApplyTheme = !PUBLIC_ROUTES_NO_THEME.some((route) =>
+    location.pathname.startsWith(route),
+  );
 
   // Initialize theme from localStorage and system preference
   useEffect(() => {
@@ -23,9 +33,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const initialTheme = stored || "system";
     setThemeState(initialTheme);
 
-    // Apply theme
-    applyTheme(initialTheme);
-  }, []);
+    // Apply theme if on authenticated routes
+    if (shouldApplyTheme) {
+      applyTheme(initialTheme);
+    } else {
+      removeTheme();
+    }
+  }, [shouldApplyTheme]);
 
   // Watch for system theme changes
   useEffect(() => {
@@ -34,14 +48,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handleChange = () => {
-      if (theme === "system") {
+      if (theme === "system" && shouldApplyTheme) {
         applyTheme("system");
       }
     };
 
     darkModeQuery.addEventListener("change", handleChange);
     return () => darkModeQuery.removeEventListener("change", handleChange);
-  }, [theme, mounted]);
+  }, [theme, mounted, shouldApplyTheme]);
 
   const applyTheme = (newTheme: Theme) => {
     const htmlElement = document.documentElement;
@@ -65,10 +79,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setResolvedTheme(effectiveTheme);
   };
 
+  const removeTheme = () => {
+    const htmlElement = document.documentElement;
+    htmlElement.classList.remove("dark");
+    setResolvedTheme("light");
+  };
+
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem("theme-preference", newTheme);
-    applyTheme(newTheme);
+    if (shouldApplyTheme) {
+      applyTheme(newTheme);
+    }
   };
 
   const toggleTheme = () => {
@@ -86,6 +108,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       {mounted ? children : <div className="invisible">{children}</div>}
     </ThemeContext.Provider>
   );
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return <ThemeProviderContent>{children}</ThemeProviderContent>;
 }
 
 export function useTheme() {

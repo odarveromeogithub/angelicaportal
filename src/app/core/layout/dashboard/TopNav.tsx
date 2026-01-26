@@ -93,7 +93,7 @@ export function TopNav({
                 <button
                   key={tab.path}
                   onClick={() => onTabChange?.(tab.path)}
-                  className={`relative pb-3 px-5 flex-shrink-0 transition-all ${
+                  className={`relative pb-2 pt-2 px-5 flex-shrink-0 transition-all rounded-t-md ${
                     currentTab === tab.path
                       ? "bg-blue-50/70 dark:bg-slate-800"
                       : "hover:bg-slate-100 dark:hover:bg-slate-800"

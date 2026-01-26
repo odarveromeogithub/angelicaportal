@@ -2,7 +2,7 @@ export interface Plan {
   id: string;
   lpafNumber: string;
   fullName: string;
-  status: 'Active' | 'Lapsed' | 'Pending';
+  status: "Active" | "Lapsed" | "Pending";
   contractPrice: number;
   planType: string;
   modeOfPayment: string;
@@ -22,7 +22,8 @@ export interface ClientPlan {
   lpafNo: string;
   policyNo: string;
   name: string;
-  status: 'Active' | 'Lapsed' | 'Pending';
+  status: "Active" | "Lapsed" | "Pending";
+  accountStatus?: "Verified" | "Unverified";
   contractPrice: string;
   planType: string;
   modeOfPayment: string;
@@ -52,14 +53,14 @@ export interface Client {
   name: string;
   email: string;
   phone: string;
-  accountStatus: 'Verified' | 'Unverified';
+  accountStatus: "Verified" | "Unverified";
 }
 
 export interface Agent {
   id: string;
   salesCounselorCode: string;
   name: string;
-  scStatus: 'Active' | 'Expired';
+  scStatus: "Active" | "Expired";
 }
 
 export interface User {
@@ -67,13 +68,13 @@ export interface User {
   username: string;
   name: string;
   agentCode: string;
-  userType: 'ADMIN' | 'SC';
+  userType: "ADMIN" | "SC";
   contactNo: string;
 }
 
 export type SystemUser = User; // Alias for backward compatibility
 
-export type DashboardUserRole = 'client' | 'sales' | 'admin';
+export type DashboardUserRole = "client" | "sales" | "admin";
 
 export interface DashboardUser {
   id: string;

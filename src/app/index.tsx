@@ -7,7 +7,7 @@ function AppContent() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <BrowserRouter>
+    <>
       <AppRoute />
       <Toaster
         position="top-right"
@@ -16,15 +16,17 @@ function AppContent() {
         theme={resolvedTheme as "light" | "dark"}
         duration={4000}
       />
-    </BrowserRouter>
+    </>
   );
 }
 
 const MainApp = () => {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </BrowserRouter>
   );
 };
 
