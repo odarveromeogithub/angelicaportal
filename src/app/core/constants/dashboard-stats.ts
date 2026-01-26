@@ -3,13 +3,13 @@
  * Centralized stat card configurations for different user roles
  */
 
-import type { LucideIcon } from 'lucide-react';
-import { FileText, Users, Clock, TrendingUp } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
+import { FileText, Users, Clock, TrendingUp } from "lucide-react";
 
 export interface StatConfig {
   title: string;
   icon: LucideIcon;
-  color: 'blue' | 'green' | 'yellow' | 'purple';
+  color: "blue" | "green" | "yellow" | "purple";
   bgColor: string;
   iconColor: string;
   borderColor: string;
@@ -21,52 +21,52 @@ export interface StatConfig {
  */
 export const STAT_CONFIG_TEMPLATES = {
   totalPlans: {
-    title: 'Total Plans',
+    title: "Total Plans",
     icon: FileText,
-    color: 'blue' as const,
-    bgColor: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-    borderColor: 'border-blue-100',
+    color: "blue" as const,
+    bgColor: "bg-blue-50 dark:bg-blue-950/40",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    borderColor: "border-blue-100 dark:border-blue-900/50",
   },
   activePlans: {
-    title: 'Active Plans',
+    title: "Active Plans",
     icon: TrendingUp,
-    color: 'green' as const,
-    bgColor: 'bg-green-50',
-    iconColor: 'text-green-600',
-    borderColor: 'border-green-100',
+    color: "green" as const,
+    bgColor: "bg-green-50 dark:bg-green-950/40",
+    iconColor: "text-green-600 dark:text-green-400",
+    borderColor: "border-green-100 dark:border-green-900/50",
   },
   pendingPlans: {
-    title: 'Pending Plans',
+    title: "Pending Plans",
     icon: Clock,
-    color: 'yellow' as const,
-    bgColor: 'bg-yellow-50',
-    iconColor: 'text-yellow-600',
-    borderColor: 'border-yellow-100',
+    color: "yellow" as const,
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/40",
+    iconColor: "text-yellow-600 dark:text-yellow-400",
+    borderColor: "border-yellow-100 dark:border-yellow-900/50",
   },
   pendingApplications: {
-    title: 'Pending Applications',
+    title: "Pending Applications",
     icon: Clock,
-    color: 'yellow' as const,
-    bgColor: 'bg-yellow-50',
-    iconColor: 'text-yellow-600',
-    borderColor: 'border-yellow-100',
+    color: "yellow" as const,
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/40",
+    iconColor: "text-yellow-600 dark:text-yellow-400",
+    borderColor: "border-yellow-100 dark:border-yellow-900/50",
   },
   totalClients: {
-    title: 'Total Clients',
+    title: "Total Clients",
     icon: Users,
-    color: 'blue' as const,
-    bgColor: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-    borderColor: 'border-blue-100',
+    color: "blue" as const,
+    bgColor: "bg-blue-50 dark:bg-blue-950/40",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    borderColor: "border-blue-100 dark:border-blue-900/50",
   },
   totalPlansAlt: {
-    title: 'Total Plans',
+    title: "Total Plans",
     icon: FileText,
-    color: 'purple' as const,
-    bgColor: 'bg-purple-50',
-    iconColor: 'text-purple-600',
-    borderColor: 'border-purple-100',
+    color: "purple" as const,
+    bgColor: "bg-purple-50 dark:bg-purple-950/40",
+    iconColor: "text-purple-600 dark:text-purple-400",
+    borderColor: "border-purple-100 dark:border-purple-900/50",
   },
 } as const;
 

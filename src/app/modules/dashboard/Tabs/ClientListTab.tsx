@@ -11,7 +11,7 @@ import {
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
-  DashboardHeader,
+  TabsHeader,
   FilterBar,
   EmptyState,
 } from "../../../core/components/dashboard";
@@ -74,7 +74,7 @@ export function ClientListTab() {
 
   return (
     <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3">
-      <DashboardHeader
+      <TabsHeader
         title="List of Client Plans"
         description="View and manage all client plans"
         count={filteredItems.length}
@@ -101,7 +101,7 @@ export function ClientListTab() {
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6"
+              className="bg-white dark:bg-slate-900 rounded-xl md:rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 md:p-6"
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -115,7 +115,7 @@ export function ClientListTab() {
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
           <EmptyState
             icon={Search}
             title="No clients found"
@@ -130,28 +130,28 @@ export function ClientListTab() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-slate-900 rounded-xl md:rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="p-5 md:p-6 flex flex-col lg:flex-row items-start lg:items-center gap-4">
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                       LPAF
                     </p>
-                    <p className="text-base font-bold text-gray-900 truncate">
+                    <p className="text-base font-bold text-slate-900 dark:text-white truncate">
                       {client.policyNo} | {client.lpafNo}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                       Full Name
                     </p>
-                    <p className="text-base font-bold text-gray-900 truncate">
+                    <p className="text-base font-bold text-slate-900 dark:text-white truncate">
                       {client.name}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                       Status
                     </p>
                     <Badge
@@ -169,26 +169,26 @@ export function ClientListTab() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 lg:border-l lg:border-gray-200 lg:pl-4 w-full lg:w-auto justify-end">
+                <div className="flex items-center gap-2 lg:border-l lg:border-slate-200 dark:lg:border-slate-800 lg:pl-4 w-full lg:w-auto justify-end">
                   <div className="hidden sm:flex items-center gap-1.5">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                      className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 transition-colors"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 hover:bg-green-50 hover:text-green-600 transition-colors"
+                      className="h-9 w-9 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                      className="h-9 w-9 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
                     >
                       <Download className="w-4 h-4" />
                     </Button>
@@ -196,7 +196,7 @@ export function ClientListTab() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleToggleExpand(client.id)}
-                      className="h-9 w-9 hover:bg-gray-100"
+                      className="h-9 w-9 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
                       {expandedId === client.id ? (
                         <ChevronUp className="w-4 h-4" />
@@ -249,48 +249,48 @@ export function ClientListTab() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden bg-gradient-to-b from-gray-50 to-white border-t border-gray-100"
+                  className="overflow-hidden bg-slate-50/70 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800"
                 >
                   <div className="p-4 md:p-5 lg:p-6 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                           Plan Type
                         </p>
-                        <p className="text-base font-bold text-gray-900">
+                        <p className="text-base font-bold text-slate-900 dark:text-white">
                           {client.planType}
                         </p>
                       </div>
-                      <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                           Contract Price
                         </p>
-                        <p className="text-base font-bold text-gray-900">
+                        <p className="text-base font-bold text-slate-900 dark:text-white">
                           {client.contractPrice}
                         </p>
                       </div>
-                      <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                           Email
                         </p>
-                        <p className="text-base font-bold text-gray-900 break-all">
+                        <p className="text-base font-bold text-slate-900 dark:text-white break-all">
                           {client.email}
                         </p>
                       </div>
-                      <div className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                           Contact
                         </p>
-                        <p className="text-base font-bold text-gray-900">
+                        <p className="text-base font-bold text-slate-900 dark:text-white">
                           {client.contactNumber}
                         </p>
                       </div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <p className="text-xs text-gray-500 mb-1.5 font-semibold uppercase tracking-wide">
+                    <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold uppercase tracking-wide">
                         Address
                       </p>
-                      <p className="text-base font-bold text-gray-900">
+                      <p className="text-base font-bold text-slate-900 dark:text-white">
                         {client.address}
                       </p>
                     </div>

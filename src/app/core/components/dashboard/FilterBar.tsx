@@ -36,16 +36,16 @@ export function FilterBar({
 }: FilterBarProps) {
   return (
     <div
-      className={`bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 ${className}`}
+      className={`bg-white dark:bg-slate-900 p-3 md:p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 ${className}`}
     >
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400 dark:text-slate-500" />
           <Input
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 md:pl-11 text-sm md:text-base h-11 border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+            className="pl-10 md:pl-11 text-sm md:text-base h-11 border-slate-200 dark:border-slate-700 focus-visible:border-blue-400 focus-visible:ring-blue-200 dark:focus-visible:ring-blue-900/40"
           />
         </div>
         {onFilterChange && filterOptions.length > 0 && (

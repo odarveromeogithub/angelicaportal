@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
         <Sidebar
           userRole={userRole}
           isOpen={sidebarOpen}
@@ -50,7 +50,7 @@ export default function DashboardPage() {
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800"
+                  className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white"
                 >
                   Dashboard
                 </motion.h1>
@@ -58,7 +58,7 @@ export default function DashboardPage() {
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-lg md:text-xl text-gray-600"
+                  className="text-lg md:text-xl text-slate-500 dark:text-slate-400"
                 >
                   Under Construction
                 </motion.p>

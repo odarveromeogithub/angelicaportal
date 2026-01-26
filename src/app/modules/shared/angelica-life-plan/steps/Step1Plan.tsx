@@ -18,7 +18,7 @@ interface Step1PlanProps {
 
 export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     onChange({
@@ -41,7 +41,9 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Plan Data</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
+          Plan Data
+        </h2>
 
         <div className={cn(GRID_LAYOUTS.threeColumns, GRID_LAYOUTS.spacing)}>
           <FormField
@@ -102,7 +104,9 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
             label="Mode of Payment"
             id="modeOfPayment"
             value={data.modeOfPayment}
-            onValueChange={(value) => onChange({ ...data, modeOfPayment: value })}
+            onValueChange={(value) =>
+              onChange({ ...data, modeOfPayment: value })
+            }
             options={PAYMENT_MODES}
             placeholder="Select Payment Mode"
             required
@@ -147,7 +151,11 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
       <Button
         onClick={onNext}
         disabled={!isComplete}
-        className={cn("w-full", FIELD_CLASSES.button.base, FIELD_CLASSES.button.primary)}
+        className={cn(
+          "w-full",
+          FIELD_CLASSES.button.base,
+          FIELD_CLASSES.button.primary,
+        )}
       >
         Next
       </Button>

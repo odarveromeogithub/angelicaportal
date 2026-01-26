@@ -4,7 +4,11 @@ import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import { Label } from "@/app/core/components/ui/label";
 import { Calendar } from "@/app/core/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/app/core/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/core/components/ui/popover";
 import { format } from "date-fns";
 import { ChevronDownIcon } from "lucide-react";
 import {
@@ -32,7 +36,7 @@ export default function Step2Planholder({
   const [openDatePicker, setOpenDatePicker] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     onChange({
@@ -69,7 +73,9 @@ export default function Step2Planholder({
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Planholder Details</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
+          Planholder Details
+        </h2>
 
         <div className={cn(GRID_LAYOUTS.threeColumns, GRID_LAYOUTS.spacing)}>
           <FormField
@@ -114,7 +120,10 @@ export default function Step2Planholder({
           />
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="dateOfBirth" className="text-xs sm:text-sm font-semibold">
+            <Label
+              htmlFor="dateOfBirth"
+              className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400"
+            >
               Date of Birth
             </Label>
             <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
@@ -122,16 +131,23 @@ export default function Step2Planholder({
                 <Button
                   variant="outline"
                   id="dateOfBirth"
-                  className="h-9 sm:h-10 w-full justify-between rounded-lg border-gray-200 font-normal text-xs sm:text-sm"
+                  className="h-9 sm:h-10 w-full justify-between rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-normal text-xs sm:text-sm"
                 >
-                  {data.dateOfBirth ? format(new Date(data.dateOfBirth), "MMM dd, yyyy") : "Select date"}
+                  {data.dateOfBirth
+                    ? format(new Date(data.dateOfBirth), "MMM dd, yyyy")
+                    : "Select date"}
                   <ChevronDownIcon className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
                 <Calendar
                   mode="single"
-                  selected={data.dateOfBirth ? new Date(data.dateOfBirth) : undefined}
+                  selected={
+                    data.dateOfBirth ? new Date(data.dateOfBirth) : undefined
+                  }
                   captionLayout="dropdown"
                   onSelect={handleDateSelect}
                   disabled={(date) => date > new Date()}
@@ -180,8 +196,8 @@ export default function Step2Planholder({
               Contact Number
               <span className="text-red-600 ml-1">*</span>
             </Label>
-            <div className="flex items-center h-9 sm:h-10 rounded-lg border border-gray-200 bg-white px-3">
-              <span className="text-xs sm:text-sm font-semibold text-gray-600 mr-2">
+            <div className="flex items-center h-9 sm:h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3">
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mr-2">
                 {PHONE_CONFIG.countryCode}
               </span>
               <input
@@ -190,7 +206,9 @@ export default function Step2Planholder({
                 type="text"
                 value={data.contactNumber}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, PHONE_CONFIG.maxLength);
+                  const value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, PHONE_CONFIG.maxLength);
                   onChange({ ...data, contactNumber: value });
                 }}
                 placeholder={PHONE_CONFIG.placeholder}
@@ -272,7 +290,11 @@ export default function Step2Planholder({
         <Button
           onClick={onBack}
           variant="outline"
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.secondary,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Go back to previous step"
         >
           Back
@@ -280,7 +302,11 @@ export default function Step2Planholder({
         <Button
           onClick={onNext}
           disabled={!isComplete}
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.primary,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Proceed to next step"
         >
           Next

@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
         <Sidebar
           userRole={userRole}
           isOpen={sidebarOpen}
@@ -56,7 +56,7 @@ export default function ProfilePage() {
                   ]}
                 />
               </div>
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white">
                 Profile Overview
               </h2>
 
@@ -64,17 +64,17 @@ export default function ProfilePage() {
               <motion.div
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="bg-orange-50 border border-orange-200 rounded-xl p-4 md:p-6"
+                className="bg-orange-50 border border-orange-200 dark:bg-orange-950/40 dark:border-orange-900/50 rounded-xl p-4 md:p-6"
               >
                 <div className="flex items-start gap-3 md:gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-200 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-200 dark:bg-orange-900/60 flex items-center justify-center flex-shrink-0">
                     <span className="text-xl md:text-2xl">⚠️</span>
                   </div>
                   <div>
-                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white mb-1">
                       Account Verification Pending
                     </h3>
-                    <p className="text-sm md:text-base text-gray-600">
+                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
                       Complete facial verification to confirm your identity and
                       unlock all features.
                     </p>
@@ -92,31 +92,31 @@ export default function ProfilePage() {
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <label className="text-xs md:text-sm text-gray-600">
+                      <label className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                         Full Name
                       </label>
-                      <p className="text-sm md:text-base font-medium text-gray-900 mt-1">
+                      <p className="text-sm md:text-base font-medium text-slate-900 dark:text-white mt-1">
                         {fullName}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs md:text-sm text-gray-600">
+                      <label className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                         Email Address
                       </label>
-                      <p className="text-sm md:text-base font-medium text-gray-900 mt-1 break-all">
+                      <p className="text-sm md:text-base font-medium text-slate-900 dark:text-white mt-1 break-all">
                         {email}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs md:text-sm text-gray-600">
+                      <label className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                         Phone Number
                       </label>
-                      <p className="text-sm md:text-base font-medium text-gray-900 mt-1">
+                      <p className="text-sm md:text-base font-medium text-slate-900 dark:text-white mt-1">
                         {phoneNumber}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs md:text-sm text-gray-600">
+                      <label className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                         Account Status
                       </label>
                       <p className="text-sm md:text-base font-medium text-orange-600 mt-1">
@@ -128,17 +128,17 @@ export default function ProfilePage() {
               </Card>
 
               {/* Facial Verification */}
-              <Card className="border border-blue-200 bg-blue-50">
+              <Card className="border border-blue-200/60 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/40">
                 <CardHeader>
                   <div className="flex items-center gap-2 md:gap-3">
-                    <Camera className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+                    <Camera className="w-5 h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
                     <CardTitle className="text-base md:text-lg">
                       Facial Verification Required
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm md:text-base text-gray-700 mb-4">
+                  <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-4">
                     To verify your account, we need to confirm that you are the
                     same person who uploaded the ID and signatures. Please take
                     a selfie or upload a clear photo of your face.
@@ -169,13 +169,13 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                    <div className="border-2 border-gray-300 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center">
-                      <p className="text-sm md:text-base text-gray-400">
+                    <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center">
+                      <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
                         No signature uploaded
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <ul className="list-disc list-inside text-xs md:text-sm text-gray-600 space-y-2">
+                      <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
                         <li>
                           The Signature uploaded is protected by the data
                           privacy law
@@ -199,13 +199,13 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                    <div className="border-2 border-gray-300 rounded-xl p-6 md:p-8 h-48 md:h-64 flex items-center justify-center">
-                      <p className="text-sm md:text-base text-gray-400">
+                    <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-48 md:h-64 flex items-center justify-center">
+                      <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
                         No ID uploaded
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <ul className="list-disc list-inside text-xs md:text-sm text-gray-600 space-y-2">
+                      <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
                         <li>
                           The ID and Signatures uploaded are protected by the
                           data privacy law

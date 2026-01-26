@@ -4,7 +4,7 @@ import { Plus, Search } from "lucide-react";
 import { Button } from "../../../core/components/ui/button";
 import {
   PlanCard,
-  DashboardHeader,
+  TabsHeader,
   FilterBar,
   EmptyState,
 } from "../../../core/components/dashboard";
@@ -53,7 +53,7 @@ export function PlanListTab() {
 
   return (
     <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3">
-      <DashboardHeader
+      <TabsHeader
         title="List of Plans"
         description="Manage and view all your plans"
         count={filteredPlans.length}
@@ -87,7 +87,7 @@ export function PlanListTab() {
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6"
             >
               <div className="space-y-3">
                 <Skeleton className="h-6 w-3/4" />
@@ -113,7 +113,7 @@ export function PlanListTab() {
             </motion.div>
           ))}
           {filteredPlans.length === 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
               <EmptyState
                 icon={Search}
                 title="No plans found"

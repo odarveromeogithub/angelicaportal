@@ -61,7 +61,7 @@ export default function Step3Beneficiary({
   const handleBeneficiaryChange = (
     index: number,
     field: keyof IBeneficiaryFormData,
-    value: string | number
+    value: string | number,
   ) => {
     const updated = [...data];
     updated[index] = {
@@ -83,23 +83,28 @@ export default function Step3Beneficiary({
         b.age &&
         b.gender &&
         b.address &&
-        b.relationship
+        b.relationship,
     );
 
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Beneficiaries Details</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
+          Beneficiaries Details
+        </h2>
 
         {data.length > 0 && (
           <div className="mb-6">
             <div className="flex gap-2 mb-4 overflow-x-auto items-center flex-wrap">
               {data.map((_, index) => (
-                <div key={index} className={`flex items-center rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-colors ${
-                      editingIndex === index
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}>
+                <div
+                  key={index}
+                  className={`flex items-center rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-colors ${
+                    editingIndex === index
+                      ? "bg-blue-600 text-white dark:bg-blue-500"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                  }`}
+                >
                   <button
                     onClick={() => setEditingIndex(index)}
                     className={`px-2 sm:px-4 py-1 sm:py-2`}
@@ -111,7 +116,7 @@ export default function Step3Beneficiary({
                     onClick={() => setDeleteIndex(index)}
                     variant="ghost"
                     size="sm"
-                    className="h-7 sm:h-8 w-7 sm:w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="h-7 sm:h-8 w-7 sm:w-8 p-0 text-red-600 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
                     aria-label={`Delete beneficiary ${index + 1}`}
                   >
                     <Trash2 className="size-3 sm:size-4" />
@@ -135,7 +140,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "firstName",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="First Name"
@@ -152,7 +157,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "middleName",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="Middle Name"
@@ -168,7 +173,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "lastName",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="Last Name"
@@ -187,7 +192,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "nameExtension",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="ex. Jr, Sr, III..."
@@ -203,7 +208,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "age",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="ex. 24"
@@ -215,11 +220,7 @@ export default function Step3Beneficiary({
                 id="gender"
                 value={currentBeneficiary.gender}
                 onValueChange={(value) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "gender",
-                    value
-                  )
+                  handleBeneficiaryChange(editingIndex ?? 0, "gender", value)
                 }
                 options={GENDER_OPTIONS}
                 placeholder="Select Gender"
@@ -238,7 +239,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "address",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="Address"
@@ -255,7 +256,7 @@ export default function Step3Beneficiary({
                   handleBeneficiaryChange(
                     editingIndex ?? 0,
                     "relationship",
-                    e.target.value
+                    e.target.value,
                   )
                 }
                 placeholder="Relationship"
@@ -267,7 +268,11 @@ export default function Step3Beneficiary({
 
         <Button
           onClick={handleAddBeneficiary}
-          className={cn("w-full mt-6 sm:mt-8 flex items-center justify-center gap-2", FIELD_CLASSES.button.base, FIELD_CLASSES.button.light)}
+          className={cn(
+            "w-full mt-6 sm:mt-8 flex items-center justify-center gap-2",
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.light,
+          )}
           aria-label="Add new beneficiary"
         >
           <Plus className="size-4" />
@@ -279,7 +284,11 @@ export default function Step3Beneficiary({
         <Button
           onClick={onBack}
           variant="outline"
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.secondary,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Go back to previous step"
         >
           Back
@@ -287,27 +296,40 @@ export default function Step3Beneficiary({
         <Button
           onClick={onNext}
           disabled={!isComplete}
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.primary,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Proceed to final step"
         >
           Next
         </Button>
       </div>
 
-      <AlertDialog open={deleteIndex !== null} onOpenChange={(open) => !open && setDeleteIndex(null)}>
+      <AlertDialog
+        open={deleteIndex !== null}
+        onOpenChange={(open) => !open && setDeleteIndex(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Beneficiary?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete Beneficiary {deleteIndex !== null ? deleteIndex + 1 : ""}? This action cannot be undone.
+              Are you sure you want to delete Beneficiary{" "}
+              {deleteIndex !== null ? deleteIndex + 1 : ""}? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className={cn(FIELD_CLASSES.button.secondary, "h-9 sm:h-10")}>
+            <AlertDialogCancel
+              className={cn(FIELD_CLASSES.button.secondary, "h-9 sm:h-10")}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteIndex !== null && handleRemoveBeneficiary(deleteIndex)}
+              onClick={() =>
+                deleteIndex !== null && handleRemoveBeneficiary(deleteIndex)
+              }
               className={cn(FIELD_CLASSES.button.danger)}
             >
               Delete

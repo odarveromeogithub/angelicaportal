@@ -38,7 +38,10 @@ export default function Step4Submit({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    if (file && (file.type.startsWith("image/") || file.type === "application/pdf")) {
+    if (
+      file &&
+      (file.type.startsWith("image/") || file.type === "application/pdf")
+    ) {
       if (file.size <= MAX_FILE_SIZE_BYTES) {
         setIdFile(file);
         const reader = new FileReader();
@@ -64,12 +67,12 @@ export default function Step4Submit({
         if (!canvasRef.current) return;
         const rect = canvasRef.current.getBoundingClientRect();
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        
+
         canvasRef.current.width = rect.width * ratio;
         canvasRef.current.height = 200 * ratio;
         canvasRef.current.style.width = `${rect.width}px`;
         canvasRef.current.style.height = "200px";
-        
+
         const ctx = canvasRef.current.getContext("2d");
         if (ctx) {
           ctx.scale(ratio, ratio);
@@ -84,7 +87,7 @@ export default function Step4Submit({
       };
 
       resizeCanvas();
-      
+
       signaturePadRef.current = new SignaturePad(canvasRef.current, {
         penColor: SIGNATURE_CONFIG.penColor,
         backgroundColor: SIGNATURE_CONFIG.backgroundColor,
@@ -131,18 +134,24 @@ export default function Step4Submit({
     <div className="space-y-6 sm:space-y-8">
       <div className="space-y-4 sm:space-y-6">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
             Planholder Signature
           </h2>
-          <div className={cn(
-            "border-2 rounded-lg bg-white overflow-hidden",
-            signatureConfirmed ? "border-green-400" : "border-gray-300"
-          )}>
+          <div
+            className={cn(
+              "border-2 rounded-lg bg-white dark:bg-slate-900 overflow-hidden",
+              signatureConfirmed
+                ? "border-emerald-500"
+                : "border-slate-200 dark:border-slate-800",
+            )}
+          >
             <canvas
               ref={canvasRef}
               className={cn(
-                "w-full block bg-white",
-                signatureConfirmed ? "cursor-not-allowed opacity-90 pointer-events-none" : "cursor-crosshair touch-none"
+                "w-full block bg-white dark:bg-slate-900",
+                signatureConfirmed
+                  ? "cursor-not-allowed opacity-90 pointer-events-none"
+                  : "cursor-crosshair touch-none",
               )}
               style={{ height: "200px" }}
             />
@@ -152,7 +161,10 @@ export default function Step4Submit({
               type="button"
               onClick={clearSignature}
               variant="outline"
-              className={cn(FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+              className={cn(
+                FIELD_CLASSES.button.secondary,
+                "flex-1 sm:flex-none",
+              )}
               aria-label="Clear signature"
             >
               Clear
@@ -160,16 +172,21 @@ export default function Step4Submit({
             <Button
               type="button"
               onClick={confirmSignature}
-              className={cn(FIELD_CLASSES.button.primary, "flex-1 sm:flex-none")}
+              className={cn(
+                FIELD_CLASSES.button.primary,
+                "flex-1 sm:flex-none",
+              )}
               aria-label="Confirm signature"
             >
-              {signatureConfirmed ? "✓ Signature Confirmed" : "Confirm Signature"}
+              {signatureConfirmed
+                ? "✓ Signature Confirmed"
+                : "Confirm Signature"}
             </Button>
           </div>
         </div>
 
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
             Upload Planholder's Valid ID with 3 Specimen Signature(Valid IDs:
             Company ID or any Government ID)
           </h2>
@@ -178,9 +195,9 @@ export default function Step4Submit({
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center cursor-pointer transition-colors ${
               isDragActive
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400"
-            } ${idPreview ? "bg-white" : "bg-gray-50"}`}
+                ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/40"
+                : "border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500"
+            } ${idPreview ? "bg-white dark:bg-slate-900" : "bg-slate-50/70 dark:bg-slate-900/60"}`}
           >
             <input {...getInputProps()} />
             {idPreview ? (
@@ -195,8 +212,8 @@ export default function Step4Submit({
                         className="max-h-48 sm:max-h-64 rounded-lg"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-48 sm:h-64 bg-gray-100 rounded-lg">
-                        <span className="text-xs sm:text-sm text-gray-600">
+                      <div className="flex items-center justify-center h-48 sm:h-64 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                           File: {idFile?.name}
                         </span>
                       </div>
@@ -219,14 +236,20 @@ export default function Step4Submit({
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4 py-4 sm:py-6">
-                <UploadCloud className={`size-8 sm:size-12 mx-auto ${isDragActive ? "text-blue-500" : "text-gray-400"}`} />
+                <UploadCloud
+                  className={`size-8 sm:size-12 mx-auto ${
+                    isDragActive
+                      ? "text-blue-600 dark:text-blue-300"
+                      : "text-slate-400 dark:text-slate-500"
+                  }`}
+                />
                 <div>
-                  <p className="text-xs sm:text-sm font-semibold text-gray-900">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                     {isDragActive
                       ? "Drop the file here"
                       : "Click to upload or drag and drop"}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     PNG, JPG, GIF, PDF up to 10MB
                   </p>
                 </div>
@@ -236,12 +259,12 @@ export default function Step4Submit({
         </div>
 
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">
             E-Signature and Data Privacy Consent
           </h2>
 
-          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200 mb-4 sm:mb-6 max-h-60 sm:max-h-96 overflow-y-auto">
-            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+          <div className="bg-slate-50/70 dark:bg-slate-900/60 rounded-lg p-4 sm:p-6 border border-slate-200 dark:border-slate-800 mb-4 sm:mb-6 max-h-60 sm:max-h-96 overflow-y-auto">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               <strong>E-Signature and Data Privacy Consent</strong>
               <br />
               <br />
@@ -272,7 +295,7 @@ export default function Step4Submit({
             />
             <Label
               htmlFor="consent"
-              className="text-xs sm:text-sm font-medium text-gray-700 cursor-pointer"
+              className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
             >
               I agree to the E-Signature and Data Privacy Consent.
             </Label>
@@ -284,7 +307,11 @@ export default function Step4Submit({
         <Button
           onClick={onBack}
           variant="outline"
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.secondary, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.secondary,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Go back to previous step"
         >
           Back
@@ -292,7 +319,11 @@ export default function Step4Submit({
         <Button
           onClick={handleSubmit}
           disabled={!isComplete || isLoading}
-          className={cn(FIELD_CLASSES.button.base, FIELD_CLASSES.button.success, "flex-1 sm:flex-none")}
+          className={cn(
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.success,
+            "flex-1 sm:flex-none",
+          )}
           aria-label="Submit form"
         >
           {isLoading ? "Submitting..." : "Submit"}

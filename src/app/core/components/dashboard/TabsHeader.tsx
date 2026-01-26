@@ -1,4 +1,4 @@
-interface DashboardHeaderProps {
+interface TabsHeaderProps {
   title: string;
   description: string;
   count?: number;
@@ -6,31 +6,33 @@ interface DashboardHeaderProps {
   actions?: React.ReactNode;
 }
 
-export function DashboardHeader({
+export function TabsHeader({
   title,
   description,
   count,
   countLabel = "Items",
   actions,
-}: DashboardHeaderProps) {
+}: TabsHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 md:gap-4 items-start sm:items-center justify-between">
       <div className="flex items-start gap-4 md:gap-6">
         {count !== undefined && (
           <div className="flex flex-col items-center justify-center min-w-[60px] md:min-w-[80px]">
-            <div className="text-3xl md:text-4xl font-bold text-blue-600">
+            <div className="text-3xl md:text-4xl font-bold text-blue-600 dark:text-blue-300">
               {count}
             </div>
-            <div className="text-xs md:text-sm text-gray-500 font-medium mt-1">
+            <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
               {count === 1 ? countLabel.replace(/s$/, "") : countLabel}
             </div>
           </div>
         )}
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
             {title}
           </h2>
-          <p className="text-sm text-gray-500 mt-2">{description}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+            {description}
+          </p>
         </div>
       </div>
       {actions && (

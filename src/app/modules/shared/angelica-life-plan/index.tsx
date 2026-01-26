@@ -19,7 +19,8 @@ export default function AngelicaLifePlan() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [submitMutation] = angelicaLifePlanApi.useSubmitAngelicaLifePlanMutation();
+  const [submitMutation] =
+    angelicaLifePlanApi.useSubmitAngelicaLifePlanMutation();
 
   const [formData, setFormData] = useState<IAngelicaLifePlanFormData>({
     plan: {
@@ -113,12 +114,18 @@ export default function AngelicaLifePlan() {
       // Add beneficiaries data
       formDataToSend.append(
         "beneficiaries",
-        JSON.stringify(formData.beneficiaries)
+        JSON.stringify(formData.beneficiaries),
       );
 
       // Add signature and consent
-      formDataToSend.append("planholder_signature", submitData.planholder_signature);
-      formDataToSend.append("agree_to_consent", String(submitData.agree_to_consent));
+      formDataToSend.append(
+        "planholder_signature",
+        submitData.planholder_signature,
+      );
+      formDataToSend.append(
+        "agree_to_consent",
+        String(submitData.agree_to_consent),
+      );
 
       // Add file if exists
       if (submitData.id_upload) {
@@ -137,7 +144,7 @@ export default function AngelicaLifePlan() {
         console.error("Error submitting form:", error);
       }
       toast.error(
-        error instanceof Error ? error.message : "Failed to submit form"
+        error instanceof Error ? error.message : "Failed to submit form",
       );
     } finally {
       setIsLoading(false);
@@ -148,19 +155,23 @@ export default function AngelicaLifePlan() {
   const steps = ANGELICA_FORM_STEPS;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-2 sm:px-3 md:px-4 lg:px-6 py-4 sm:py-6 md:py-8 lg:py-10">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-2 sm:px-3 md:px-4 lg:px-6 py-4 sm:py-6 md:py-8 lg:py-10">
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
-            <div className="flex h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl border-2 border-blue-500 bg-white shadow-md hover:shadow-lg transition-shadow">
-              <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-blue-600">C</span>
+            <div className="flex h-12 sm:h-14 md:h-16 w-12 sm:w-14 md:w-16 items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-900 shadow-md hover:shadow-lg transition-shadow">
+              <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-blue-600 dark:text-blue-300">
+                C
+              </span>
             </div>
             <div className="leading-tight text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-wide text-blue-600 break-words">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-wide text-blue-600 dark:text-blue-300 break-words">
                 CCLPI Plans
               </h1>
-              <p className="text-sm sm:text-base md:text-lg italic text-blue-500 mt-0.5">Angelica Life Plan</p>
+              <p className="text-sm sm:text-base md:text-lg italic text-blue-500 dark:text-blue-300 mt-0.5">
+                Angelica Life Plan
+              </p>
             </div>
           </div>
         </div>
@@ -168,12 +179,15 @@ export default function AngelicaLifePlan() {
         {/* Step Indicator - Responsive */}
         <div className="flex flex-wrap justify-center items-center mb-6 sm:mb-8 md:mb-10 lg:mb-12 gap-1 sm:gap-2 md:gap-3">
           {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center gap-1 sm:gap-2 md:gap-3">
+            <div
+              key={step.number}
+              className="flex items-center gap-1 sm:gap-2 md:gap-3"
+            >
               <div
                 className={`flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 rounded-full font-bold text-xs sm:text-sm md:text-base transition-all flex-shrink-0 ${
                   currentStep >= step.number
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-300 text-gray-700"
+                    ? "bg-blue-600 text-white dark:bg-blue-500 shadow-md"
+                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                 }`}
               >
                 {step.number}
@@ -181,8 +195,8 @@ export default function AngelicaLifePlan() {
               <p
                 className={`hidden sm:block text-xs sm:text-sm md:text-base font-semibold transition-all ${
                   currentStep >= step.number
-                    ? "text-blue-600"
-                    : "text-gray-500"
+                    ? "text-blue-600 dark:text-blue-300"
+                    : "text-slate-500 dark:text-slate-400"
                 }`}
               >
                 {step.label}
@@ -191,8 +205,8 @@ export default function AngelicaLifePlan() {
                 <div
                   className={`w-8 sm:w-12 md:w-16 lg:w-20 h-1 mx-0.5 sm:mx-1 md:mx-2 rounded transition-all ${
                     currentStep > step.number
-                      ? "bg-blue-600"
-                      : "bg-gray-300"
+                      ? "bg-blue-500 dark:bg-blue-400"
+                      : "bg-slate-200 dark:bg-slate-800"
                   }`}
                 />
               )}
@@ -201,7 +215,7 @@ export default function AngelicaLifePlan() {
         </div>
 
         {/* Form Content - Responsive Card */}
-        <Card className="rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 bg-white/95 shadow-lg md:shadow-xl p-3 sm:p-5 md:p-6 lg:p-8">
+        <Card className="rounded-lg sm:rounded-xl md:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg md:shadow-xl p-3 sm:p-5 md:p-6 lg:p-8">
           <CardContent className="p-0">
             {currentStep === 1 && (
               <Step1Plan

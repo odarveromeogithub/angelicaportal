@@ -7,10 +7,7 @@ function Skeleton({
   return (
     <div
       data-slot="skeleton"
-      className={cn(
-        "bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md",
-        className,
-      )}
+      className={cn("bg-muted animate-pulse rounded-md", className)}
       {...props}
     />
   );
@@ -39,7 +36,7 @@ export function TableRowSkeleton() {
  */
 export function StatCardSkeleton() {
   return (
-    <div className="space-y-3 rounded-lg border border-gray-100 bg-white p-4">
+    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-8 w-8 rounded-lg" />
@@ -54,7 +51,7 @@ export function StatCardSkeleton() {
  */
 export function PlanCardSkeleton() {
   return (
-    <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-5">
+    <div className="space-y-3 rounded-xl border border-border bg-card p-5">
       <Skeleton className="h-5 w-32" />
       <Skeleton className="h-4 w-48" />
       <div className="space-y-2 pt-3">
@@ -87,7 +84,7 @@ export function HeaderSkeleton() {
  */
 export function ListItemSkeleton() {
   return (
-    <div className="space-y-2 rounded-lg border border-gray-100 bg-white p-4">
+    <div className="space-y-2 rounded-lg border border-border bg-card p-4">
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-1/3" />
         <Skeleton className="h-6 w-12" />

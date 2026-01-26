@@ -76,7 +76,7 @@ export default function AngelicaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Sidebar
         userRole={userRole}
         isOpen={sidebarOpen}

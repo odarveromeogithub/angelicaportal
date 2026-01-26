@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { dashboardApi } from "../../../core/state/api";
 import {
-  DashboardHeader,
+  TabsHeader,
   SearchBar,
   EmptyState,
 } from "../../../core/components/dashboard";
@@ -52,7 +52,7 @@ export function UsersListTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-300" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ export function UsersListTab() {
         animate={{ opacity: 1, y: 0 }}
         className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3"
       >
-        <DashboardHeader
+        <TabsHeader
           title="Users Management"
           description="Manage system users and permissions"
           count={filteredUsers.length}
@@ -90,7 +90,7 @@ export function UsersListTab() {
         />
 
         {/* Users List Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -110,7 +110,7 @@ export function UsersListTab() {
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03 }}
-                    className="group hover:bg-gray-50/50"
+                    className="group hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     <TableCell>
                       <div className="flex items-center gap-1">
@@ -119,7 +119,7 @@ export function UsersListTab() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 transition-colors"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -132,7 +132,7 @@ export function UsersListTab() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                              className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/40 dark:hover:text-amber-300 transition-colors"
                             >
                               <RotateCw className="w-4 h-4" />
                             </Button>
@@ -145,7 +145,7 @@ export function UsersListTab() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                              className="h-8 w-8 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
                             >
                               <Mail className="w-4 h-4" />
                             </Button>
@@ -159,7 +159,7 @@ export function UsersListTab() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                className="h-8 w-8 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -173,7 +173,7 @@ export function UsersListTab() {
                       {user.username}
                     </TableCell>
                     <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="font-medium text-gray-600">
+                    <TableCell className="font-medium text-slate-500 dark:text-slate-400">
                       {user.agentCode}
                     </TableCell>
                     <TableCell>
@@ -186,7 +186,7 @@ export function UsersListTab() {
                         {user.userType}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-600">
+                    <TableCell className="text-slate-500 dark:text-slate-400">
                       {user.contactNo}
                     </TableCell>
                   </motion.tr>

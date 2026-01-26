@@ -99,7 +99,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
   const renderUserAvatar = () => {
     const initials = getUserInitials();
     return (
-      <Avatar className="w-10 h-10 border-2 border-white">
+      <Avatar className="w-10 h-10 border-2 border-slate-200 dark:border-slate-700">
         <AvatarImage
           src={dashboardUser?.profile_photo_path}
           alt={dashboardUser?.name || "User"}
@@ -131,7 +131,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
         className={cn(
-          "fixed left-0 top-0 h-screen bg-white border-r border-gray-100 shadow-lg flex flex-col z-50 transition-transform duration-300",
+          "fixed left-0 top-0 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-lg flex flex-col z-50 transition-transform duration-300",
           "w-64 md:w-60",
           !isOpen && "md:translate-x-0 -translate-x-full",
         )}
@@ -139,13 +139,13 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         {/* Mobile close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 md:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors"
+          className="absolute top-4 right-4 md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Logo */}
-        <div className="p-6 border-b border-gray-100 flex items-center justify-center">
+        <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center">
           <img
             src="/assets/cclpi-logo.png"
             alt="Angelica Logo"
@@ -155,11 +155,11 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         </div>
 
         {/* User Info */}
-        <div className="px-4 py-5 border-b border-gray-100">
+        <div className="px-4 py-5 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
             {renderUserAvatar()}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                 {dashboardUser?.name ||
                   (userRole === "admin"
                     ? "Admin"
@@ -167,7 +167,9 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
                       ? "SC"
                       : "Client")}
               </p>
-              <p className="text-xs text-gray-500 truncate">{getRoleLabel()}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                {getRoleLabel()}
+              </p>
             </div>
           </div>
         </div>
@@ -185,9 +187,9 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
                 to={item.path!}
                 className={cn(
                   "flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200",
-                  "hover:bg-gray-50",
+                  "hover:bg-slate-100 dark:hover:bg-slate-800",
                   isItemActive(item)
-                    ? "bg-blue-50 border border-blue-100 shadow-sm"
+                    ? "bg-blue-50/80 dark:bg-slate-800 border border-blue-200/60 dark:border-blue-900/40 shadow-sm"
                     : "bg-transparent",
                 )}
                 onClick={onClose}
@@ -199,15 +201,17 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
                       <item.icon
                         className={cn(
                           "w-5 h-5 flex-shrink-0 transition-colors",
-                          isActive ? "text-blue-600" : "text-gray-500",
+                          isActive
+                            ? "text-blue-600 dark:text-blue-300"
+                            : "text-slate-500 dark:text-slate-400",
                         )}
                       />
                       <span
                         className={cn(
                           "text-base font-medium transition-colors",
                           isActive
-                            ? "text-blue-600 font-semibold"
-                            : "text-gray-700",
+                            ? "text-blue-600 dark:text-blue-300 font-semibold"
+                            : "text-slate-900 dark:text-white",
                         )}
                       >
                         {item.label}
@@ -227,7 +231,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
           >
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-gray-50 text-gray-700"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white"
               title={`Switch to ${resolvedTheme === "light" ? "dark" : "light"} mode`}
             >
               {resolvedTheme === "light" ? (
@@ -252,7 +256,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
           >
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-red-50 hover:text-red-600 text-gray-700 bg-transparent"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 text-slate-900 dark:text-white bg-transparent"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
               <span className="text-base font-medium">Logout</span>

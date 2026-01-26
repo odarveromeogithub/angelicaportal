@@ -94,14 +94,14 @@ export function HomeTab({ userRole }: HomeTabProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 md:p-8 text-white shadow-lg"
+        className="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-700 dark:to-blue-900 rounded-2xl p-6 md:p-8 text-white shadow-lg"
       >
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
               Welcome, {currentUser?.name}! 👋
             </h1>
-            <p className="text-blue-50 text-base md:text-lg max-w-2xl">
+            <p className="text-blue-50 dark:text-blue-100/80 text-base md:text-lg max-w-2xl">
               {userRole === "client"
                 ? "Track and manage your plans in one place"
                 : userRole === "sales"
@@ -109,7 +109,7 @@ export function HomeTab({ userRole }: HomeTabProps) {
                   : "Comprehensive overview of all system activities"}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs sm:text-sm bg-blue-600/50 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 text-xs sm:text-sm bg-blue-600/50 dark:bg-blue-900/50 rounded-lg px-3 py-2">
             <Calendar className="w-4 h-4" />
             <span className="hidden sm:inline">
               {new Date().toLocaleDateString("en-US", {
@@ -152,21 +152,27 @@ export function HomeTab({ userRole }: HomeTabProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-green-700 font-medium">Active</p>
-                <p className="text-2xl font-bold text-green-900 mt-1">
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200 dark:bg-green-950/40 dark:border-green-900/50">
+                <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                  Active
+                </p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-200 mt-1">
                   {activePlans}
                 </p>
               </div>
-              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm text-red-700 font-medium">Lapsed</p>
-                <p className="text-2xl font-bold text-red-900 mt-1">
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200 dark:bg-red-950/40 dark:border-red-900/50">
+                <p className="text-sm text-red-700 dark:text-red-300 font-medium">
+                  Lapsed
+                </p>
+                <p className="text-2xl font-bold text-red-900 dark:text-red-200 mt-1">
                   {lapsedPlans}
                 </p>
               </div>
-              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <p className="text-sm text-yellow-700 font-medium">Pending</p>
-                <p className="text-2xl font-bold text-yellow-900 mt-1">
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200 dark:bg-yellow-950/40 dark:border-yellow-900/50">
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 font-medium">
+                  Pending
+                </p>
+                <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-200 mt-1">
                   {pendingPlans}
                 </p>
               </div>

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Loader2, Users } from "lucide-react";
 import { dashboardApi } from "../../../core/state/api";
 import {
-  DashboardHeader,
+  TabsHeader,
   SearchBar,
   EmptyState,
 } from "../../../core/components/dashboard";
@@ -36,7 +36,7 @@ export function AgentListTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-300" />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function AgentListTab() {
       animate={{ opacity: 1, y: 0 }}
       className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3"
     >
-      <DashboardHeader
+      <TabsHeader
         title="Agent List"
         description="Manage sales counselor agents"
         count={filteredAgents.length}
@@ -61,7 +61,7 @@ export function AgentListTab() {
       />
 
       {/* Agent List Table */}
-      <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -84,7 +84,7 @@ export function AgentListTab() {
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
-                  className="group hover:bg-gray-50/50"
+                  className="group hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                   <TableCell className="font-medium">
                     {agent.salesCounselorCode}
