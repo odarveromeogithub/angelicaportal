@@ -1,14 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import {
-  Loader2,
-  UserPlus,
-  Users,
-  Edit,
-  RotateCw,
-  Mail,
-  Trash2,
-} from "lucide-react";
+import { UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from "lucide-react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -31,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
+import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 
 export function UsersListTab() {
   const { data: users = [], isLoading: loading } =
@@ -48,14 +41,6 @@ export function UsersListTab() {
         user.userType.toLowerCase().includes(query),
     );
   }, [users, searchQuery]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-300" />
-      </div>
-    );
-  }
 
   return (
     <TooltipProvider>
@@ -104,98 +89,102 @@ export function UsersListTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user: any, index: number) => (
-                  <motion.tr
-                    key={user.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className="group hover:bg-slate-50 dark:hover:bg-slate-800"
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 transition-colors"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Edit User</TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/40 dark:hover:text-amber-300 transition-colors"
-                            >
-                              <RotateCw className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Reset Password</TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
-                            >
-                              <Mail className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Send Email</TooltipContent>
-                        </Tooltip>
-
-                        {user.userType === "SC" && (
+                {loading ? (
+                  <TableRowSkeleton />
+                ) : (
+                  filteredUsers.map((user: any, index: number) => (
+                    <motion.tr
+                      key={user.id}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className="group hover:bg-slate-50 dark:hover:bg-slate-800"
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 transition-colors"
+                                className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 transition-colors"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Edit className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Delete User</TooltipContent>
+                            <TooltipContent>Edit User</TooltipContent>
                           </Tooltip>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm font-medium">
-                      {user.username}
-                    </TableCell>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="font-medium text-slate-500 dark:text-slate-400">
-                      {user.agentCode}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          user.userType === "ADMIN" ? "default" : "secondary"
-                        }
-                        className="font-semibold"
-                      >
-                        {user.userType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-slate-500 dark:text-slate-400">
-                      {user.contactNo}
-                    </TableCell>
-                  </motion.tr>
-                ))}
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/40 dark:hover:text-amber-300 transition-colors"
+                              >
+                                <RotateCw className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Reset Password</TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
+                              >
+                                <Mail className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Send Email</TooltipContent>
+                          </Tooltip>
+
+                          {user.userType === "SC" && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete User</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm font-medium">
+                        {user.username}
+                      </TableCell>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="font-medium text-slate-500 dark:text-slate-400">
+                        {user.agentCode}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            user.userType === "ADMIN" ? "default" : "secondary"
+                          }
+                          className="font-semibold"
+                        >
+                          {user.userType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-slate-500 dark:text-slate-400">
+                        {user.contactNo}
+                      </TableCell>
+                    </motion.tr>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
 
-          {filteredUsers.length === 0 && (
+          {!loading && filteredUsers.length === 0 && (
             <EmptyState
               icon={Users}
               title="No users found"

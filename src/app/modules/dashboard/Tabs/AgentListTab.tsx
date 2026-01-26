@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { Loader2, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../../core/components/ui/table";
+import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 
 export function AgentListTab() {
   const { data: agents = [], isLoading: loading } =
@@ -32,14 +33,6 @@ export function AgentListTab() {
         agent.scStatus.toLowerCase().includes(query),
     );
   }, [agents, searchQuery]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-300" />
-      </div>
-    );
-  }
 
   return (
     <motion.div
@@ -78,35 +71,39 @@ export function AgentListTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAgents.map((agent: any, index: number) => (
-                <motion.tr
-                  key={agent.id}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="group hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  <TableCell className="font-medium">
-                    {agent.salesCounselorCode}
-                  </TableCell>
-                  <TableCell className="font-medium">{agent.name}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        agent.scStatus === "Active" ? "default" : "secondary"
-                      }
-                      className="font-semibold"
-                    >
-                      {agent.scStatus}
-                    </Badge>
-                  </TableCell>
-                </motion.tr>
-              ))}
+              {loading ? (
+                <TableRowSkeleton />
+              ) : (
+                filteredAgents.map((agent: any, index: number) => (
+                  <motion.tr
+                    key={agent.id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="group hover:bg-slate-50 dark:hover:bg-slate-800"
+                  >
+                    <TableCell className="font-medium">
+                      {agent.salesCounselorCode}
+                    </TableCell>
+                    <TableCell className="font-medium">{agent.name}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          agent.scStatus === "Active" ? "default" : "secondary"
+                        }
+                        className="font-semibold"
+                      >
+                        {agent.scStatus}
+                      </Badge>
+                    </TableCell>
+                  </motion.tr>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
 
-        {filteredAgents.length === 0 && (
+        {!loading && filteredAgents.length === 0 && (
           <EmptyState
             icon={Users}
             title="No agents found"
