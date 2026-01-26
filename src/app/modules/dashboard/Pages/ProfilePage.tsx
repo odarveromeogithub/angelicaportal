@@ -31,6 +31,42 @@ export default function ProfilePage() {
   const email = currentUser?.email || "user@example.com";
   const fullName = currentUser?.name || "User";
   const phoneNumber = currentUser?.contact_number || "+63 912 345 6789";
+  const isNonClientRole = userRole !== "client";
+  const referralCode =
+    currentUser?.referral_code || currentUser?.referral_link_code || "";
+  const referralUrl = referralCode
+    ? `https://sc.cclpi.com.ph/#/referral/${referralCode}`
+    : "";
+
+  const handleCopyReferralLink = async () => {
+    if (!referralUrl) return;
+    try {
+      await navigator.clipboard.writeText(referralUrl);
+    } catch (e) {
+      // noop
+    }
+  };
+
+  const handleDownloadQR = async () => {
+    if (!referralUrl) return;
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(
+      referralUrl,
+    )}`;
+    try {
+      const res = await fetch(qrSrc);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `referral-qr-${referralCode || "code"}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      // noop
+    }
+  };
 
   return (
     <ErrorBoundary>
@@ -131,6 +167,78 @@ export default function ProfilePage() {
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* QR Code and Referral Section - Only for non-client roles */}
+                  {isNonClientRole && referralUrl && (
+                    <Card className="mt-2">
+                      <CardContent className="pt-6">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
+                                referralUrl,
+                              )}`}
+                              alt="Referral QR"
+                              className="h-64 w-64 object-contain"
+                              loading="lazy"
+                            />
+                          </div>
+                          <Button onClick={handleDownloadQR} className="w-48">
+                            DOWNLOAD QR
+                          </Button>
+                          <div className="text-center">
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                              {fullName}
+                            </p>
+                            {referralCode && (
+                              <p className="text-slate-600 dark:text-slate-400">
+                                {referralCode}
+                              </p>
+                            )}
+                          </div>
+                          <div className="w-full max-w-xl space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              Sales Counselor Referral Link
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                value={referralUrl}
+                                readOnly
+                                className="flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100"
+                              />
+                              <Button
+                                variant="outline"
+                                className="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                onClick={handleCopyReferralLink}
+                              >
+                                COPY
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Sales Counselor Calling Card */}
+                          <div className="w-full max-w-xl space-y-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <label className="text-sm font-semibold text-slate-900 dark:text-white">
+                              Sales Counselor Calling Card
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                value="Click to generate Calling Card PDF."
+                                readOnly
+                                className="flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100"
+                              />
+                              <Button
+                                variant="default"
+                                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white"
+                              >
+                                OPEN
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Facial Verification */}
                   <Card className="border border-blue-200/60 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/40">

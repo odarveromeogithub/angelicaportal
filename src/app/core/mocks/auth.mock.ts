@@ -5,12 +5,12 @@ import type { LoginPayload } from "../state/types/auth";
 /**
  * Mock Login Credentials
  * Use these credentials to test the login functionality with different roles:
- * 
+ *
  * ADMIN: admin@example.com / Admin123!
  * CLIENT: client@example.com / Client123!
  * SALES COUNSELOR (SC): sc@example.com / SC123!@
  * USER MANAGER (UM): um@example.com / UM123!@
- * 
+ *
  * Note: UM role has admin-level access
  */
 export const MOCK_LOGIN_CREDENTIALS: LoginPayload[] = [
@@ -92,6 +92,8 @@ export const MOCK_USERS_BY_ROLE = {
       last_name: "User",
       contact_number: "+63900000001",
       role: "admin" as const,
+      referral_code: "M-000-00-000-10001",
+      referral_link_code: "7e4fab7288c2069c/1",
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -142,6 +144,8 @@ export const MOCK_USERS_BY_ROLE = {
       last_name: "Counselor",
       contact_number: "+63900000003",
       role: "sc" as const,
+      referral_code: "M-000-00-000-00893",
+      referral_link_code: "7e4fab7288c2069c/1",
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -167,6 +171,8 @@ export const MOCK_USERS_BY_ROLE = {
       last_name: "Manager",
       contact_number: "+63900000004",
       role: "um" as const,
+      referral_code: "M-000-00-000-20002",
+      referral_link_code: "c23a9d117fa1b55f/1",
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -179,10 +185,10 @@ export const MOCK_USERS_BY_ROLE = {
  */
 export const validateMockCredentials = (
   email: string,
-  password: string
+  password: string,
 ): boolean => {
   return MOCK_LOGIN_CREDENTIALS.some(
-    (cred) => cred.email === email && cred.password === password
+    (cred) => cred.email === email && cred.password === password,
   );
 };
 
