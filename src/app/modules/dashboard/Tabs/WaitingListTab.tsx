@@ -24,7 +24,7 @@ import {
 } from "../../../core/components/ui/tooltip";
 import { Button } from "../../../core/components/ui/button";
 import { useToast } from "../../../core/hooks/useToast";
-import { Skeleton } from "../../../core/components/ui/skeleton";
+import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 
 export function WaitingListTab() {
   const toast = useToast();
@@ -95,28 +95,7 @@ export function WaitingListTab() {
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  // Skeleton loading rows
-                  <>
-                    {[...Array(4)].map((_, index) => (
-                      <TableRow
-                        key={index}
-                        className="border-b border-gray-50 dark:border-slate-800/60"
-                      >
-                        <TableCell>
-                          <Skeleton className="h-8 w-12" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-32" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-40" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-20" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </>
+                  <TableRowSkeleton />
                 ) : (
                   <>
                     {filteredItems.map((item: any, index: number) => (

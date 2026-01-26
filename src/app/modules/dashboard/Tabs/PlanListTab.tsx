@@ -10,7 +10,7 @@ import {
 } from "../../../core/components/dashboard";
 import { dashboardApi } from "../../../core/state/api";
 import { useToast } from "../../../core/hooks/useToast";
-import { Skeleton } from "../../../core/components/ui/skeleton";
+import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
 
 export function PlanListTab() {
   const toast = useToast();
@@ -59,10 +59,12 @@ export function PlanListTab() {
         count={filteredPlans.length}
         countLabel="Plans"
         actions={
-          <Button className="w-full sm:w-auto shadow-sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add New Plan
-          </Button>
+          <div>
+            <Button className="w-full sm:w-auto shadow-sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Plan
+            </Button>
+          </div>
         }
       />
 
@@ -85,19 +87,7 @@ export function PlanListTab() {
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, index) => (
-            <div
-              key={index}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6"
-            >
-              <div className="space-y-3">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <div className="flex gap-2 pt-2">
-                  <Skeleton className="h-8 w-20" />
-                  <Skeleton className="h-8 w-20" />
-                </div>
-              </div>
-            </div>
+            <ListItemSkeleton key={index} />
           ))}
         </div>
       ) : (

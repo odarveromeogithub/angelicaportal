@@ -24,7 +24,7 @@ import {
 } from "../../../core/components/ui/dropdown-menu";
 import { Button } from "../../../core/components/ui/button";
 import { useToast } from "../../../core/hooks/useToast";
-import { Skeleton } from "../../../core/components/ui/skeleton";
+import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
 
 export function ClientListTab() {
   const toast = useToast();
@@ -99,19 +99,7 @@ export function ClientListTab() {
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, index) => (
-            <div
-              key={index}
-              className="bg-white dark:bg-slate-900 rounded-xl md:rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 md:p-6"
-            >
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                </div>
-                <Skeleton className="h-8 w-20" />
-              </div>
-            </div>
+            <ListItemSkeleton key={index} />
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
