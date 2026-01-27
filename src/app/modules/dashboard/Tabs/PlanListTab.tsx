@@ -11,9 +11,17 @@ import {
 import { dashboardApi } from "../../../core/state/api";
 import { useToast } from "../../../core/hooks/useToast";
 import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
+import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";
+import { Alert } from "../../../core/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../../core/components/ui/tooltip";
 
 export function PlanListTab() {
   const toast = useToast();
+  const isVerified = selectIsFullyVerified();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const {
@@ -60,13 +68,64 @@ export function PlanListTab() {
         countLabel="Plans"
         actions={
           <div>
-            <Button className="w-full sm:w-auto shadow-sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Plan
-            </Button>
+            {isVerified ? (
+              <Button className="w-full sm:w-auto shadow-sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Plan
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* Wrap disabled button to allow tooltip and click */}
+                  <span
+                    className="inline-block"
+                    onClick={() =>
+                      window.dispatchEvent(
+                        new CustomEvent("open-verification-prompt"),
+                      )
+                    }
+                  >
+                    <Button className="w-full sm:w-auto shadow-sm" disabled>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add New Plan
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={8}>
+                  <div className="space-y-1">
+                    <p className="text-xs">
+                      Verification required to add plans.
+                    </p>
+                    <button
+                      type="button"
+                      className="text-xs underline"
+                      onClick={() =>
+                        window.dispatchEvent(
+                          new CustomEvent("open-verification-prompt"),
+                        )
+                      }
+                    >
+                      Verify now
+                    </button>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         }
       />
+
+      {!isVerified && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+          <Alert>
+            <div className="text-sm">
+              Your account is not fully verified. Complete facial verification,
+              ID upload, and three signature specimens to enable adding new
+              plans.
+            </div>
+          </Alert>
+        </div>
+      )}
 
       <FilterBar
         searchValue={searchQuery}

@@ -2,12 +2,17 @@ import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import type { IUser } from "../../interfaces/user.interface";
 import type { AuthState } from "../types/auth";
-import { getAccessToken } from "../../helpers/auth-storage";
+import {
+  getAccessToken,
+  getVerificationCompleted,
+  getMissingVerificationItems,
+} from "../../helpers/auth-storage";
 
 /**
  * Select the entire auth state
  */
-export const selectAuth = (state: RootState) => state.auth as unknown as AuthState;
+export const selectAuth = (state: RootState) =>
+  state.auth as unknown as AuthState;
 
 /**
  * Select access token from localStorage
@@ -27,13 +32,24 @@ export const selectAuthUser = (state: RootState): IUser | null => {
  * Select if user is authenticated (has token and user data)
  */
 export const selectIsAuthenticated = (state: RootState): boolean => {
-  return !!(state.auth as unknown as AuthState).user?.data && !!getAccessToken();
+  return (
+    !!(state.auth as unknown as AuthState).user?.data && !!getAccessToken()
+  );
+};
+
+/**
+ * Select if user completed full verification (facial, ID, signatures)
+ * Currently sourced from localStorage until backend supports it.
+ */
+export const selectIsFullyVerified = (): boolean => {
+  return getVerificationCompleted();
 };
 
 /**
  * Select login state
  */
-export const selectLoginState = (state: RootState) => (state.auth as unknown as AuthState).login;
+export const selectLoginState = (state: RootState) =>
+  (state.auth as unknown as AuthState).login;
 
 /**
  * Select if login is loading
@@ -52,7 +68,8 @@ export const selectLoginError = (state: RootState): string | boolean | null => {
 /**
  * Select register state
  */
-export const selectRegisterState = (state: RootState) => (state.auth as unknown as AuthState).register;
+export const selectRegisterState = (state: RootState) =>
+  (state.auth as unknown as AuthState).register;
 
 /**
  * Select if register is loading
@@ -64,7 +81,9 @@ export const selectIsRegisterLoading = (state: RootState): boolean => {
 /**
  * Select register error
  */
-export const selectRegisterError = (state: RootState): string | boolean | null => {
+export const selectRegisterError = (
+  state: RootState,
+): string | boolean | null => {
   return (state.auth as unknown as AuthState).register.error;
 };
 
@@ -80,7 +99,7 @@ export const selectUserRole = (state: RootState): IUser["role"] | null => {
  */
 export const selectIsAdmin = createSelector(
   [selectUserRole],
-  (role) => role === "admin" || role === "um"
+  (role) => role === "admin" || role === "um",
 );
 
 /**
@@ -88,7 +107,7 @@ export const selectIsAdmin = createSelector(
  */
 export const selectIsSales = createSelector(
   [selectUserRole],
-  (role) => role === "sc"
+  (role) => role === "sc",
 );
 
 /**
@@ -96,5 +115,13 @@ export const selectIsSales = createSelector(
  */
 export const selectIsClient = createSelector(
   [selectUserRole],
-  (role) => role === "client"
+  (role) => role === "client",
 );
+
+/**
+ * Select missing verification items
+ * Returns array of missing items: 'facial', 'id', 'signatures'
+ */
+export const selectMissingVerificationItems = (): string[] => {
+  return getMissingVerificationItems();
+};

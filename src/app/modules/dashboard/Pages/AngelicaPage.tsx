@@ -25,6 +25,8 @@ import {
 } from "../../../core/state/selector/auth.selector";
 import { getTabsForRole } from "../../../core/constants/navigation";
 import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
+import VerificationPrompt from "../../../core/components/verification/VerificationPrompt";
+import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";
 
 export default function AngelicaPage() {
   const location = useLocation();
@@ -41,6 +43,21 @@ export default function AngelicaPage() {
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
+
+  useEffect(() => {
+    // Show verification prompt upon entering dashboard if not verified
+    const isVerified = selectIsFullyVerified();
+    setShowVerificationPrompt(!isVerified);
+  }, []);
+
+  useEffect(() => {
+    // Listen for requests to open the verification prompt (e.g., from tooltip)
+    const handler = () => setShowVerificationPrompt(true);
+    window.addEventListener("open-verification-prompt", handler);
+    return () =>
+      window.removeEventListener("open-verification-prompt", handler);
+  }, []);
 
   useEffect(() => {
     // RTK Query will automatically fetch data on component mount
@@ -77,6 +94,12 @@ export default function AngelicaPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {showVerificationPrompt && (
+        <VerificationPrompt
+          open={showVerificationPrompt}
+          onClose={() => setShowVerificationPrompt(false)}
+        />
+      )}
       <Sidebar
         userRole={userRole}
         isOpen={sidebarOpen}

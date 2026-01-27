@@ -2,24 +2,61 @@ import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
 import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import { Button } from "../../../core/components/ui/button";
-import { Camera, Upload, Edit } from "lucide-react";
+import { Camera, Upload, Edit, X, Check, Pen } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "../../../core/components/ui/card";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAppSelector } from "../../../core/state/hooks";
-import { selectAuthUser } from "../../../core/state/selector/auth.selector";
+import {
+  selectAuthUser,
+  selectIsFullyVerified,
+  selectMissingVerificationItems,
+} from "../../../core/state/selector/auth.selector";
 import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
 import { ProfileSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  setVerificationFacial,
+  setVerificationID,
+  setVerificationSignatures,
+  getVerificationFacial,
+  getVerificationID,
+  getVerificationSignatures,
+} from "../../../core/helpers/auth-storage";
+import SignaturePad from "signature_pad";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const currentUser = useAppSelector(selectAuthUser);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isProfileLoading = !currentUser;
+  const isVerified = selectIsFullyVerified();
+  const missingItems = selectMissingVerificationItems();
+
+  // Verification state
+  const [facialPhoto, setFacialPhoto] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [signatureImage, setSignatureImage] = useState<string | null>(null);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const [idImages, setIdImages] = useState<string[]>([]);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
+  const signaturePadRef = useRef<SignaturePad | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const signatureFileInputRef = useRef<HTMLInputElement>(null);
+  const idFileInputRef = useRef<HTMLInputElement>(null);
+
+  const requirementLabels: Record<string, string> = {
+    facial: "Facial verification (selfie)",
+    id: "Upload valid ID",
+    signatures: "Provide 3 specimen signatures",
+  };
 
   // Get user role from Redux auth state (not from pathname)
   const authenticatedUserRole = currentUser?.role || "client";
@@ -46,6 +83,142 @@ export default function ProfilePage() {
       // noop
     }
   };
+
+  const handleGoToVerification = () => {
+    const el = document.getElementById("verification-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Facial Verification Handlers
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        setShowCamera(true);
+      }
+    } catch (err) {
+      toast.error("Camera access denied");
+    }
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setShowCamera(false);
+  }, []);
+
+  const captureSelfie = useCallback(() => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL("image/png");
+        setFacialPhoto(imageData);
+        setVerificationFacial(true);
+        toast.success("Facial verification completed!");
+        stopCamera();
+      }
+    }
+  }, [stopCamera]);
+
+  const handleUploadFacialPhoto = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setFacialPhoto(reader.result as string);
+          setVerificationFacial(true);
+          toast.success("Facial verification completed!");
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    [],
+  );
+
+  // Signature Handlers
+  const initSignaturePad = useCallback(() => {
+    if (signatureCanvasRef.current && !signaturePadRef.current) {
+      signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
+        backgroundColor: "rgb(255, 255, 255)",
+      });
+    }
+    setShowSignaturePad(true);
+  }, []);
+
+  const clearSignaturePad = useCallback(() => {
+    signaturePadRef.current?.clear();
+  }, []);
+
+  const saveSignature = useCallback(() => {
+    if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
+      const imageData = signaturePadRef.current.toDataURL("image/png");
+      setSignatureImage(imageData);
+      setVerificationSignatures(true);
+      toast.success("Signature saved!");
+      setShowSignaturePad(false);
+    } else {
+      toast.error("Please provide a signature first");
+    }
+  }, []);
+
+  const handleUploadSignature = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setSignatureImage(reader.result as string);
+          setVerificationSignatures(true);
+          toast.success("Signature uploaded!");
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    [],
+  );
+
+  // ID Upload Handlers
+  const handleUploadID = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        const fileArray = Array.from(files).slice(0, 3);
+        const promises = fileArray.map((file) => {
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+        });
+
+        Promise.all(promises).then((images) => {
+          setIdImages(images);
+          if (images.length === 3) {
+            setVerificationID(true);
+            toast.success("ID with 3 specimen signatures uploaded!");
+          } else {
+            toast.info(
+              `Uploaded ${images.length}/3 images. Please upload 3 images total.`,
+            );
+          }
+        });
+      }
+    },
+    [],
+  );
 
   const handleDownloadQR = async () => {
     if (!referralUrl) return;
@@ -102,26 +275,40 @@ export default function ProfilePage() {
               ) : (
                 <>
                   {/* Account Verification Alert */}
-                  <motion.div
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="bg-orange-50 border border-orange-200 dark:bg-orange-950/40 dark:border-orange-900/50 rounded-xl p-4 md:p-6"
-                  >
-                    <div className="flex items-start gap-3 md:gap-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-200 dark:bg-orange-900/60 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xl md:text-2xl">⚠️</span>
+                  {!isVerified && (
+                    <motion.div
+                      initial={{ y: -10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="bg-orange-50 border border-orange-200 dark:bg-orange-950/40 dark:border-orange-900/50 rounded-xl p-4 md:p-6"
+                    >
+                      <div className="flex items-start gap-3 md:gap-4">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-200 dark:bg-orange-900/60 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl md:text-2xl">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white mb-1">
+                            Account Verification Pending
+                          </h3>
+                          <p className="text-sm md:text-base text-slate-600 dark:text-slate-300">
+                            To fully verify, please complete:
+                          </p>
+                          <ul className="mt-2 list-disc list-inside text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                            {missingItems.map((item) => (
+                              <li key={item}>{requirementLabels[item]}</li>
+                            ))}
+                          </ul>
+                          <div className="mt-3">
+                            <Button
+                              onClick={handleGoToVerification}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              Start Verification
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                          Account Verification Pending
-                        </h3>
-                        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
-                          Complete facial verification to confirm your identity
-                          and unlock all features.
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  )}
 
                   {/* Personal Information */}
                   <Card>
@@ -160,9 +347,15 @@ export default function ProfilePage() {
                           <label className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                             Account Status
                           </label>
-                          <p className="text-sm md:text-base font-medium text-orange-600 mt-1">
-                            Unverified
-                          </p>
+                          {isVerified ? (
+                            <p className="text-sm md:text-base font-medium text-green-600 mt-1">
+                              Verified
+                            </p>
+                          ) : (
+                            <p className="text-sm md:text-base font-medium text-orange-600 mt-1">
+                              Unverified
+                            </p>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -241,92 +434,382 @@ export default function ProfilePage() {
                   )}
 
                   {/* Facial Verification */}
-                  <Card className="border border-blue-200/60 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/40">
+                  <Card
+                    id="verification-section"
+                    className={`border ${
+                      getVerificationFacial()
+                        ? "border-green-200/60 bg-green-50/70 dark:border-green-900/50 dark:bg-green-950/40"
+                        : "border-blue-200/60 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/40"
+                    }`}
+                  >
                     <CardHeader>
                       <div className="flex items-center gap-2 md:gap-3">
-                        <Camera className="w-5 h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
+                        <Camera
+                          className={`w-5 h-5 md:w-6 md:h-6 ${
+                            getVerificationFacial()
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-blue-600 dark:text-blue-400"
+                          }`}
+                        />
                         <CardTitle className="text-base md:text-lg">
-                          Facial Verification Required
+                          Facial Verification{" "}
+                          {getVerificationFacial() && (
+                            <Check className="inline w-5 h-5 text-green-600" />
+                          )}
                         </CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-4">
-                        To verify your account, we need to confirm that you are
-                        the same person who uploaded the ID and signatures.
-                        Please take a selfie or upload a clear photo of your
-                        face.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                        <Button className="w-full sm:w-auto">
-                          <Camera className="w-4 h-4 mr-2" />
-                          Take Selfie
-                        </Button>
-                        <Button variant="outline" className="w-full sm:w-auto">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Photo
-                        </Button>
-                      </div>
+                      {facialPhoto ? (
+                        <div className="space-y-4">
+                          <img
+                            src={facialPhoto}
+                            alt="Selfie"
+                            className="w-full max-w-md mx-auto rounded-xl border-2 border-green-200 dark:border-green-800"
+                          />
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setFacialPhoto(null);
+                              setVerificationFacial(false);
+                            }}
+                            className="w-full sm:w-auto"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Remove Photo
+                          </Button>
+                        </div>
+                      ) : showCamera ? (
+                        <div className="space-y-4">
+                          {/* Camera Preview with Face Outline */}
+                          <div className="relative w-full max-w-md mx-auto">
+                            <video
+                              ref={videoRef}
+                              autoPlay
+                              playsInline
+                              className="w-full rounded-xl border-2 border-blue-200 dark:border-blue-800"
+                            />
+                            {/* Face Outline Overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="relative w-64 h-80">
+                                {/* Oval/Face outline */}
+                                <svg
+                                  className="w-full h-full"
+                                  viewBox="0 0 200 250"
+                                >
+                                  <defs>
+                                    <mask id="face-mask">
+                                      <rect
+                                        width="200"
+                                        height="250"
+                                        fill="white"
+                                        opacity="0.3"
+                                      />
+                                      <ellipse
+                                        cx="100"
+                                        cy="125"
+                                        rx="70"
+                                        ry="95"
+                                        fill="black"
+                                      />
+                                    </mask>
+                                  </defs>
+                                  <rect
+                                    width="200"
+                                    height="250"
+                                    fill="black"
+                                    mask="url(#face-mask)"
+                                    opacity="0.5"
+                                  />
+                                  <ellipse
+                                    cx="100"
+                                    cy="125"
+                                    rx="70"
+                                    ry="95"
+                                    fill="none"
+                                    stroke="white"
+                                    strokeWidth="3"
+                                    strokeDasharray="10,5"
+                                    className="animate-pulse"
+                                  />
+                                </svg>
+                                {/* Instructions */}
+                                <div className="absolute -bottom-12 left-0 right-0 text-center">
+                                  <p className="text-sm font-medium text-white bg-black/60 rounded-lg px-3 py-2 backdrop-blur-sm">
+                                    Position your face in the frame
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                            <Button
+                              onClick={captureSelfie}
+                              className="w-full sm:w-auto"
+                            >
+                              <Camera className="w-4 h-4 mr-2" />
+                              Capture Photo
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={stopCamera}
+                              className="w-full sm:w-auto"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                          <canvas ref={canvasRef} className="hidden" />
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-4">
+                            To verify your account, we need to confirm that you
+                            are the same person who uploaded the ID and
+                            signatures. Please take a selfie or upload a clear
+                            photo of your face.
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                            <Button
+                              onClick={startCamera}
+                              className="w-full sm:w-auto"
+                            >
+                              <Camera className="w-4 h-4 mr-2" />
+                              Take Selfie
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-full sm:w-auto"
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Photo
+                            </Button>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadFacialPhoto}
+                              className="hidden"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
                   {/* Signature */}
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="text-base md:text-lg">
+                      <CardTitle className="text-base md:text-lg flex items-center gap-2">
                         Signature
+                        {getVerificationSignatures() && (
+                          <Check className="w-5 h-5 text-green-600" />
+                        )}
                       </CardTitle>
-                      <Button size="sm">
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
+                      {signatureImage && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSignatureImage(null);
+                            setVerificationSignatures(false);
+                          }}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      )}
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                        <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center">
-                          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
-                            No signature uploaded
-                          </p>
+                      {signatureImage ? (
+                        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+                          <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center bg-white dark:bg-slate-950">
+                            <img
+                              src={signatureImage}
+                              alt="Signature"
+                              className="max-h-full"
+                            />
+                          </div>
+                          <div className="flex items-center">
+                            <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
+                              <li>
+                                The Signature uploaded is protected by the data
+                                privacy law
+                              </li>
+                              <li className="text-green-600 dark:text-green-400 font-medium">
+                                Signature verified
+                              </li>
+                            </ul>
+                          </div>
                         </div>
-                        <div className="flex items-center">
-                          <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
-                            <li>
-                              The Signature uploaded is protected by the data
-                              privacy law
-                            </li>
-                          </ul>
+                      ) : showSignaturePad ? (
+                        <div className="space-y-4">
+                          <div className="border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden">
+                            <canvas
+                              ref={signatureCanvasRef}
+                              className="w-full h-48 bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                              onClick={saveSignature}
+                              className="w-full sm:w-auto"
+                            >
+                              <Check className="w-4 h-4 mr-2" />
+                              Save Signature
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={clearSignaturePad}
+                              className="w-full sm:w-auto"
+                            >
+                              Clear
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => setShowSignaturePad(false)}
+                              className="w-full sm:w-auto"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center">
+                            <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
+                              No signature uploaded
+                            </p>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                              onClick={initSignaturePad}
+                              className="w-full sm:w-auto"
+                            >
+                              <Pen className="w-4 h-4 mr-2" />
+                              Sign with Pad
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() =>
+                                signatureFileInputRef.current?.click()
+                              }
+                              className="w-full sm:w-auto"
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Signature
+                            </Button>
+                            <input
+                              ref={signatureFileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadSignature}
+                              className="hidden"
+                            />
+                          </div>
+                          <div className="flex items-center">
+                            <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
+                              <li>
+                                The Signature uploaded is protected by the data
+                                privacy law
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
                   {/* ID with 3 Specimen Signature */}
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="text-base md:text-lg">
+                      <CardTitle className="text-base md:text-lg flex items-center gap-2">
                         ID with 3 Specimen Signature
+                        {getVerificationID() && (
+                          <Check className="w-5 h-5 text-green-600" />
+                        )}
                       </CardTitle>
-                      <Button size="sm">
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
+                      {idImages.length > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setIdImages([]);
+                            setVerificationID(false);
+                          }}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      )}
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                        <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-48 md:h-64 flex items-center justify-center">
-                          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">
-                            No ID uploaded
-                          </p>
+                      {idImages.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {idImages.map((img, idx) => (
+                              <div
+                                key={idx}
+                                className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4 bg-white dark:bg-slate-950"
+                              >
+                                <img
+                                  src={img}
+                                  alt={`ID ${idx + 1}`}
+                                  className="w-full h-48 object-contain"
+                                />
+                                <p className="text-xs text-center mt-2 text-slate-600 dark:text-slate-400">
+                                  Image {idx + 1}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                          {idImages.length === 3 && (
+                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                              ✓ All 3 specimen signatures uploaded
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center">
-                          <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
-                            <li>
-                              The ID and Signatures uploaded are protected by
-                              the data privacy law
-                            </li>
-                          </ul>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-6 md:p-8 h-48 md:h-64 flex items-center justify-center">
+                            <div className="text-center">
+                              <Upload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+                              <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-2">
+                                No ID uploaded
+                              </p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500">
+                                Upload 3 images with your ID and specimen
+                                signatures
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => idFileInputRef.current?.click()}
+                            className="w-full sm:w-auto"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload ID with 3 Signatures
+                          </Button>
+                          <input
+                            ref={idFileInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleUploadID}
+                            className="hidden"
+                          />
+                          <div className="flex items-center">
+                            <ul className="list-disc list-inside text-xs md:text-sm text-slate-500 dark:text-slate-400 space-y-2">
+                              <li>
+                                The ID and Signatures uploaded are protected by
+                                the data privacy law
+                              </li>
+                              <li>
+                                Please upload exactly 3 images showing your ID
+                                with specimen signatures
+                              </li>
+                            </ul>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 </>

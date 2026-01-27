@@ -1,14 +1,17 @@
 import { motion } from "motion/react";
 import { Sidebar, TopNav } from "../../../core/layout/dashboard";
 import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../core/state/hooks";
 import { selectAuthUser } from "../../../core/state/selector/auth.selector";
 import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
+import VerificationPrompt from "../../../core/components/verification/VerificationPrompt";
+import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
 
   // Get user role from Redux auth state (not from pathname)
   const authUser = useAppSelector(selectAuthUser);
@@ -17,9 +20,28 @@ export default function DashboardPage() {
     authenticatedUserRole as "admin" | "client" | "sc" | "um",
   );
 
+  // Show verification prompt upon entering any dashboard landing page
+  useEffect(() => {
+    const isVerified = selectIsFullyVerified();
+    setShowVerificationPrompt(!isVerified);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setShowVerificationPrompt(true);
+    window.addEventListener("open-verification-prompt", handler);
+    return () =>
+      window.removeEventListener("open-verification-prompt", handler);
+  }, []);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        {showVerificationPrompt && (
+          <VerificationPrompt
+            open={showVerificationPrompt}
+            onClose={() => setShowVerificationPrompt(false)}
+          />
+        )}
         <Sidebar
           userRole={userRole}
           isOpen={sidebarOpen}
