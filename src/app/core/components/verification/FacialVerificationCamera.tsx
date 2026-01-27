@@ -1,8 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import * as faceapi from "face-api.js";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/app/core/components/ui/button";
 import { Camera, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import {
+  loadFaceApiModels,
+  validateFaceInImage,
+} from "@/app/core/lib/faceValidation";
+import { useFaceDetection } from "@/app/core/hooks/useFaceDetection";
 
 interface FacialVerificationCameraProps {
   onCapture: (imageData: string) => void;
@@ -15,27 +19,42 @@ export const FacialVerificationCamera: React.FC<
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const steadyCounterRef = useRef(0);
-  const autoCaptureTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isFaceCentered, setIsFaceCentered] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState<number | null>(null);
+
+  const captureSelfie = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = canvas.toDataURL("image/png");
+    onCapture(imageData);
+    onClose();
+  }, [onCapture, onClose]);
+
+  const {
+    isFaceCentered,
+    isCapturing,
+    countdownSeconds,
+    startDetection,
+    stopDetection,
+  } = useFaceDetection(videoRef, canvasRef, {
+    onAutoCapture: captureSelfie,
+  });
 
   // Load face-api models
   useEffect(() => {
     const loadModels = async () => {
       try {
-        const MODEL_URL =
-          "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-        ]);
+        await loadFaceApiModels();
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load face detection models:", err);
@@ -64,11 +83,9 @@ export const FacialVerificationCamera: React.FC<
           videoRef.current.srcObject = stream;
           streamRef.current = stream;
 
-          // Wait for video to be ready before starting detection
           videoRef.current.onloadedmetadata = () => {
             videoRef.current?.play();
-            // Start face detection loop with faster interval
-            detectionIntervalRef.current = setInterval(detectFace, 150);
+            startDetection();
           };
         }
       } catch (err) {
@@ -81,182 +98,19 @@ export const FacialVerificationCamera: React.FC<
     startCamera();
 
     return () => {
-      if (detectionIntervalRef.current) {
-        clearInterval(detectionIntervalRef.current);
-      }
+      stopDetection();
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
-      if (autoCaptureTimerRef.current) {
-        clearTimeout(autoCaptureTimerRef.current);
-      }
     };
-  }, [isLoading, onClose]);
-
-  // Check if face is within center circle bounds
-  const isFaceInCenter = (box: any, displaySize: any): boolean => {
-    const centerX = displaySize.width / 2;
-    const centerY = displaySize.height / 2;
-    const targetRadius = Math.min(displaySize.width, displaySize.height) * 0.25; // 25% of screen size
-
-    // Get face center and dimensions
-    const faceCenter = {
-      x: box.x + box.width / 2,
-      y: box.y + box.height / 2,
-    };
-
-    // Calculate distance from center
-    const distance = Math.sqrt(
-      Math.pow(faceCenter.x - centerX, 2) + Math.pow(faceCenter.y - centerY, 2),
-    );
-
-    // Check if face is within circle and not too small
-    const minFaceSize = Math.min(displaySize.width, displaySize.height) * 0.15; // Min face width/height
-    const maxFaceSize = Math.min(displaySize.width, displaySize.height) * 0.6; // Max face width/height
-
-    return (
-      distance < targetRadius &&
-      box.width >= minFaceSize &&
-      box.width <= maxFaceSize &&
-      box.height >= minFaceSize &&
-      box.height <= maxFaceSize
-    );
-  };
-
-  const detectFace = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    try {
-      const detections = await faceapi
-        .detectSingleFace(
-          videoRef.current,
-          new faceapi.TinyFaceDetectorOptions({
-            inputSize: 416,
-            scoreThreshold: 0.4, // Lower threshold for better detection
-          }),
-        )
-        .withFaceLandmarks();
-
-      const canvas = canvasRef.current;
-      const displaySize = {
-        width: videoRef.current.videoWidth || videoRef.current.width,
-        height: videoRef.current.videoHeight || videoRef.current.height,
-      };
-
-      // Ensure canvas has actual width/height attributes
-      if (!canvas.width) canvas.width = displaySize.width;
-      if (!canvas.height) canvas.height = displaySize.height;
-
-      faceapi.matchDimensions(canvas, displaySize);
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (resizedDetections) {
-        // Increment steady counter only if face is in center
-        const box = resizedDetections.detection.box;
-        const isInCenter = isFaceInCenter(box, displaySize);
-        setIsFaceCentered(isInCenter);
-
-        if (isInCenter) {
-          steadyCounterRef.current += 1;
-        } else {
-          steadyCounterRef.current = 0;
-          setCountdownSeconds(null);
-          if (autoCaptureTimerRef.current) {
-            clearTimeout(autoCaptureTimerRef.current);
-            autoCaptureTimerRef.current = null;
-          }
-        }
-
-        // Auto-capture after face is steady for ~1 second (7 detections at 150ms interval)
-        if (
-          steadyCounterRef.current >= 7 &&
-          !isCapturing &&
-          !autoCaptureTimerRef.current
-        ) {
-          startAutoCaptureCountdown();
-        }
-      } else {
-        setIsFaceCentered(false);
-        steadyCounterRef.current = 0;
-        setCountdownSeconds(null);
-
-        // Cancel auto-capture if face is lost
-        if (autoCaptureTimerRef.current) {
-          clearTimeout(autoCaptureTimerRef.current);
-          autoCaptureTimerRef.current = null;
-        }
-      }
-    } catch (err) {
-      // Silent catch - detection can fail occasionally
-    }
-  };
-
-  const startAutoCaptureCountdown = () => {
-    let timeLeft = 3; // 3 seconds countdown
-    setCountdownSeconds(timeLeft);
-
-    const countdown = setInterval(() => {
-      timeLeft -= 1;
-      setCountdownSeconds(timeLeft);
-
-      if (timeLeft <= 0) {
-        clearInterval(countdown);
-        autoCaptureTimerRef.current = null;
-        captureSelfie();
-      }
-    }, 1000);
-
-    autoCaptureTimerRef.current = countdown as unknown as NodeJS.Timeout;
-  };
-
-  const captureSelfie = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    setIsCapturing(true);
-
-    try {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-
-      ctx.drawImage(videoRef.current, 0, 0);
-      const imageData = canvas.toDataURL("image/jpeg", 0.95);
-
-      // Stop camera
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      if (detectionIntervalRef.current) {
-        clearInterval(detectionIntervalRef.current);
-      }
-
-      onCapture(imageData);
-      toast.success("Selfie captured successfully");
-    } catch (err) {
-      console.error("Capture error:", err);
-      toast.error("Failed to capture selfie");
-    } finally {
-      setIsCapturing(false);
-    }
-  };
+  }, [isLoading, onClose, startDetection, stopDetection]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Reset the input value so the same file can be selected again if needed
     e.target.value = "";
 
-    // Show loading state
     toast.loading("Validating face in photo...", { id: "upload-validation" });
 
     try {
@@ -264,118 +118,24 @@ export const FacialVerificationCamera: React.FC<
       reader.onload = async (event) => {
         const imageData = event.target?.result as string;
 
-        // Create an image element to validate face detection
-        const img = document.createElement("img");
-        img.src = imageData;
+        const result = await validateFaceInImage(imageData);
 
-        img.onload = async () => {
-          try {
-            console.log("Starting face detection on uploaded image...");
-
-            // Detect face in uploaded image
-            const detections = await faceapi
-              .detectSingleFace(
-                img,
-                new faceapi.TinyFaceDetectorOptions({
-                  inputSize: 416,
-                  scoreThreshold: 0.4,
-                }),
-              )
-              .withFaceLandmarks();
-
-            console.log("Detection result:", detections);
-
-            if (!detections) {
-              toast.error(
-                "❌ No face detected in the uploaded photo. Please upload a clear photo of your face.",
-                { id: "upload-validation" },
-              );
-              return;
-            }
-
-            // Check if face is reasonably sized (not too small)
-            const faceBox = detections.detection.box;
-            const displaySize = { width: img.width, height: img.height };
-            const minSize =
-              Math.min(displaySize.width, displaySize.height) * 0.15;
-            const maxSize =
-              Math.min(displaySize.width, displaySize.height) * 0.6;
-
-            console.log(
-              "Face box:",
-              faceBox,
-              "Min size:",
-              minSize,
-              "Max size:",
-              maxSize,
-            );
-
-            if (faceBox.width < minSize || faceBox.height < minSize) {
-              toast.error(
-                "❌ Face is too small or unclear. Please upload a closer photo.",
-                { id: "upload-validation" },
-              );
-              return;
-            }
-
-            if (faceBox.width > maxSize || faceBox.height > maxSize) {
-              toast.error(
-                "❌ Face is too close to camera. Please take a step back.",
-                { id: "upload-validation" },
-              );
-              return;
-            }
-
-            // Check if face is centered (within 25% radius from center)
-            const centerX = displaySize.width / 2;
-            const centerY = displaySize.height / 2;
-            const targetRadius =
-              Math.min(displaySize.width, displaySize.height) * 0.25;
-
-            const faceCenterX = faceBox.x + faceBox.width / 2;
-            const faceCenterY = faceBox.y + faceBox.height / 2;
-            const distance = Math.sqrt(
-              Math.pow(faceCenterX - centerX, 2) +
-                Math.pow(faceCenterY - centerY, 2),
-            );
-
-            if (distance > targetRadius) {
-              toast.error(
-                "❌ Face is not centered. Please position your face in the center of the frame.",
-                { id: "upload-validation" },
-              );
-              return;
-            }
-
-            // Face detected successfully - proceed with capture
-            // Stop camera
-            if (streamRef.current) {
-              streamRef.current.getTracks().forEach((track) => track.stop());
-            }
-            if (detectionIntervalRef.current) {
-              clearInterval(detectionIntervalRef.current);
-            }
-
-            onCapture(imageData);
-            toast.success("✓ Photo uploaded successfully with face detected!", {
-              id: "upload-validation",
-            });
-          } catch (err) {
-            console.error("Face detection error in upload:", err);
-            toast.error(
-              "❌ Failed to validate face in photo. Please try again.",
-              {
-                id: "upload-validation",
-              },
-            );
-          }
-        };
-
-        img.onerror = () => {
-          toast.error("❌ Failed to load image. Please try another file.", {
+        if (!result.valid) {
+          toast.error(result.error || "Validation failed", {
             id: "upload-validation",
           });
-        };
+          return;
+        }
+
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+        }
+        stopDetection();
+
+        onCapture(imageData);
+        toast.success("✓ Photo uploaded successfully with face detected!", {
+          id: "upload-validation",
+        });
       };
       reader.readAsDataURL(file);
     } catch (err) {

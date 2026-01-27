@@ -36,6 +36,7 @@ import {
 import SignaturePad from "signature_pad";
 import { toast } from "sonner";
 import { SIGNATURE_CONFIG } from "../../../core/constants/angelica-life-plan";
+import { validateFaceInImage } from "../../../core/lib/faceValidation";
 import { FacialVerificationCamera } from "../../../core/components/verification/FacialVerificationCamera";
 
 export default function ProfilePage() {
@@ -119,8 +120,6 @@ export default function ProfilePage() {
     if (allComplete) {
       // All verifications complete - status should be pending
       console.log("✓ All verifications complete - Status should be: PENDING");
-      // Note: Backend should handle updating user status to "pending"
-      // when receiving verification submission
     }
   }, [facialPhoto, signatureImage, idImages]); // Trigger on photo changes
 
@@ -154,10 +153,8 @@ export default function ProfilePage() {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Reset input
       e.target.value = "";
 
-      // Show loading toast
       toast.loading("Validating face in photo...", { id: "upload-facial" });
 
       try {
@@ -165,107 +162,21 @@ export default function ProfilePage() {
         reader.onload = async (event) => {
           const imageData = event.target?.result as string;
 
-          // Lazy load face-api.js for validation
-          const faceapi = await import("face-api.js");
+          const result = await validateFaceInImage(imageData);
 
-          // Load models if not already loaded
-          if (!faceapi.nets.tinyFaceDetector.isLoaded) {
-            const MODEL_URL =
-              "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
-            await Promise.all([
-              faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-              faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-            ]);
+          if (!result.valid) {
+            toast.error(result.error || "Validation failed", {
+              id: "upload-facial",
+            });
+            return;
           }
 
-          // Create image element for detection
-          const img = document.createElement("img");
-          img.src = imageData;
-
-          img.onload = async () => {
-            try {
-              // Detect face
-              const detections = await faceapi
-                .detectSingleFace(
-                  img,
-                  new faceapi.TinyFaceDetectorOptions({
-                    inputSize: 416,
-                    scoreThreshold: 0.4,
-                  }),
-                )
-                .withFaceLandmarks();
-
-              if (!detections) {
-                toast.error(
-                  "❌ No face detected. Please upload a clear photo of your face.",
-                  { id: "upload-facial" },
-                );
-                return;
-              }
-
-              // Validate face size
-              const faceBox = detections.detection.box;
-              const displaySize = { width: img.width, height: img.height };
-              const minSize =
-                Math.min(displaySize.width, displaySize.height) * 0.15;
-              const maxSize =
-                Math.min(displaySize.width, displaySize.height) * 0.6;
-
-              if (faceBox.width < minSize || faceBox.height < minSize) {
-                toast.error(
-                  "❌ Face is too small or unclear. Please upload a closer photo.",
-                  { id: "upload-facial" },
-                );
-                return;
-              }
-
-              if (faceBox.width > maxSize || faceBox.height > maxSize) {
-                toast.error(
-                  "❌ Face is too close to camera. Please take a step back.",
-                  { id: "upload-facial" },
-                );
-                return;
-              }
-
-              // Check if face is centered (within 25% radius from center)
-              const centerX = displaySize.width / 2;
-              const centerY = displaySize.height / 2;
-              const targetRadius =
-                Math.min(displaySize.width, displaySize.height) * 0.25;
-
-              const faceCenterX = faceBox.x + faceBox.width / 2;
-              const faceCenterY = faceBox.y + faceBox.height / 2;
-              const distance = Math.sqrt(
-                Math.pow(faceCenterX - centerX, 2) +
-                  Math.pow(faceCenterY - centerY, 2),
-              );
-
-              if (distance > targetRadius) {
-                toast.error(
-                  "❌ Face is not centered. Please position your face in the center of the frame.",
-                  { id: "upload-facial" },
-                );
-                return;
-              }
-
-              // Face validated - save it
-              setFacialPhoto(imageData);
-              saveFacialPhotoToStorage(imageData);
-              setVerificationFacial(true);
-              toast.success("✓ Facial verification completed!", {
-                id: "upload-facial",
-              });
-            } catch (err) {
-              console.error("Face detection error:", err);
-              toast.error("❌ Failed to validate face. Please try again.", {
-                id: "upload-facial",
-              });
-            }
-          };
-
-          img.onerror = () => {
-            toast.error("❌ Failed to load image.", { id: "upload-facial" });
-          };
+          setFacialPhoto(imageData);
+          saveFacialPhotoToStorage(imageData);
+          setVerificationFacial(true);
+          toast.success("✓ Facial verification completed!", {
+            id: "upload-facial",
+          });
         };
         reader.readAsDataURL(file);
       } catch (err) {

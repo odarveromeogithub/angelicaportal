@@ -85,7 +85,6 @@ export default function OtpVerification() {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual OTP verification API call
       if (otpCode === "123456") {
         toast.success(AUTH_MESSAGES.otp.success);
 
@@ -137,7 +136,6 @@ export default function OtpVerification() {
       return;
     }
 
-    // TODO: Replace with actual resend OTP API call
     toast.success("OTP resent successfully");
     setResendCooldown(OTP_CONFIG.resendDelaySeconds);
     setTimeLeft(OTP_CONFIG.expiryMinutes * 60);
