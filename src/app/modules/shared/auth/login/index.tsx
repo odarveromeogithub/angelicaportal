@@ -135,7 +135,7 @@ export default function Login() {
           <CardHeader className="flex flex-col items-center justify-center gap-5 text-center">
             <div className="flex justify-center w-full">
               <img
-                src="/assets/cclpi-logo.png"
+                src="/src/assets/cclpi-logo.png"
                 alt="CCLPI Plans Logo"
                 className="h-24 object-contain"
                 loading="lazy"

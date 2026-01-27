@@ -147,7 +147,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center">
           <img
-            src="/assets/cclpi-logo.png"
+            src="/src/assets/cclpi-logo.png"
             alt="Angelica Logo"
             className="h-12 object-contain"
             loading="lazy"

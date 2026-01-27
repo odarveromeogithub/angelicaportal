@@ -176,7 +176,7 @@ export default function OtpVerification() {
           <CardHeader className="items-center gap-4 text-center">
             <div className="flex justify-center w-full">
               <img
-                src="/assets/cclpi-logo.png"
+                src="/src/assets/cclpi-logo.png"
                 alt="CCLPI Plans Logo"
                 className="h-24 object-contain"
                 loading="lazy"
