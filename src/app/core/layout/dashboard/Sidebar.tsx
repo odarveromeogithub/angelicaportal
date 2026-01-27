@@ -3,6 +3,7 @@ import { LogOut, X, Sun, Moon } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { useAppSelector } from "../../state/hooks";
+import logo from "@/assets/cclpi-logo.png";
 import {
   Avatar,
   AvatarFallback,
@@ -147,7 +148,7 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center">
           <img
-            src="/src/assets/cclpi-logo.png"
+            src={logo}
             alt="Angelica Logo"
             className="h-12 object-contain"
             loading="lazy"

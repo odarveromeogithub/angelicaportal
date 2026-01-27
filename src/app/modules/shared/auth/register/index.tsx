@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import logo from "@/assets/cclpi-logo.png";
 
 import { Button } from "@/app/core/components/ui/button";
 import {
@@ -191,7 +192,7 @@ export default function Register() {
           <CardHeader className="flex flex-col items-center justify-center gap-4 text-center">
             <div className="flex justify-center w-full">
               <img
-                src="/src/assets/cclpi-logo.png"
+                src={logo}
                 alt="CCLPI Plans Logo"
                 className="h-24 object-contain"
                 loading="lazy"
