@@ -29,6 +29,7 @@ import {
 } from "../../../core/helpers/auth-storage";
 import SignaturePad from "signature_pad";
 import { toast } from "sonner";
+import { FacialVerificationCamera } from "../../../core/components/verification/FacialVerificationCamera";
 
 export default function ProfilePage() {
   const currentUser = useAppSelector(selectAuthUser);
@@ -44,8 +45,6 @@ export default function ProfilePage() {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [idImages, setIdImages] = useState<string[]>([]);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
   const signaturePadRef = useRef<SignaturePad | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,45 +91,12 @@ export default function ProfilePage() {
   };
 
   // Facial Verification Handlers
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setShowCamera(true);
-      }
-    } catch (err) {
-      toast.error("Camera access denied");
-    }
-  }, []);
-
-  const stopCamera = useCallback(() => {
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
+  const handleFacialCapture = useCallback((imageData: string) => {
+    setFacialPhoto(imageData);
+    setVerificationFacial(true);
     setShowCamera(false);
+    toast.success("Facial verification completed!");
   }, []);
-
-  const captureSelfie = useCallback(() => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL("image/png");
-        setFacialPhoto(imageData);
-        setVerificationFacial(true);
-        toast.success("Facial verification completed!");
-        stopCamera();
-      }
-    }
-  }, [stopCamera]);
 
   const handleUploadFacialPhoto = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,86 +446,10 @@ export default function ProfilePage() {
                           </Button>
                         </div>
                       ) : showCamera ? (
-                        <div className="space-y-4">
-                          {/* Camera Preview with Face Outline */}
-                          <div className="relative w-full max-w-md mx-auto">
-                            <video
-                              ref={videoRef}
-                              autoPlay
-                              playsInline
-                              className="w-full rounded-xl border-2 border-blue-200 dark:border-blue-800"
-                            />
-                            {/* Face Outline Overlay */}
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="relative w-64 h-80">
-                                {/* Oval/Face outline */}
-                                <svg
-                                  className="w-full h-full"
-                                  viewBox="0 0 200 250"
-                                >
-                                  <defs>
-                                    <mask id="face-mask">
-                                      <rect
-                                        width="200"
-                                        height="250"
-                                        fill="white"
-                                        opacity="0.3"
-                                      />
-                                      <ellipse
-                                        cx="100"
-                                        cy="125"
-                                        rx="70"
-                                        ry="95"
-                                        fill="black"
-                                      />
-                                    </mask>
-                                  </defs>
-                                  <rect
-                                    width="200"
-                                    height="250"
-                                    fill="black"
-                                    mask="url(#face-mask)"
-                                    opacity="0.5"
-                                  />
-                                  <ellipse
-                                    cx="100"
-                                    cy="125"
-                                    rx="70"
-                                    ry="95"
-                                    fill="none"
-                                    stroke="white"
-                                    strokeWidth="3"
-                                    strokeDasharray="10,5"
-                                    className="animate-pulse"
-                                  />
-                                </svg>
-                                {/* Instructions */}
-                                <div className="absolute -bottom-12 left-0 right-0 text-center">
-                                  <p className="text-sm font-medium text-white bg-black/60 rounded-lg px-3 py-2 backdrop-blur-sm">
-                                    Position your face in the frame
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                            <Button
-                              onClick={captureSelfie}
-                              className="w-full sm:w-auto"
-                            >
-                              <Camera className="w-4 h-4 mr-2" />
-                              Capture Photo
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={stopCamera}
-                              className="w-full sm:w-auto"
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                          <canvas ref={canvasRef} className="hidden" />
-                        </div>
+                        <FacialVerificationCamera
+                          onCapture={handleFacialCapture}
+                          onClose={() => setShowCamera(false)}
+                        />
                       ) : (
                         <div>
                           <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-4">
@@ -570,7 +460,7 @@ export default function ProfilePage() {
                           </p>
                           <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                             <Button
-                              onClick={startCamera}
+                              onClick={() => setShowCamera(true)}
                               className="w-full sm:w-auto"
                             >
                               <Camera className="w-4 h-4 mr-2" />
