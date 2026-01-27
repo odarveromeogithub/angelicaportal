@@ -93,3 +93,46 @@ export const getMissingVerificationItems = (): string[] => {
   if (!getVerificationSignatures()) missing.push("signatures");
   return missing;
 };
+
+// Facial photo storage (persists across page reloads)
+export const getFacialPhoto = (): string | null => {
+  return localStorage.getItem(STORAGE_KEYS.VERIFICATION_FACIAL_PHOTO);
+};
+
+export const setFacialPhoto = (photoData: string | null) => {
+  if (photoData) {
+    localStorage.setItem(STORAGE_KEYS.VERIFICATION_FACIAL_PHOTO, photoData);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.VERIFICATION_FACIAL_PHOTO);
+  }
+};
+
+// Signature photo storage
+export const getSignaturePhoto = (): string | null => {
+  return localStorage.getItem(STORAGE_KEYS.VERIFICATION_SIGNATURE_PHOTO);
+};
+
+export const setSignaturePhoto = (photoData: string | null) => {
+  if (photoData) {
+    localStorage.setItem(STORAGE_KEYS.VERIFICATION_SIGNATURE_PHOTO, photoData);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.VERIFICATION_SIGNATURE_PHOTO);
+  }
+};
+
+// ID photos storage
+export const getIdPhotos = (): string[] => {
+  const stored = localStorage.getItem(STORAGE_KEYS.VERIFICATION_ID_PHOTOS);
+  return stored ? JSON.parse(stored) : [];
+};
+
+export const setIdPhotos = (photoDataArray: string[]) => {
+  if (photoDataArray.length > 0) {
+    localStorage.setItem(
+      STORAGE_KEYS.VERIFICATION_ID_PHOTOS,
+      JSON.stringify(photoDataArray),
+    );
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.VERIFICATION_ID_PHOTOS);
+  }
+};

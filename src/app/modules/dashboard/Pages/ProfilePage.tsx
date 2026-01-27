@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../core/components/ui/card";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useAppSelector } from "../../../core/state/hooks";
 import {
   selectAuthUser,
@@ -26,9 +26,16 @@ import {
   getVerificationFacial,
   getVerificationID,
   getVerificationSignatures,
+  getFacialPhoto,
+  setFacialPhoto as saveFacialPhotoToStorage,
+  getSignaturePhoto,
+  setSignaturePhoto as saveSignaturePhotoToStorage,
+  getIdPhotos,
+  setIdPhotos as saveIdPhotosToStorage,
 } from "../../../core/helpers/auth-storage";
 import SignaturePad from "signature_pad";
 import { toast } from "sonner";
+import { SIGNATURE_CONFIG } from "../../../core/constants/angelica-life-plan";
 import { FacialVerificationCamera } from "../../../core/components/verification/FacialVerificationCamera";
 
 export default function ProfilePage() {
@@ -74,6 +81,49 @@ export default function ProfilePage() {
     ? `https://sc.cclpi.com.ph/#/referral/${referralCode}`
     : "";
 
+  // Clear verification state on mount if there's no actual photo data
+  useEffect(() => {
+    // Load facial photo from localStorage on mount
+    const savedFacialPhoto = getFacialPhoto();
+    const savedSignaturePhoto = getSignaturePhoto();
+    const savedIdPhotos = getIdPhotos();
+
+    if (savedFacialPhoto) {
+      setFacialPhoto(savedFacialPhoto);
+    } else if (getVerificationFacial()) {
+      setVerificationFacial(false);
+    }
+
+    if (savedSignaturePhoto) {
+      setSignatureImage(savedSignaturePhoto);
+    } else if (getVerificationSignatures()) {
+      setVerificationSignatures(false);
+    }
+
+    if (savedIdPhotos.length > 0) {
+      setIdImages(savedIdPhotos);
+    } else if (getVerificationID()) {
+      setVerificationID(false);
+    }
+  }, []); // Only run on mount
+
+  // Check if all verifications are complete and update status
+  useEffect(() => {
+    const isFacialDone = getVerificationFacial();
+    const isSignatureDone = getVerificationSignatures();
+    const isIDDone = getVerificationID();
+
+    // Force re-render by recalculating derived state
+    const allComplete = isFacialDone && isSignatureDone && isIDDone;
+
+    if (allComplete) {
+      // All verifications complete - status should be pending
+      console.log("✓ All verifications complete - Status should be: PENDING");
+      // Note: Backend should handle updating user status to "pending"
+      // when receiving verification submission
+    }
+  }, [facialPhoto, signatureImage, idImages]); // Trigger on photo changes
+
   const handleCopyReferralLink = async () => {
     if (!referralUrl) return;
     try {
@@ -93,22 +143,134 @@ export default function ProfilePage() {
   // Facial Verification Handlers
   const handleFacialCapture = useCallback((imageData: string) => {
     setFacialPhoto(imageData);
+    saveFacialPhotoToStorage(imageData);
     setVerificationFacial(true);
     setShowCamera(false);
     toast.success("Facial verification completed!");
   }, []);
 
   const handleUploadFacialPhoto = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
+      if (!file) return;
+
+      // Reset input
+      e.target.value = "";
+
+      // Show loading toast
+      toast.loading("Validating face in photo...", { id: "upload-facial" });
+
+      try {
         const reader = new FileReader();
-        reader.onload = () => {
-          setFacialPhoto(reader.result as string);
-          setVerificationFacial(true);
-          toast.success("Facial verification completed!");
+        reader.onload = async (event) => {
+          const imageData = event.target?.result as string;
+
+          // Lazy load face-api.js for validation
+          const faceapi = await import("face-api.js");
+
+          // Load models if not already loaded
+          if (!faceapi.nets.tinyFaceDetector.isLoaded) {
+            const MODEL_URL =
+              "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+            await Promise.all([
+              faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+              faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            ]);
+          }
+
+          // Create image element for detection
+          const img = document.createElement("img");
+          img.src = imageData;
+
+          img.onload = async () => {
+            try {
+              // Detect face
+              const detections = await faceapi
+                .detectSingleFace(
+                  img,
+                  new faceapi.TinyFaceDetectorOptions({
+                    inputSize: 416,
+                    scoreThreshold: 0.4,
+                  }),
+                )
+                .withFaceLandmarks();
+
+              if (!detections) {
+                toast.error(
+                  "❌ No face detected. Please upload a clear photo of your face.",
+                  { id: "upload-facial" },
+                );
+                return;
+              }
+
+              // Validate face size
+              const faceBox = detections.detection.box;
+              const displaySize = { width: img.width, height: img.height };
+              const minSize =
+                Math.min(displaySize.width, displaySize.height) * 0.15;
+              const maxSize =
+                Math.min(displaySize.width, displaySize.height) * 0.6;
+
+              if (faceBox.width < minSize || faceBox.height < minSize) {
+                toast.error(
+                  "❌ Face is too small or unclear. Please upload a closer photo.",
+                  { id: "upload-facial" },
+                );
+                return;
+              }
+
+              if (faceBox.width > maxSize || faceBox.height > maxSize) {
+                toast.error(
+                  "❌ Face is too close to camera. Please take a step back.",
+                  { id: "upload-facial" },
+                );
+                return;
+              }
+
+              // Check if face is centered (within 25% radius from center)
+              const centerX = displaySize.width / 2;
+              const centerY = displaySize.height / 2;
+              const targetRadius =
+                Math.min(displaySize.width, displaySize.height) * 0.25;
+
+              const faceCenterX = faceBox.x + faceBox.width / 2;
+              const faceCenterY = faceBox.y + faceBox.height / 2;
+              const distance = Math.sqrt(
+                Math.pow(faceCenterX - centerX, 2) +
+                  Math.pow(faceCenterY - centerY, 2),
+              );
+
+              if (distance > targetRadius) {
+                toast.error(
+                  "❌ Face is not centered. Please position your face in the center of the frame.",
+                  { id: "upload-facial" },
+                );
+                return;
+              }
+
+              // Face validated - save it
+              setFacialPhoto(imageData);
+              saveFacialPhotoToStorage(imageData);
+              setVerificationFacial(true);
+              toast.success("✓ Facial verification completed!", {
+                id: "upload-facial",
+              });
+            } catch (err) {
+              console.error("Face detection error:", err);
+              toast.error("❌ Failed to validate face. Please try again.", {
+                id: "upload-facial",
+              });
+            }
+          };
+
+          img.onerror = () => {
+            toast.error("❌ Failed to load image.", { id: "upload-facial" });
+          };
         };
         reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Upload error:", err);
+        toast.error("❌ Failed to upload photo", { id: "upload-facial" });
       }
     },
     [],
@@ -116,12 +278,48 @@ export default function ProfilePage() {
 
   // Signature Handlers
   const initSignaturePad = useCallback(() => {
-    if (signatureCanvasRef.current && !signaturePadRef.current) {
-      signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
-        backgroundColor: "rgb(255, 255, 255)",
-      });
+    if (signatureCanvasRef.current) {
+      // Set canvas size to match displayed size with proper device pixel ratio
+      const resizeCanvas = () => {
+        if (!signatureCanvasRef.current) return;
+        const rect = signatureCanvasRef.current.getBoundingClientRect();
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+        signatureCanvasRef.current.width = rect.width * ratio;
+        signatureCanvasRef.current.height = 200 * ratio;
+        signatureCanvasRef.current.style.width = `${rect.width}px`;
+        signatureCanvasRef.current.style.height = "200px";
+
+        const ctx = signatureCanvasRef.current.getContext("2d");
+        if (ctx) {
+          ctx.scale(ratio, ratio);
+        }
+
+        // Reinitialize signature pad after resize
+        if (signaturePadRef.current) {
+          const data = signaturePadRef.current.toData();
+          signaturePadRef.current.clear();
+          signaturePadRef.current.fromData(data);
+        }
+      };
+
+      resizeCanvas();
+
+      if (!signaturePadRef.current) {
+        signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
+          penColor: SIGNATURE_CONFIG.penColor,
+          backgroundColor: SIGNATURE_CONFIG.backgroundColor,
+          minWidth: SIGNATURE_CONFIG.minWidth,
+          maxWidth: SIGNATURE_CONFIG.maxWidth,
+          throttle: SIGNATURE_CONFIG.throttle,
+        });
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      setShowSignaturePad(true);
+
+      return () => window.removeEventListener("resize", resizeCanvas);
     }
-    setShowSignaturePad(true);
   }, []);
 
   const clearSignaturePad = useCallback(() => {
@@ -132,6 +330,7 @@ export default function ProfilePage() {
     if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
       const imageData = signaturePadRef.current.toDataURL("image/png");
       setSignatureImage(imageData);
+      saveSignaturePhotoToStorage(imageData);
       setVerificationSignatures(true);
       toast.success("Signature saved!");
       setShowSignaturePad(false);
@@ -146,7 +345,9 @@ export default function ProfilePage() {
       if (file) {
         const reader = new FileReader();
         reader.onload = () => {
-          setSignatureImage(reader.result as string);
+          const imageData = reader.result as string;
+          setSignatureImage(imageData);
+          saveSignaturePhotoToStorage(imageData);
           setVerificationSignatures(true);
           toast.success("Signature uploaded!");
         };
@@ -160,28 +361,35 @@ export default function ProfilePage() {
   const handleUploadID = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
-      if (files) {
-        const fileArray = Array.from(files).slice(0, 3);
-        const promises = fileArray.map((file) => {
-          return new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.readAsDataURL(file);
-          });
-        });
+      if (!files || files.length === 0) return;
 
-        Promise.all(promises).then((images) => {
-          setIdImages(images);
-          if (images.length === 3) {
+      const file = files[0]; // Get the first (and only) file
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const imageData = reader.result as string;
+          if (imageData) {
+            const imageArray = [imageData];
+            setIdImages(imageArray);
+            saveIdPhotosToStorage(imageArray);
             setVerificationID(true);
             toast.success("ID with 3 specimen signatures uploaded!");
-          } else {
-            toast.info(
-              `Uploaded ${images.length}/3 images. Please upload 3 images total.`,
-            );
+            // Reset the input value after successful read
+            e.target.value = "";
           }
-        });
-      }
+        } catch (error) {
+          console.error("Error reading file:", error);
+          toast.error("Failed to upload image. Please try again.");
+        }
+      };
+
+      reader.onerror = () => {
+        console.error("FileReader error:", reader.error);
+        toast.error("Failed to read the file. Please try again.");
+      };
+
+      reader.readAsDataURL(file);
     },
     [],
   );
@@ -317,6 +525,12 @@ export default function ProfilePage() {
                             <p className="text-sm md:text-base font-medium text-green-600 mt-1">
                               Verified
                             </p>
+                          ) : getVerificationFacial() &&
+                            getVerificationSignatures() &&
+                            getVerificationID() ? (
+                            <p className="text-sm md:text-base font-medium text-blue-600 mt-1">
+                              Pending
+                            </p>
                           ) : (
                             <p className="text-sm md:text-base font-medium text-orange-600 mt-1">
                               Unverified
@@ -437,6 +651,7 @@ export default function ProfilePage() {
                             variant="outline"
                             onClick={() => {
                               setFacialPhoto(null);
+                              saveFacialPhotoToStorage(null);
                               setVerificationFacial(false);
                             }}
                             className="w-full sm:w-auto"
@@ -501,6 +716,7 @@ export default function ProfilePage() {
                           size="sm"
                           onClick={() => {
                             setSignatureImage(null);
+                            saveSignaturePhotoToStorage(null);
                             setVerificationSignatures(false);
                           }}
                         >
@@ -533,10 +749,11 @@ export default function ProfilePage() {
                         </div>
                       ) : showSignaturePad ? (
                         <div className="space-y-4">
-                          <div className="border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden">
+                          <div className="border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
                             <canvas
                               ref={signatureCanvasRef}
-                              className="w-full h-48 bg-white"
+                              className="w-full"
+                              style={{ display: "block" }}
                             />
                           </div>
                           <div className="flex flex-col sm:flex-row gap-3">
@@ -623,6 +840,7 @@ export default function ProfilePage() {
                           size="sm"
                           onClick={() => {
                             setIdImages([]);
+                            saveIdPhotosToStorage([]);
                             setVerificationID(false);
                           }}
                         >
@@ -634,26 +852,21 @@ export default function ProfilePage() {
                     <CardContent>
                       {idImages.length > 0 ? (
                         <div className="space-y-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {idImages.map((img, idx) => (
-                              <div
-                                key={idx}
-                                className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4 bg-white dark:bg-slate-950"
-                              >
-                                <img
-                                  src={img}
-                                  alt={`ID ${idx + 1}`}
-                                  className="w-full h-48 object-contain"
-                                />
-                                <p className="text-xs text-center mt-2 text-slate-600 dark:text-slate-400">
-                                  Image {idx + 1}
-                                </p>
-                              </div>
-                            ))}
+                          <div className="flex justify-center">
+                            <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4 bg-white dark:bg-slate-950 max-w-md">
+                              <img
+                                src={idImages[0]}
+                                alt="ID with 3 Specimen Signatures"
+                                className="w-full h-64 object-contain"
+                              />
+                              <p className="text-xs text-center mt-2 text-slate-600 dark:text-slate-400">
+                                ID with 3 Specimen Signatures
+                              </p>
+                            </div>
                           </div>
-                          {idImages.length === 3 && (
+                          {idImages.length === 1 && (
                             <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                              ✓ All 3 specimen signatures uploaded
+                              ✓ ID with 3 specimen signatures uploaded
                             </p>
                           )}
                         </div>
@@ -666,8 +879,8 @@ export default function ProfilePage() {
                                 No ID uploaded
                               </p>
                               <p className="text-xs text-slate-400 dark:text-slate-500">
-                                Upload 3 images with your ID and specimen
-                                signatures
+                                Upload 1 photo of your ID with 3 specimen
+                                signatures on bond paper
                               </p>
                             </div>
                           </div>
@@ -682,7 +895,6 @@ export default function ProfilePage() {
                             ref={idFileInputRef}
                             type="file"
                             accept="image/*"
-                            multiple
                             onChange={handleUploadID}
                             className="hidden"
                           />
@@ -693,8 +905,8 @@ export default function ProfilePage() {
                                 the data privacy law
                               </li>
                               <li>
-                                Please upload exactly 3 images showing your ID
-                                with specimen signatures
+                                Please upload 1 photo showing your ID with 3
+                                specimen signatures on bond paper
                               </li>
                             </ul>
                           </div>

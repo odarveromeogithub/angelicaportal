@@ -253,26 +253,134 @@ export const FacialVerificationCamera: React.FC<
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset the input value so the same file can be selected again if needed
+    e.target.value = "";
+
+    // Show loading state
+    toast.loading("Validating face in photo...", { id: "upload-validation" });
+
     try {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         const imageData = event.target?.result as string;
 
-        // Stop camera
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-        }
-        if (detectionIntervalRef.current) {
-          clearInterval(detectionIntervalRef.current);
-        }
+        // Create an image element to validate face detection
+        const img = document.createElement("img");
+        img.src = imageData;
 
-        onCapture(imageData);
-        toast.success("Photo uploaded successfully");
+        img.onload = async () => {
+          try {
+            console.log("Starting face detection on uploaded image...");
+
+            // Detect face in uploaded image
+            const detections = await faceapi
+              .detectSingleFace(
+                img,
+                new faceapi.TinyFaceDetectorOptions({
+                  inputSize: 416,
+                  scoreThreshold: 0.4,
+                }),
+              )
+              .withFaceLandmarks();
+
+            console.log("Detection result:", detections);
+
+            if (!detections) {
+              toast.error(
+                "❌ No face detected in the uploaded photo. Please upload a clear photo of your face.",
+                { id: "upload-validation" },
+              );
+              return;
+            }
+
+            // Check if face is reasonably sized (not too small)
+            const faceBox = detections.detection.box;
+            const displaySize = { width: img.width, height: img.height };
+            const minSize =
+              Math.min(displaySize.width, displaySize.height) * 0.15;
+            const maxSize =
+              Math.min(displaySize.width, displaySize.height) * 0.6;
+
+            console.log(
+              "Face box:",
+              faceBox,
+              "Min size:",
+              minSize,
+              "Max size:",
+              maxSize,
+            );
+
+            if (faceBox.width < minSize || faceBox.height < minSize) {
+              toast.error(
+                "❌ Face is too small or unclear. Please upload a closer photo.",
+                { id: "upload-validation" },
+              );
+              return;
+            }
+
+            if (faceBox.width > maxSize || faceBox.height > maxSize) {
+              toast.error(
+                "❌ Face is too close to camera. Please take a step back.",
+                { id: "upload-validation" },
+              );
+              return;
+            }
+
+            // Check if face is centered (within 25% radius from center)
+            const centerX = displaySize.width / 2;
+            const centerY = displaySize.height / 2;
+            const targetRadius =
+              Math.min(displaySize.width, displaySize.height) * 0.25;
+
+            const faceCenterX = faceBox.x + faceBox.width / 2;
+            const faceCenterY = faceBox.y + faceBox.height / 2;
+            const distance = Math.sqrt(
+              Math.pow(faceCenterX - centerX, 2) +
+                Math.pow(faceCenterY - centerY, 2),
+            );
+
+            if (distance > targetRadius) {
+              toast.error(
+                "❌ Face is not centered. Please position your face in the center of the frame.",
+                { id: "upload-validation" },
+              );
+              return;
+            }
+
+            // Face detected successfully - proceed with capture
+            // Stop camera
+            if (streamRef.current) {
+              streamRef.current.getTracks().forEach((track) => track.stop());
+            }
+            if (detectionIntervalRef.current) {
+              clearInterval(detectionIntervalRef.current);
+            }
+
+            onCapture(imageData);
+            toast.success("✓ Photo uploaded successfully with face detected!", {
+              id: "upload-validation",
+            });
+          } catch (err) {
+            console.error("Face detection error in upload:", err);
+            toast.error(
+              "❌ Failed to validate face in photo. Please try again.",
+              {
+                id: "upload-validation",
+              },
+            );
+          }
+        };
+
+        img.onerror = () => {
+          toast.error("❌ Failed to load image. Please try another file.", {
+            id: "upload-validation",
+          });
+        };
       };
       reader.readAsDataURL(file);
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error("Failed to upload photo");
+      toast.error("❌ Failed to upload photo", { id: "upload-validation" });
     }
   };
 
