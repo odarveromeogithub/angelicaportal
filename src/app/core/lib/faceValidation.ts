@@ -24,7 +24,7 @@ export function isFaceInCenter(
   const centerY = displaySize.height / 2;
   const targetRadius =
     options?.targetRadius ||
-    Math.min(displaySize.width, displaySize.height) * 0.25;
+    Math.min(displaySize.width, displaySize.height) * 0.2;
 
   const faceCenter = {
     x: box.x + box.width / 2,
@@ -40,7 +40,7 @@ export function isFaceInCenter(
     Math.min(displaySize.width, displaySize.height) * 0.15;
   const maxFaceSize =
     options?.maxFaceSize ||
-    Math.min(displaySize.width, displaySize.height) * 0.6;
+    Math.min(displaySize.width, displaySize.height) * 0.55;
 
   return (
     distance < targetRadius &&
@@ -59,6 +59,11 @@ export async function validateFaceInImage(
   options?: FaceValidationOptions,
 ): Promise<FaceValidationResult> {
   try {
+    // Ensure models are loaded before validation
+    if (!faceapi.nets.tinyFaceDetector.isLoaded) {
+      await loadFaceApiModels();
+    }
+
     const img = document.createElement("img");
     img.src = imageData;
 

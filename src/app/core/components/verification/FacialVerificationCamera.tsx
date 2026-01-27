@@ -103,7 +103,8 @@ export const FacialVerificationCamera: React.FC<
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [isLoading, onClose, startDetection, stopDetection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

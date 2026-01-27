@@ -22,12 +22,17 @@ export function useFaceDetection(
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const steadyCounterRef = useRef(0);
   const autoCaptureTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasTriggeredCaptureRef = useRef(false);
+  const isCountdownActiveRef = useRef(false);
 
   const [isFaceCentered, setIsFaceCentered] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState<number | null>(null);
 
   const startAutoCaptureCountdown = useCallback(() => {
+    if (hasTriggeredCaptureRef.current || isCountdownActiveRef.current) return;
+
+    isCountdownActiveRef.current = true;
     let timeLeft = 3;
     setCountdownSeconds(timeLeft);
     setIsCapturing(true);
@@ -38,10 +43,16 @@ export function useFaceDetection(
 
       if (timeLeft === 0) {
         clearInterval(countdown);
-        setCountdownSeconds(null);
+        hasTriggeredCaptureRef.current = true;
+
+        // Stop detection immediately after capture
+        if (detectionIntervalRef.current) {
+          clearInterval(detectionIntervalRef.current);
+          detectionIntervalRef.current = null;
+        }
+
         onAutoCapture?.();
         steadyCounterRef.current = 0;
-        setIsCapturing(false);
       }
     }, 1000);
 
@@ -49,7 +60,12 @@ export function useFaceDetection(
   }, [onAutoCapture]);
 
   const detectFace = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (
+      !videoRef.current ||
+      !canvasRef.current ||
+      hasTriggeredCaptureRef.current
+    )
+      return;
 
     try {
       const detections = await faceapi
@@ -87,30 +103,43 @@ export function useFaceDetection(
         if (isInCenter) {
           steadyCounterRef.current += 1;
         } else {
-          steadyCounterRef.current = 0;
-          setCountdownSeconds(null);
-          if (autoCaptureTimerRef.current) {
-            clearTimeout(autoCaptureTimerRef.current);
-            autoCaptureTimerRef.current = null;
+          // Face moved out of center - reset countdown if active
+          if (isCountdownActiveRef.current) {
+            // Cancel countdown if face moves away
+            if (autoCaptureTimerRef.current) {
+              clearInterval(autoCaptureTimerRef.current);
+              autoCaptureTimerRef.current = null;
+              isCountdownActiveRef.current = false;
+              setCountdownSeconds(null);
+              setIsCapturing(false);
+            }
           }
+          // Reset counter for next detection
+          steadyCounterRef.current = 0;
         }
 
         if (
           steadyCounterRef.current >= steadyThreshold &&
-          !isCapturing &&
-          !autoCaptureTimerRef.current
+          !autoCaptureTimerRef.current &&
+          !hasTriggeredCaptureRef.current
         ) {
           startAutoCaptureCountdown();
         }
       } else {
+        // No face detected - reset everything
         setIsFaceCentered(false);
-        steadyCounterRef.current = 0;
-        setCountdownSeconds(null);
 
-        if (autoCaptureTimerRef.current) {
-          clearTimeout(autoCaptureTimerRef.current);
-          autoCaptureTimerRef.current = null;
+        if (isCountdownActiveRef.current) {
+          if (autoCaptureTimerRef.current) {
+            clearInterval(autoCaptureTimerRef.current);
+            autoCaptureTimerRef.current = null;
+            isCountdownActiveRef.current = false;
+            setCountdownSeconds(null);
+            setIsCapturing(false);
+          }
         }
+
+        steadyCounterRef.current = 0;
       }
     } catch (err) {
       // Silent catch - detection can fail occasionally

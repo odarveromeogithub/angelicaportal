@@ -189,49 +189,72 @@ export default function ProfilePage() {
 
   // Signature Handlers
   const initSignaturePad = useCallback(() => {
-    if (signatureCanvasRef.current) {
-      // Set canvas size to match displayed size with proper device pixel ratio
-      const resizeCanvas = () => {
-        if (!signatureCanvasRef.current) return;
-        const rect = signatureCanvasRef.current.getBoundingClientRect();
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    setShowSignaturePad(true);
+  }, []);
 
-        signatureCanvasRef.current.width = rect.width * ratio;
-        signatureCanvasRef.current.height = 200 * ratio;
-        signatureCanvasRef.current.style.width = `${rect.width}px`;
-        signatureCanvasRef.current.style.height = "200px";
+  // Initialize signature pad when canvas becomes available
+  useEffect(() => {
+    if (
+      !showSignaturePad ||
+      !signatureCanvasRef.current ||
+      signaturePadRef.current
+    )
+      return;
 
-        const ctx = signatureCanvasRef.current.getContext("2d");
-        if (ctx) {
-          ctx.scale(ratio, ratio);
-        }
+    const rect = signatureCanvasRef.current.getBoundingClientRect();
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
 
-        // Reinitialize signature pad after resize
-        if (signaturePadRef.current) {
-          const data = signaturePadRef.current.toData();
-          signaturePadRef.current.clear();
-          signaturePadRef.current.fromData(data);
-        }
-      };
+    signatureCanvasRef.current.width = rect.width * ratio;
+    signatureCanvasRef.current.height = 200 * ratio;
+    signatureCanvasRef.current.style.width = `${rect.width}px`;
+    signatureCanvasRef.current.style.height = "200px";
 
-      resizeCanvas();
+    const ctx = signatureCanvasRef.current.getContext("2d");
+    if (ctx) {
+      ctx.scale(ratio, ratio);
+    }
 
-      if (!signaturePadRef.current) {
-        signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
-          penColor: SIGNATURE_CONFIG.penColor,
-          backgroundColor: SIGNATURE_CONFIG.backgroundColor,
-          minWidth: SIGNATURE_CONFIG.minWidth,
-          maxWidth: SIGNATURE_CONFIG.maxWidth,
-          throttle: SIGNATURE_CONFIG.throttle,
-        });
+    signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
+      penColor: SIGNATURE_CONFIG.penColor,
+      backgroundColor: SIGNATURE_CONFIG.backgroundColor,
+      minWidth: SIGNATURE_CONFIG.minWidth,
+      maxWidth: SIGNATURE_CONFIG.maxWidth,
+      throttle: SIGNATURE_CONFIG.throttle,
+    });
+  }, [showSignaturePad]);
+
+  // Handle signature pad resize
+  useEffect(() => {
+    if (
+      !showSignaturePad ||
+      !signatureCanvasRef.current ||
+      !signaturePadRef.current
+    )
+      return;
+
+    const resizeCanvas = () => {
+      if (!signatureCanvasRef.current || !signaturePadRef.current) return;
+      const rect = signatureCanvasRef.current.getBoundingClientRect();
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+      signatureCanvasRef.current.width = rect.width * ratio;
+      signatureCanvasRef.current.height = 200 * ratio;
+      signatureCanvasRef.current.style.width = `${rect.width}px`;
+      signatureCanvasRef.current.style.height = "200px";
+
+      const ctx = signatureCanvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.scale(ratio, ratio);
       }
 
-      window.addEventListener("resize", resizeCanvas);
-      setShowSignaturePad(true);
+      const data = signaturePadRef.current.toData();
+      signaturePadRef.current.clear();
+      signaturePadRef.current.fromData(data);
+    };
 
-      return () => window.removeEventListener("resize", resizeCanvas);
-    }
-  }, []);
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, [showSignaturePad]);
 
   const clearSignaturePad = useCallback(() => {
     signaturePadRef.current?.clear();
@@ -629,6 +652,7 @@ export default function ProfilePage() {
                             setSignatureImage(null);
                             saveSignaturePhotoToStorage(null);
                             setVerificationSignatures(false);
+                            signaturePadRef.current = null;
                           }}
                         >
                           <Edit className="w-4 h-4 mr-2" />
@@ -684,7 +708,10 @@ export default function ProfilePage() {
                             </Button>
                             <Button
                               variant="outline"
-                              onClick={() => setShowSignaturePad(false)}
+                              onClick={() => {
+                                setShowSignaturePad(false);
+                                signaturePadRef.current = null;
+                              }}
                               className="w-full sm:w-auto"
                             >
                               Cancel
