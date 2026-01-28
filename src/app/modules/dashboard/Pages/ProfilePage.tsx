@@ -62,8 +62,8 @@ export default function ProfilePage() {
 
   const requirementLabels: Record<string, string> = {
     facial: "Facial verification (selfie)",
-    id: "Upload valid ID",
-    signatures: "Provide 3 specimen signatures",
+    id: "Upload valid ID with 3 specimen signatures",
+    signatures: "Provide Signature",
   };
 
   // Permissions and user data
@@ -356,12 +356,6 @@ export default function ProfilePage() {
                           {isVerified ? (
                             <p className="text-sm md:text-base font-medium text-green-600 mt-1">
                               Verified
-                            </p>
-                          ) : getVerificationFacial() &&
-                            getVerificationSignatures() &&
-                            getVerificationID() ? (
-                            <p className="text-sm md:text-base font-medium text-blue-600 mt-1">
-                              Pending
                             </p>
                           ) : (
                             <p className="text-sm md:text-base font-medium text-orange-600 mt-1">
