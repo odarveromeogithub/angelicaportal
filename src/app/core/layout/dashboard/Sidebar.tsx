@@ -4,6 +4,8 @@ import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { useAppSelector } from "../../state/hooks";
 import logo from "@/assets/cclpi-logo.png";
+import type { IUser } from "../../interfaces/user.interface";
+import type { MenuItem } from "../../constants/sidebar-menu";
 import {
   Avatar,
   AvatarFallback,
@@ -31,14 +33,14 @@ export function Sidebar({ userRole, isOpen = true, onClose }: SidebarProps) {
 
   // Use auth selector to get dashboard user from authenticated user
   const authUser = useAppSelector((state) => state.auth.user);
-  const dashboardUser = authUser as any; // Cast to any to access all user properties
+  const dashboardUser = authUser?.data as IUser | undefined;
 
   // Get menu items from constants with computed paths
   const finalMenuItems = buildMenuItems(userRole);
 
   // Custom isActive function for section items (Angelica/Dashboard)
   // These should be active for any path within their section
-  const isItemActive = (item: any) => {
+  const isItemActive = (item: MenuItem) => {
     if (item.isSection) {
       const isSettings =
         location.pathname ===

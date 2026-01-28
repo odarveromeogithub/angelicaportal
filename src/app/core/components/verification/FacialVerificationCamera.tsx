@@ -163,7 +163,7 @@ export const FacialVerificationCamera: React.FC<
 
         steadyCounterRef.current = 0;
       }
-    } catch (err) {
+    } catch {
       // Silent catch - detection can fail occasionally
     }
   }, [startAutoCaptureCountdown]);

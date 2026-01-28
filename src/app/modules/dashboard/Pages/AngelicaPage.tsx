@@ -43,13 +43,9 @@ export default function AngelicaPage() {
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
-
-  useEffect(() => {
-    // Show verification prompt upon entering dashboard if not verified
-    const isVerified = selectIsFullyVerified();
-    setShowVerificationPrompt(!isVerified);
-  }, []);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(
+    () => !selectIsFullyVerified(),
+  );
 
   useEffect(() => {
     // Listen for requests to open the verification prompt (e.g., from tooltip)

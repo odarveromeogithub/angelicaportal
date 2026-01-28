@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Menu, Bell } from "lucide-react";
 import { useAppSelector } from "../../state/hooks";
+import type { IUser } from "../../interfaces/user.interface";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import {
@@ -27,7 +28,7 @@ export function TopNav({
 }: TopNavProps) {
   // Use auth selector to get dashboard user from authenticated user
   const authUser = useAppSelector((state) => state.auth.user);
-  const dashboardUser = authUser as any; // Cast to any to access all user properties
+  const dashboardUser = authUser?.data as IUser | undefined;
 
   return (
     <TooltipProvider>

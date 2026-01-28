@@ -10,7 +10,7 @@ export interface UseAsyncOperationOptions<T> {
   showErrorToast?: boolean;
 }
 
-export function useAsyncOperation<T = any>() {
+export function useAsyncOperation<T = unknown>() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<T | null>(null);

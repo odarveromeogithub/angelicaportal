@@ -11,7 +11,9 @@ import { selectIsFullyVerified } from "../../../core/state/selector/auth.selecto
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(
+    () => !selectIsFullyVerified(),
+  );
 
   // Get user role from Redux auth state (not from pathname)
   const authUser = useAppSelector(selectAuthUser);
@@ -19,12 +21,6 @@ export default function DashboardPage() {
   const userRole = getDashboardRoleFromUser(
     authenticatedUserRole as "admin" | "client" | "sc" | "um",
   );
-
-  // Show verification prompt upon entering any dashboard landing page
-  useEffect(() => {
-    const isVerified = selectIsFullyVerified();
-    setShowVerificationPrompt(!isVerified);
-  }, []);
 
   useEffect(() => {
     const handler = () => setShowVerificationPrompt(true);

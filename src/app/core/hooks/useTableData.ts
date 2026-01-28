@@ -11,7 +11,7 @@ export interface UseTableDataOptions<T> {
   customFilter?: (item: T, filters: Record<string, any>) => boolean;
 }
 
-export function useTableData<T extends Record<string, any>>(
+export function useTableData<T>(
   data: T[],
   options: UseTableDataOptions<T> = {},
 ) {

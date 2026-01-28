@@ -22,41 +22,12 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
     "system",
   );
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
   const location = useLocation();
 
   // Check if current route should have theme applied
   const shouldApplyTheme = !PUBLIC_ROUTES_NO_THEME.some((route) =>
     location.pathname.startsWith(route),
   );
-
-  // Initialize theme from localStorage and system preference
-  useEffect(() => {
-    setMounted(true);
-
-    // Apply theme if on authenticated routes
-    if (shouldApplyTheme) {
-      applyTheme(theme);
-    } else {
-      removeTheme();
-    }
-  }, [shouldApplyTheme, theme]);
-
-  // Watch for system theme changes
-  useEffect(() => {
-    if (!mounted) return;
-
-    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const handleChange = () => {
-      if (theme === "system" && shouldApplyTheme) {
-        applyTheme("system");
-      }
-    };
-
-    darkModeQuery.addEventListener("change", handleChange);
-    return () => darkModeQuery.removeEventListener("change", handleChange);
-  }, [theme, mounted, shouldApplyTheme]);
 
   const applyTheme = (newTheme: Theme) => {
     const htmlElement = document.documentElement;
@@ -86,6 +57,30 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
     setResolvedTheme("light");
   };
 
+  // Initialize theme from localStorage and system preference
+  useEffect(() => {
+    // Apply theme if on authenticated routes
+    if (shouldApplyTheme) {
+      applyTheme(theme);
+    } else {
+      removeTheme();
+    }
+  }, [shouldApplyTheme, theme]);
+
+  // Watch for system theme changes
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handleChange = () => {
+      if (theme === "system" && shouldApplyTheme) {
+        applyTheme("system");
+      }
+    };
+
+    darkModeQuery.addEventListener("change", handleChange);
+    return () => darkModeQuery.removeEventListener("change", handleChange);
+  }, [theme, shouldApplyTheme]);
+
   const setTheme = (newTheme: Theme) => {
     setThemePreference(newTheme);
     if (shouldApplyTheme) {
@@ -105,7 +100,7 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
     <ThemeContext.Provider
       value={{ theme, resolvedTheme, setTheme, toggleTheme }}
     >
-      {mounted ? children : <div className="invisible">{children}</div>}
+      {children}
     </ThemeContext.Provider>
   );
 }

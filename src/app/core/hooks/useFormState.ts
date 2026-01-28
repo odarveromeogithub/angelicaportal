@@ -1,14 +1,15 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import type { ObjectSchema } from "yup";
 
-export interface UseFormStateOptions<T> {
-  validationSchema?: any;
+export interface UseFormStateOptions<T extends Record<string, unknown>> {
+  validationSchema?: ObjectSchema<T>;
   onSuccess?: (data: T) => void;
   successMessage?: string;
   errorMessage?: string;
 }
 
-export function useFormState<T extends Record<string, any>>(
+export function useFormState<T extends Record<string, unknown>>(
   initialState: T,
   options: UseFormStateOptions<T> = {},
 ) {
@@ -19,7 +20,7 @@ export function useFormState<T extends Record<string, any>>(
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = useCallback(
-    (field: keyof T, value: any) => {
+    (field: keyof T, value: T[keyof T]) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
       // Clear field error when user starts typing
       if (errors[field]) {
@@ -56,11 +57,15 @@ export function useFormState<T extends Record<string, any>>(
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const validationErrors: Partial<Record<keyof T, string>> = {};
-      err.inner?.forEach((error: any) => {
-        validationErrors[error.path as keyof T] = error.message;
-      });
+      if (err && typeof err === "object" && "inner" in err) {
+        (
+          err as { inner?: Array<{ path: string; message: string }> }
+        ).inner?.forEach((error) => {
+          validationErrors[error.path as keyof T] = error.message;
+        });
+      }
       setErrors(validationErrors);
       return false;
     }

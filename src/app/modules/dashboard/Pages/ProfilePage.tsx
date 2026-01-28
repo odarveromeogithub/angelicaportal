@@ -103,7 +103,7 @@ export default function ProfilePage() {
     } else if (getVerificationID()) {
       setVerificationID(false);
     }
-  }, []); // Only run on mount
+  }, [signaturePad]); // Only run on mount
 
   // Check if all verifications are complete and update status
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function ProfilePage() {
     if (!referralUrl) return;
     try {
       await navigator.clipboard.writeText(referralUrl);
-    } catch (e) {
+    } catch {
       // noop
     }
   };
@@ -240,7 +240,7 @@ export default function ProfilePage() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-    } catch (e) {
+    } catch {
       // noop
     }
   };

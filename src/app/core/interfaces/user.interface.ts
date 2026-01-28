@@ -4,7 +4,7 @@ export interface IUser {
   email: string;
   password?: string;
   remember_token?: number;
-  role: 'admin' | 'client' | 'sc' | 'um';
+  role: "admin" | "client" | "sc" | "um";
   email_verified_at?: string | null;
   sms_verified_at?: string | null;
   username: string;
@@ -15,6 +15,7 @@ export interface IUser {
   name_extension?: string;
   gender?: string;
   birthdate?: string;
+  profile_photo_path?: string;
   added_by_user?: number;
   remarks?: string;
   referral_link_code?: string;
@@ -25,4 +26,3 @@ export interface IUser {
   updated_at?: string;
   sales_counselor_id?: number;
 }
-
