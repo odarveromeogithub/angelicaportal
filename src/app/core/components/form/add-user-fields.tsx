@@ -1,3 +1,4 @@
+import type { Control, FieldErrors } from "react-hook-form";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import type { AddUserFormData } from "@/app/core/schemas/add-user.schema";
 import {
@@ -57,19 +58,17 @@ export const ADD_USER_FIELD_CONFIGS: FormFieldConfig[] = [
 ];
 
 interface AddUserFormFieldsProps {
-  form: AddUserFormData;
+  control: Control<AddUserFormData>;
   counselorOptions: Array<{ value: string; label: string; code?: string }>;
-  onAgentChange: (agentId: string) => void;
-  onChange: (field: keyof AddUserFormData, value: string) => void;
   loadingAgents?: boolean;
+  errors?: FieldErrors<AddUserFormData>;
 }
 
 export function AddUserFormFields({
-  form,
+  control,
   counselorOptions,
-  onAgentChange,
-  onChange,
   loadingAgents = false,
+  errors,
 }: AddUserFormFieldsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
@@ -87,8 +86,8 @@ export function AddUserFormFields({
               key={config.name}
               label={config.label}
               id={config.name}
-              value={form[config.name] as string}
-              onValueChange={onAgentChange}
+              control={control}
+              name={config.name}
               options={fieldOptions || []}
               placeholder={
                 loadingAgents
@@ -97,6 +96,7 @@ export function AddUserFormFields({
               }
               required={config.required}
               disabled={loadingAgents}
+              error={errors?.[config.name]?.message}
             />
           );
         }
@@ -107,11 +107,12 @@ export function AddUserFormFields({
               key={config.name}
               label={config.label}
               id={config.name}
-              value={form[config.name] as string}
-              onValueChange={(value) => onChange(config.name, value)}
+              control={control}
+              name={config.name}
               options={config.options}
               placeholder={config.placeholder}
               required={config.required}
+              error={errors?.[config.name]?.message}
             />
           );
         }
@@ -123,11 +124,11 @@ export function AddUserFormFields({
             id={config.name}
             name={config.name}
             type={config.type}
-            value={form[config.name] as string}
-            onChange={(e) => onChange(config.name, e.target.value)}
             placeholder={config.placeholder}
             required={config.required}
             disabled={config.disabled}
+            registerProps={control.register(config.name)}
+            error={errors?.[config.name]?.message}
           />
         );
       })}

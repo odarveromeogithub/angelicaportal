@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import { AddUserFormFields } from "@/app/core/components/form";
 import { FormDialog } from "@/app/core/components/ui/form-dialog";
@@ -9,7 +11,6 @@ import {
   type AddUserFormData,
 } from "@/app/core/schemas/add-user.schema";
 import { ADD_USER_INITIAL_FORM } from "@/app/core/constants/user-management";
-import { useFormState } from "@/app/core/hooks/useFormState";
 import { dashboardApi } from "@/app/core/state/api";
 
 type AddUserDialogProps = {
@@ -24,20 +25,20 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
     dashboardApi.useCreateUserMutation();
 
   const {
-    formData: form,
-    errors: validationErrors,
-    isSubmitting,
-    updateField,
-    updateMultipleFields,
-    resetForm,
-    handleSubmit: submitForm,
-  } = useFormState<AddUserFormData>(ADD_USER_INITIAL_FORM, {
-    validationSchema: addUserSchema,
-    successMessage: "User created successfully!",
-    onSuccess: () => onOpenChange(false),
+    control,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<AddUserFormData>({
+    resolver: yupResolver(addUserSchema) as any,
+    mode: "onChange",
+    defaultValues: ADD_USER_INITIAL_FORM,
   });
 
-  const isDirty = useMemo(() => {
+  const form = watch();
+
+  const isFormDirty = useMemo(() => {
     return JSON.stringify(form) !== JSON.stringify(ADD_USER_INITIAL_FORM);
   }, [form]);
 
@@ -51,56 +52,35 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
     [agents],
   );
 
-  const handleAgentChange = (agentId: string) => {
-    const selected = counselorOptions.find(
-      (option) => option.value === agentId,
-    );
-
-    updateMultipleFields({
-      salesCounselorId: agentId,
-      salesCounselorName: selected?.label ?? "",
-      salesCounselorCode: selected?.code ?? "",
-      username:
-        form.username ||
-        (selected ? selected.label.toLowerCase().replace(/\s+/g, ".") : ""),
-    });
-  };
-
-  const handleChange = (field: keyof AddUserFormData, value: string) => {
-    updateField(field, value);
-  };
-
-  const isValid = useMemo(() => {
+  const isFormValid = useMemo(() => {
     return (
-      Object.keys(validationErrors).length === 0 &&
-      form.salesCounselorName.trim() !== "" &&
-      form.salesCounselorCode.trim() !== "" &&
-      form.username.trim() !== "" &&
+      Object.keys(errors).length === 0 &&
+      form.salesCounselorName?.trim() !== "" &&
+      form.salesCounselorCode?.trim() !== "" &&
+      form.username?.trim() !== "" &&
       form.userType !== "" &&
-      form.areaOffice.trim() !== ""
+      form.areaOffice?.trim() !== ""
     );
-  }, [form, validationErrors]);
+  }, [form, errors]);
 
   useEffect(() => {
     if (!open) {
-      resetForm();
+      reset();
     }
-  }, [open, resetForm]);
+  }, [open, reset]);
 
-  const onFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const onSubmit = async (data: AddUserFormData) => {
     if (savingUser) return;
 
-    await submitForm(async () => {
-      await createUser({
-        username: form.username.trim(),
-        name: form.salesCounselorName.trim(),
-        agentCode: form.salesCounselorCode.trim(),
-        userType: form.userType || undefined,
-        contactNo: form.contactNo?.trim() || undefined,
-      }).unwrap();
-    });
+    await createUser({
+      username: data.username?.trim(),
+      name: data.salesCounselorName?.trim(),
+      agentCode: data.salesCounselorCode?.trim(),
+      userType: data.userType || undefined,
+      contactNo: data.contactNo?.trim() || undefined,
+    }).unwrap();
+
+    onOpenChange(false);
   };
 
   return (
@@ -111,17 +91,16 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
       description="Assign a login for a sales counselor and set their user type."
       icon={<ShieldCheck className="w-6 h-6" />}
       submitLabel="Create User"
-      isSubmitting={isSubmitting || savingUser}
-      isValid={isValid}
-      isDirty={isDirty}
-      onSubmit={onFormSubmit}
+      isSubmitting={savingUser}
+      isValid={isFormValid}
+      isDirty={isFormDirty}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <AddUserFormFields
-        form={form}
+        control={control}
         counselorOptions={counselorOptions}
-        onAgentChange={handleAgentChange}
-        onChange={handleChange}
         loadingAgents={loadingAgents}
+        errors={errors}
       />
     </FormDialog>
   );

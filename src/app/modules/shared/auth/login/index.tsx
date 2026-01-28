@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { KeyRound, UserRound } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import logo from "@/assets/cclpi-logo.png";
 
 import { Button } from "@/app/core/components/ui/button";
@@ -33,10 +35,19 @@ export default function Login() {
   const loginState = useAppSelector(selectLoginState);
   const user = useAppSelector(selectAuthUser);
 
-  const [credentials, setCredentials] = useState({
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<{ email: string; password: string }>({
+    resolver: yupResolver(loginSchema) as any,
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [loadingToastId, setLoadingToastId] = useState<string | number | null>(
     null,
@@ -88,50 +99,15 @@ export default function Login() {
     };
   }, [dispatch]);
 
-  const handleChange = (name: string, value: string) => {
-    setCredentials((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const validateForm = async () => {
-    try {
-      await loginSchema.validate(credentials);
-      return true;
-    } catch (error: unknown) {
-      const firstError =
-        error instanceof Error ? error.message : "Validation failed";
-      if (firstError) {
-        toast.error(firstError);
-      }
-      return false;
-    }
-  };
-
-  const isFormValid = () => {
-    try {
-      loginSchema.validateSync(credentials);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const isValid = await validateForm();
-    if (!isValid) {
-      return;
-    }
+  const onSubmit = async (data: { email: string; password: string }) => {
     const toastId = toast.loading(AUTH_MESSAGES.login.loading);
     setLoadingToastId(toastId);
-    dispatch(login(credentials));
+    dispatch(login(data));
   };
 
   return (
     <div className={AUTH_CLASSES.container}>
-      <form onSubmit={handleSubmit} className="w-full max-w-md">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
         <Card className={AUTH_CLASSES.card}>
           <CardHeader className="flex flex-col items-center justify-center gap-5 text-center">
             <div className="flex justify-center w-full">
@@ -164,16 +140,22 @@ export default function Login() {
                   />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
-                    value={credentials.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="Username"
-                    required
                     autoFocus
-                    className="h-10 sm:h-11 md:h-12 rounded-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 sm:pl-10 md:pl-11 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-blue-200 dark:focus-visible:ring-blue-900/40"
+                    className={`h-10 sm:h-11 md:h-12 rounded-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 sm:pl-10 md:pl-11 pr-4 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-blue-200 dark:focus-visible:ring-blue-900/40 ${
+                      errors.email
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }`}
+                    {...register("email")}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -191,13 +173,14 @@ export default function Login() {
                   />
                   <Input
                     id="password"
-                    name="password"
                     type={showPassword ? "text" : "password"}
-                    value={credentials.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
                     placeholder="Password"
-                    required
-                    className="h-10 sm:h-11 md:h-12 rounded-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 sm:pl-10 md:pl-11 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-blue-200 dark:focus-visible:ring-blue-900/40"
+                    className={`h-10 sm:h-11 md:h-12 rounded-2xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 sm:pl-10 md:pl-11 pr-16 sm:pr-20 text-sm sm:text-[15px] shadow-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:border-blue-400 focus-visible:ring-blue-200 dark:focus-visible:ring-blue-900/40 ${
+                      errors.password
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }`}
+                    {...register("password")}
                   />
                   <Button
                     type="button"
@@ -212,6 +195,11 @@ export default function Login() {
                     {showPassword ? "Hide" : "Show"}
                   </Button>
                 </div>
+                {errors.password && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -219,7 +207,7 @@ export default function Login() {
           <CardFooter className="flex flex-col gap-4 px-6 pb-8 sm:px-10">
             <Button
               type="submit"
-              disabled={loginState.loading || !isFormValid()}
+              disabled={loginState.loading || !isValid}
               className={AUTH_CLASSES.button.dark}
               aria-label="Sign in to your account"
             >

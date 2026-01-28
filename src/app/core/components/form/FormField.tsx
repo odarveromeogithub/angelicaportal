@@ -1,3 +1,4 @@
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { Input } from "@/app/core/components/ui/input";
 import { Label } from "@/app/core/components/ui/label";
 import { FIELD_CLASSES } from "@/app/core/constants/angelica-life-plan";
@@ -7,9 +8,9 @@ interface FormFieldProps {
   label: string;
   id: string;
   name: string;
-  type?: "text" | "email" | "number" | "tel" | "password"
-  value: string | number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: "text" | "email" | "number" | "tel" | "password";
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   error?: string;
@@ -17,6 +18,8 @@ interface FormFieldProps {
   maxLength?: number;
   className?: string;
   autoFocus?: boolean;
+  // React Hook Form props
+  registerProps?: UseFormRegisterReturn;
 }
 
 export function FormField({
@@ -33,6 +36,7 @@ export function FormField({
   maxLength,
   className,
   autoFocus = false,
+  registerProps,
 }: FormFieldProps) {
   return (
     <div className={FIELD_CLASSES.wrapper}>
@@ -58,11 +62,16 @@ export function FormField({
         className={cn(
           FIELD_CLASSES.input,
           error && "border-red-500 focus-visible:ring-red-500",
-          className
+          className,
         )}
+        {...registerProps}
       />
       {error && (
-        <p id={`${id}-error`} className="text-xs text-red-600 mt-1" role="alert">
+        <p
+          id={`${id}-error`}
+          className="text-xs text-red-600 mt-1"
+          role="alert"
+        >
           {error}
         </p>
       )}

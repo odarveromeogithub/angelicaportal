@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import logo from "@/assets/cclpi-logo.png";
 
 import { Button } from "@/app/core/components/ui/button";
@@ -29,6 +31,19 @@ export default function OtpVerification() {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const email = location.state?.email as string;
+
+  const {
+    setValue,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm<{ otp: string; email: string }>({
+    resolver: yupResolver(otpSchema) as any,
+    mode: "onChange",
+    defaultValues: {
+      otp: "",
+      email: email,
+    },
+  });
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_CONFIG.length).fill(""));
   const [timeLeft, setTimeLeft] = useState(OTP_CONFIG.expiryMinutes * 60);
@@ -69,24 +84,16 @@ export default function OtpVerification() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleVerifyOtp = async () => {
-    const otpCode = otp.join("");
+  const handleOtpChange = (newOtp: string[]) => {
+    setOtp(newOtp);
+    setValue("otp", newOtp.join(""));
+  };
 
-    try {
-      await otpSchema.validate({ otp: otpCode, email });
-    } catch (error: unknown) {
-      const firstError =
-        error instanceof Error ? error.message : "Validation failed";
-      if (firstError) {
-        toast.error(firstError);
-      }
-      return;
-    }
-
+  const onSubmit = async (data: { otp: string; email: string }) => {
     setIsLoading(true);
 
     try {
-      if (otpCode === "123456") {
+      if (data.otp === "123456") {
         toast.success(AUTH_MESSAGES.otp.success);
 
         // Set mock user data after successful OTP verification
@@ -122,6 +129,7 @@ export default function OtpVerification() {
             `${AUTH_MESSAGES.otp.wrongAttempt} ${OTP_CONFIG.maxAttempts - newWrongAttempts} attempts remaining.`,
           );
           setOtp(Array(OTP_CONFIG.length).fill(""));
+          setValue("otp", "");
         }
       }
     } catch {
@@ -141,6 +149,7 @@ export default function OtpVerification() {
     setResendCooldown(OTP_CONFIG.resendDelaySeconds);
     setTimeLeft(OTP_CONFIG.expiryMinutes * 60);
     setOtp(Array(OTP_CONFIG.length).fill(""));
+    setValue("otp", "");
     setWrongAttempts(0);
   };
 
@@ -152,13 +161,7 @@ export default function OtpVerification() {
 
   return (
     <div className={AUTH_CLASSES.container}>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleVerifyOtp();
-        }}
-        className="w-full max-w-md"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
         <Card className={AUTH_CLASSES.card}>
           <CardHeader className="flex flex-col items-center justify-center gap-4 text-center"></CardHeader>
           <CardAction className="self-start p-0 pl-7">
@@ -195,7 +198,7 @@ export default function OtpVerification() {
             <OTPInput
               id="otp"
               value={otp}
-              onChange={setOtp}
+              onChange={handleOtpChange}
               length={OTP_CONFIG.length}
               disabled={isLoading}
             />
@@ -213,7 +216,7 @@ export default function OtpVerification() {
           <CardFooter className="flex flex-col gap-3 px-6 pb-8 sm:px-10">
             <Button
               type="submit"
-              disabled={isLoading || otp.join("").length !== OTP_CONFIG.length}
+              disabled={isLoading || !isValid}
               className={AUTH_CLASSES.button.primary}
               aria-label="Verify OTP code"
             >

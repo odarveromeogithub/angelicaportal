@@ -1,3 +1,5 @@
+import type { Control } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { Label } from "@/app/core/components/ui/label";
 import {
   AUTH_CLASSES,
@@ -17,8 +19,8 @@ interface PhoneInputProps {
   label: string;
   id: string;
   name: string;
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
   required?: boolean;
   error?: string;
@@ -26,6 +28,8 @@ interface PhoneInputProps {
   className?: string;
   countryCode?: string;
   onCountryCodeChange?: (value: string) => void;
+  // React Hook Form props
+  control?: Control<any>;
 }
 
 export function PhoneInput({
@@ -41,15 +45,12 @@ export function PhoneInput({
   className,
   countryCode = AUTH_PHONE_CONFIG.countryCode,
   onCountryCodeChange,
+  control,
 }: PhoneInputProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-      .replace(/\D/g, "")
-      .slice(0, AUTH_PHONE_CONFIG.maxLength);
-    onChange(inputValue);
-  };
-
-  return (
+  const renderPhoneInput = (
+    fieldValue?: string,
+    fieldOnChange?: (value: string) => void,
+  ) => (
     <div className="flex flex-col gap-2">
       <Label
         htmlFor={id}
@@ -92,8 +93,17 @@ export function PhoneInput({
             id={id}
             name={name}
             type="text"
-            value={value}
-            onChange={handleChange}
+            value={fieldValue ?? value ?? ""}
+            onChange={(e) => {
+              const cleanedValue = e.target.value
+                .replace(/\D/g, "")
+                .slice(0, AUTH_PHONE_CONFIG.maxLength);
+              if (fieldOnChange) {
+                fieldOnChange(cleanedValue);
+              } else if (onChange) {
+                onChange(cleanedValue);
+              }
+            }}
             placeholder={placeholder}
             disabled={disabled}
             maxLength={AUTH_PHONE_CONFIG.maxLength}
@@ -111,4 +121,18 @@ export function PhoneInput({
       )}
     </div>
   );
+
+  if (control) {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) =>
+          renderPhoneInput(field.value as string | undefined, field.onChange)
+        }
+      />
+    );
+  }
+
+  return renderPhoneInput();
 }

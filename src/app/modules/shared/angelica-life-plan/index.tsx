@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/app/core/components/ui/card";
 import Step1Plan from "./steps/Step1Plan.tsx";
@@ -8,12 +10,8 @@ import Step3Beneficiary from "./steps/Step3Beneficiary.tsx";
 import Step4Submit from "./steps/Step4Submit.tsx";
 import { ANGELICA_FORM_STEPS } from "@/app/core/constants/angelica-form-steps";
 import { angelicaLifePlanApi } from "@/app/core/state/api";
-import type {
-  IAngelicaLifePlanFormData,
-  IBeneficiaryFormData,
-  IPlanFormData,
-  IPlanholderFormData,
-} from "@/app/core/interfaces/angelica-life-plan.interface";
+import { angelicaLifePlanSchema } from "@/app/core/schemas/angelica-life-plan.schema";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 
 export default function AngelicaLifePlan() {
   const navigate = useNavigate();
@@ -22,63 +20,60 @@ export default function AngelicaLifePlan() {
   const [submitMutation] =
     angelicaLifePlanApi.useSubmitAngelicaLifePlanMutation();
 
-  const [formData, setFormData] = useState<IAngelicaLifePlanFormData>({
-    plan: {
-      salesCounselorName: "",
-      salesCounselorCode: "",
-      salesCounselorReferral: "",
-      contactPrice: "",
-      planType: "",
-      modeOfPayment: "",
-      termOfPay: "",
-      installment: "",
-      docStamp: "",
-    },
-    planholder: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      nameExtension: "",
-      dateOfBirth: "",
-      gender: "",
-      civilStatus: "",
-      email: "",
-      contactNumber: "",
-      lotHouseNumber: "",
-      street: "",
-      barangay: "",
-      cityMunicipal: "",
-      province: "",
-      zipCode: "",
-    },
-    beneficiaries: [
-      {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<IAngelicaLifePlanFormData>({
+    resolver: yupResolver(angelicaLifePlanSchema) as any,
+    mode: "onChange",
+    defaultValues: {
+      plan: {
+        salesCounselorName: "",
+        salesCounselorCode: "",
+        salesCounselorReferral: "",
+        contactPrice: "",
+        planType: "",
+        modeOfPayment: "",
+        termOfPay: "",
+        installment: "",
+        docStamp: "",
+      },
+      planholder: {
         firstName: "",
         middleName: "",
         lastName: "",
         nameExtension: "",
-        age: "",
+        dateOfBirth: "",
         gender: "",
-        address: "",
-        relationship: "",
+        civilStatus: "",
+        email: "",
+        contactNumber: "",
+        lotHouseNumber: "",
+        street: "",
+        barangay: "",
+        cityMunicipal: "",
+        province: "",
+        zipCode: "",
       },
-    ],
-    planholder_signature: "",
-    id_upload: null,
-    agree_to_consent: false,
+      beneficiaries: [
+        {
+          firstName: "",
+          middleName: "",
+          lastName: "",
+          nameExtension: "",
+          age: "",
+          gender: "",
+          address: "",
+          relationship: "",
+        },
+      ],
+      planholder_signature: "",
+      id_upload: null,
+      agree_to_consent: false,
+    },
   });
-
-  const handlePlanChange = (data: IPlanFormData) => {
-    setFormData({ ...formData, plan: data });
-  };
-
-  const handlePlanholderChange = (data: IPlanholderFormData) => {
-    setFormData({ ...formData, planholder: data });
-  };
-
-  const handleBeneficiariesChange = (data: IBeneficiaryFormData[]) => {
-    setFormData({ ...formData, beneficiaries: data });
-  };
 
   const handleNextStep = () => {
     if (currentStep < 4) {
@@ -94,42 +89,31 @@ export default function AngelicaLifePlan() {
     }
   };
 
-  const handleSubmit = async (submitData: {
-    planholder_signature: string;
-    id_upload: File | null;
-    agree_to_consent: boolean;
-  }) => {
+  const onSubmit = async (data: IAngelicaLifePlanFormData) => {
     setIsLoading(true);
     try {
-      setIsLoading(true);
       // Create FormData for multipart submission
       const formDataToSend = new FormData();
 
       // Add plan data
-      formDataToSend.append("plan", JSON.stringify(formData.plan));
+      formDataToSend.append("plan", JSON.stringify(data.plan));
 
       // Add planholder data
-      formDataToSend.append("planholder", JSON.stringify(formData.planholder));
+      formDataToSend.append("planholder", JSON.stringify(data.planholder));
 
       // Add beneficiaries data
       formDataToSend.append(
         "beneficiaries",
-        JSON.stringify(formData.beneficiaries),
+        JSON.stringify(data.beneficiaries),
       );
 
       // Add signature and consent
-      formDataToSend.append(
-        "planholder_signature",
-        submitData.planholder_signature,
-      );
-      formDataToSend.append(
-        "agree_to_consent",
-        String(submitData.agree_to_consent),
-      );
+      formDataToSend.append("planholder_signature", data.planholder_signature);
+      formDataToSend.append("agree_to_consent", String(data.agree_to_consent));
 
       // Add file if exists
-      if (submitData.id_upload) {
-        formDataToSend.append("id_upload", submitData.id_upload);
+      if (data.id_upload) {
+        formDataToSend.append("id_upload", data.id_upload);
       }
 
       // Submit via RTK Query mutation
@@ -219,16 +203,16 @@ export default function AngelicaLifePlan() {
           <CardContent className="p-0">
             {currentStep === 1 && (
               <Step1Plan
-                data={formData.plan}
-                onChange={handlePlanChange}
+                control={control}
+                errors={errors}
                 onNext={handleNextStep}
               />
             )}
 
             {currentStep === 2 && (
               <Step2Planholder
-                data={formData.planholder}
-                onChange={handlePlanholderChange}
+                control={control}
+                errors={errors}
                 onBack={handlePrevStep}
                 onNext={handleNextStep}
               />
@@ -236,8 +220,8 @@ export default function AngelicaLifePlan() {
 
             {currentStep === 3 && (
               <Step3Beneficiary
-                data={formData.beneficiaries}
-                onChange={handleBeneficiariesChange}
+                control={control}
+                errors={errors}
                 onBack={handlePrevStep}
                 onNext={handleNextStep}
               />
@@ -245,8 +229,11 @@ export default function AngelicaLifePlan() {
 
             {currentStep === 4 && (
               <Step4Submit
+                control={control}
+                errors={errors}
+                setValue={setValue}
                 onBack={handlePrevStep}
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 isLoading={isLoading}
               />
             )}

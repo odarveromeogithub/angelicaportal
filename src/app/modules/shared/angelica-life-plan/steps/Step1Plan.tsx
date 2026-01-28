@@ -1,4 +1,5 @@
-import type { IPlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { Control, FieldErrors } from "react-hook-form";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import {
@@ -11,32 +12,23 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step1PlanProps {
-  data: IPlanFormData;
-  onChange: (data: IPlanFormData) => void;
+  control: Control<IAngelicaLifePlanFormData>;
+  errors: FieldErrors<IAngelicaLifePlanFormData>;
   onNext: () => void;
 }
 
-export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    onChange({
-      ...data,
-      [name]: value,
-    });
-  };
-
+export default function Step1Plan({ control, errors, onNext }: Step1PlanProps) {
+  // Check if all required plan fields are filled
   const isComplete =
-    data.salesCounselorName &&
-    data.salesCounselorCode &&
-    data.salesCounselorReferral &&
-    data.contactPrice &&
-    data.planType &&
-    data.modeOfPayment &&
-    data.termOfPay &&
-    data.installment &&
-    data.docStamp;
+    control._formValues.plan?.salesCounselorName &&
+    control._formValues.plan?.salesCounselorCode &&
+    control._formValues.plan?.salesCounselorReferral &&
+    control._formValues.plan?.contactPrice &&
+    control._formValues.plan?.planType &&
+    control._formValues.plan?.modeOfPayment &&
+    control._formValues.plan?.termOfPay &&
+    control._formValues.plan?.installment &&
+    control._formValues.plan?.docStamp;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -50,31 +42,31 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
             label="Sales Counselor Name"
             id="salesCounselorName"
             name="salesCounselorName"
-            value={data.salesCounselorName}
-            onChange={handleInputChange}
             placeholder="CLIENT PORTAL (MINDANAO 2)"
             required
             autoFocus
+            registerProps={control.register("plan.salesCounselorName")}
+            error={errors.plan?.salesCounselorName?.message}
           />
 
           <FormField
             label="Sales Counselor Code"
             id="salesCounselorCode"
             name="salesCounselorCode"
-            value={data.salesCounselorCode}
-            onChange={handleInputChange}
             placeholder="M-005-46-000-04248"
             required
+            registerProps={control.register("plan.salesCounselorCode")}
+            error={errors.plan?.salesCounselorCode?.message}
           />
 
           <FormField
             label="Sales Counselor Referral"
             id="salesCounselorReferral"
             name="salesCounselorReferral"
-            value={data.salesCounselorReferral}
-            onChange={handleInputChange}
             placeholder="https://sc.cclpi.com.ph:8080/#/referral/..."
             required
+            registerProps={control.register("plan.salesCounselorReferral")}
+            error={errors.plan?.salesCounselorReferral?.message}
           />
         </div>
 
@@ -84,42 +76,43 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
             id="contactPrice"
             name="contactPrice"
             type="number"
-            value={data.contactPrice}
-            onChange={handleInputChange}
             placeholder="30000"
             required
+            registerProps={control.register("plan.contactPrice")}
+            error={errors.plan?.contactPrice?.message}
           />
 
           <FormSelect
             label="Plan Type"
             id="planType"
-            value={data.planType}
-            onValueChange={(value) => onChange({ ...data, planType: value })}
+            control={control}
+            name="plan.planType"
             options={PLAN_TYPES}
             placeholder="Select Plan Type"
             required
+            error={errors.plan?.planType?.message}
           />
 
           <FormSelect
             label="Mode of Payment"
             id="modeOfPayment"
-            value={data.modeOfPayment}
-            onValueChange={(value) =>
-              onChange({ ...data, modeOfPayment: value })
-            }
+            control={control}
+            name="plan.modeOfPayment"
             options={PAYMENT_MODES}
             placeholder="Select Payment Mode"
             required
+            error={errors.plan?.modeOfPayment?.message}
           />
 
           <FormSelect
             label="Term of Pay"
             id="termOfPay"
-            value={data.termOfPay}
-            onValueChange={(value) => onChange({ ...data, termOfPay: value })}
+            control={control}
+            name="plan.termOfPay"
             options={PAYMENT_TERMS}
             placeholder="Select Term"
             required
+            error={errors.plan?.termOfPay?.message}
           />
         </div>
 
@@ -129,10 +122,10 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
             id="installment"
             name="installment"
             type="number"
-            value={data.installment}
-            onChange={handleInputChange}
             placeholder="540.00"
             required
+            registerProps={control.register("plan.installment")}
+            error={errors.plan?.installment?.message}
           />
 
           <FormField
@@ -140,10 +133,10 @@ export default function Step1Plan({ data, onChange, onNext }: Step1PlanProps) {
             id="docStamp"
             name="docStamp"
             type="number"
-            value={data.docStamp}
-            onChange={handleInputChange}
             placeholder="60.00"
             required
+            registerProps={control.register("plan.docStamp")}
+            error={errors.plan?.docStamp?.message}
           />
         </div>
       </div>

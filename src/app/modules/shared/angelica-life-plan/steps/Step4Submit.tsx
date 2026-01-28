@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
+import type { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { Label } from "@/app/core/components/ui/label";
 import { Checkbox } from "@/app/core/components/ui/checkbox";
@@ -13,42 +16,47 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step4SubmitProps {
+  control: Control<IAngelicaLifePlanFormData>;
+  errors: FieldErrors<IAngelicaLifePlanFormData>;
+  setValue: UseFormSetValue<IAngelicaLifePlanFormData>;
   onBack: () => void;
-  onSubmit: (data: {
-    planholder_signature: string;
-    id_upload: File | null;
-    agree_to_consent: boolean;
-  }) => void;
+  onSubmit: () => void;
   isLoading?: boolean;
 }
 
 export default function Step4Submit({
+  control,
+  errors,
+  setValue,
   onBack,
   onSubmit,
   isLoading = false,
 }: Step4SubmitProps) {
-  const [idFile, setIdFile] = useState<File | null>(null);
   const [idPreview, setIdPreview] = useState<string>("");
-  const [agreeToConsent, setAgreeToConsent] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
 
-  const signaturePad = useSignaturePad();
+  const { canvasRef, signatureImage, clear, saveSignature } = useSignaturePad();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (
-      file &&
-      (file.type.startsWith("image/") || file.type === "application/pdf")
-    ) {
-      if (file.size <= MAX_FILE_SIZE_BYTES) {
-        setIdFile(file);
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setIdPreview(event.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (
+        file &&
+        (file.type.startsWith("image/") || file.type === "application/pdf")
+      ) {
+        if (file.size <= MAX_FILE_SIZE_BYTES) {
+          // Update the form field
+          setValue("id_upload", file);
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setIdPreview(event.target?.result as string);
+          };
+          reader.readAsDataURL(file);
+        }
       }
-    }
-  }, []);
+    },
+    [setValue],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -58,25 +66,24 @@ export default function Step4Submit({
   });
 
   const clearSignature = () => {
-    signaturePad.clear();
+    clear();
+    setValue("planholder_signature", "");
+    setHasSignature(false);
   };
 
   const confirmSignature = () => {
-    signaturePad.saveSignature(() => {
-      // Signature confirmed callback if needed
+    saveSignature(() => {
+      if (signatureImage) {
+        setValue("planholder_signature", signatureImage);
+        setHasSignature(true);
+      }
     });
   };
 
-  const isComplete = signaturePad.signatureImage && idFile && agreeToConsent;
-  const handleSubmit = () => {
-    if (isComplete) {
-      onSubmit({
-        planholder_signature: signaturePad.signatureImage || "",
-        id_upload: idFile,
-        agree_to_consent: agreeToConsent,
-      });
-    }
-  };
+  const isComplete =
+    control._formValues.planholder_signature &&
+    control._formValues.id_upload &&
+    control._formValues.agree_to_consent;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -88,16 +95,16 @@ export default function Step4Submit({
           <div
             className={cn(
               "border-2 rounded-lg bg-white dark:bg-slate-900 overflow-hidden",
-              signaturePad.signatureImage
+              hasSignature
                 ? "border-emerald-500"
                 : "border-slate-200 dark:border-slate-800",
             )}
           >
             <canvas
-              ref={signaturePad.canvasRef}
+              ref={canvasRef}
               className={cn(
                 "w-full block bg-white dark:bg-slate-900",
-                signaturePad.signatureImage
+                hasSignature
                   ? "cursor-not-allowed opacity-90 pointer-events-none"
                   : "cursor-crosshair touch-none",
               )}
@@ -126,9 +133,7 @@ export default function Step4Submit({
               )}
               aria-label="Confirm signature"
             >
-              {signaturePad.signatureImage
-                ? "✓ Signature Confirmed"
-                : "Confirm Signature"}
+              {hasSignature ? "✓ Signature Confirmed" : "Confirm Signature"}
             </Button>
           </div>
         </div>
@@ -153,7 +158,9 @@ export default function Step4Submit({
                 <div className="relative inline-block">
                   <div className="flex flex-col items-center gap-2">
                     <CheckCircle2 className="size-8 sm:size-10 text-green-600" />
-                    {idFile?.type.startsWith("image/") ? (
+                    {control._formValues.id_upload?.type.startsWith(
+                      "image/",
+                    ) ? (
                       <img
                         src={idPreview}
                         alt="ID Preview"
@@ -162,7 +169,7 @@ export default function Step4Submit({
                     ) : (
                       <div className="flex items-center justify-center h-48 sm:h-64 bg-slate-100 dark:bg-slate-800 rounded-lg">
                         <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                          File: {idFile?.name}
+                          File: {(control._formValues.id_upload as File)?.name}
                         </span>
                       </div>
                     )}
@@ -172,7 +179,7 @@ export default function Step4Submit({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIdFile(null);
+                    setValue("id_upload", null);
                     setIdPreview("");
                   }}
                   variant="destructive"
@@ -233,13 +240,17 @@ export default function Step4Submit({
           </div>
 
           <div className="flex items-start gap-2 sm:gap-3">
-            <Checkbox
-              id="consent"
-              checked={agreeToConsent}
-              onCheckedChange={(checked) =>
-                setAgreeToConsent(checked as boolean)
-              }
-              className="mt-1 flex-shrink-0"
+            <Controller
+              name="agree_to_consent"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="consent"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  className="mt-1 flex-shrink-0"
+                />
+              )}
             />
             <Label
               htmlFor="consent"
@@ -248,6 +259,11 @@ export default function Step4Submit({
               I agree to the E-Signature and Data Privacy Consent.
             </Label>
           </div>
+          {errors.agree_to_consent && (
+            <p className="text-xs text-red-600 mt-1">
+              {errors.agree_to_consent.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -265,7 +281,7 @@ export default function Step4Submit({
           Back
         </Button>
         <Button
-          onClick={handleSubmit}
+          onClick={onSubmit}
           disabled={!isComplete || isLoading}
           className={cn(
             FIELD_CLASSES.button.base,

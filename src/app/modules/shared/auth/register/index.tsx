@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import logo from "@/assets/cclpi-logo.png";
 
 import { Button } from "@/app/core/components/ui/button";
@@ -17,7 +19,10 @@ import {
 import { Checkbox } from "@/app/core/components/ui/checkbox";
 import { FormField, FormSelect, PhoneInput } from "@/app/core/components/form";
 import { useAppDispatch, useAppSelector } from "@/app/core/state/hooks";
-import { register, resetRegister } from "@/app/core/state/reducer/auth";
+import {
+  register as registerUser,
+  resetRegister,
+} from "@/app/core/state/reducer/auth";
 import {
   AREA_OPTIONS,
   AUTH_CLASSES,
@@ -32,14 +37,33 @@ export default function Register() {
   const dispatch = useAppDispatch();
   const registerState = useAppSelector(selectRegisterState);
 
-  const [formData, setFormData] = useState({
-    email: "",
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    contact_no: "",
-    country_code: "+63",
-    area: "",
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<{
+    email: string;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    contact_no: string;
+    country_code: string;
+    area: string;
+  }>({
+    resolver: yupResolver(registerSchema) as any,
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      contact_no: "",
+      country_code: "+63",
+      area: "",
+    },
   });
 
   const [showPreview, setShowPreview] = useState(false);
@@ -47,6 +71,15 @@ export default function Register() {
   const [loadingToastId, setLoadingToastId] = useState<string | number | null>(
     null,
   );
+
+  // Watch form values for preview
+  const formData = watch();
+
+  const handleChange = (field: string, value: string) => {
+    // This is only used for country code changes in PhoneInput
+    // React Hook Form handles the rest automatically
+    setValue(field as any, value);
+  };
 
   useEffect(() => {
     if (registerState.success && registerState.data) {
@@ -104,43 +137,8 @@ export default function Register() {
     };
   }, [dispatch]);
 
-  const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const validateForm = async () => {
-    try {
-      await registerSchema.validate(formData);
-      return true;
-    } catch (error: unknown) {
-      const firstError =
-        error instanceof Error ? error.message : "Validation failed";
-      if (firstError) {
-        toast.error(firstError);
-      }
-      return false;
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const isValid = await validateForm();
-    if (isValid) {
-      setShowPreview(true);
-    }
-  };
-
-  // Check if form is valid for enabling submit button
-  const isFormValid = () => {
-    try {
-      registerSchema.validateSync(formData);
-      return true;
-    } catch {
-      return false;
-    }
+  const onSubmit = () => {
+    setShowPreview(true);
   };
 
   const handleSendVerificationCode = () => {
@@ -151,7 +149,7 @@ export default function Register() {
     const toastId = toast.loading(AUTH_MESSAGES.register.loading);
     setLoadingToastId(toastId);
     dispatch(
-      register({
+      registerUser({
         email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,
@@ -171,7 +169,7 @@ export default function Register() {
 
   return (
     <div className={AUTH_CLASSES.container}>
-      <form onSubmit={handleSubmit} className="w-full max-w-md">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
         <Card className={AUTH_CLASSES.card}>
           <CardAction className="self-start p-0 pl-3">
             <Button
@@ -229,11 +227,12 @@ export default function Register() {
               <FormSelect
                 label="Area"
                 id="area"
-                value={formData.area}
-                onValueChange={(value) => handleChange("area", value)}
+                control={control}
+                name="area"
                 options={AREA_OPTIONS}
                 placeholder="Select Area"
                 required
+                error={errors.area?.message}
               />
 
               {/* Conditional: Phone for PH, Email for International */}
@@ -245,14 +244,14 @@ export default function Register() {
                     label="Contact Number"
                     id="contact_no"
                     name="contact_no"
-                    value={formData.contact_no}
-                    onChange={(value) => handleChange("contact_no", value)}
+                    control={control}
                     placeholder="10 digit number"
                     required
                     countryCode={formData.country_code}
                     onCountryCodeChange={(value) =>
                       handleChange("country_code", value)
                     }
+                    error={errors.contact_no?.message}
                   />
                 )}
 
@@ -263,23 +262,23 @@ export default function Register() {
                     id="email"
                     name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="example@email.com"
                     required
+                    registerProps={register("email")}
+                    error={errors.email?.message}
                   />
                   <PhoneInput
                     label="Contact Number (Optional)"
                     id="contact_no"
                     name="contact_no"
-                    value={formData.contact_no}
-                    onChange={(value) => handleChange("contact_no", value)}
+                    control={control}
                     placeholder="Phone number"
                     required={false}
                     countryCode={formData.country_code}
                     onCountryCodeChange={(value) =>
                       handleChange("country_code", value)
                     }
+                    error={errors.contact_no?.message}
                   />
                 </>
               )}
@@ -293,13 +292,11 @@ export default function Register() {
                       id="first_name"
                       name="first_name"
                       type="text"
-                      value={formData.first_name}
-                      onChange={(e) =>
-                        handleChange("first_name", e.target.value)
-                      }
                       placeholder="First Name"
                       required
                       autoFocus
+                      registerProps={register("first_name")}
+                      error={errors.first_name?.message}
                     />
 
                     <FormField
@@ -307,12 +304,10 @@ export default function Register() {
                       id="last_name"
                       name="last_name"
                       type="text"
-                      value={formData.last_name}
-                      onChange={(e) =>
-                        handleChange("last_name", e.target.value)
-                      }
                       placeholder="Last Name"
                       required
+                      registerProps={register("last_name")}
+                      error={errors.last_name?.message}
                     />
                   </div>
 
@@ -321,11 +316,9 @@ export default function Register() {
                     id="middle_name"
                     name="middle_name"
                     type="text"
-                    value={formData.middle_name}
-                    onChange={(e) =>
-                      handleChange("middle_name", e.target.value)
-                    }
                     placeholder="Middle Name"
+                    registerProps={register("middle_name")}
+                    error={errors.middle_name?.message}
                   />
 
                   {/* Show email field for PH users as optional */}
@@ -337,9 +330,9 @@ export default function Register() {
                       id="email"
                       name="email"
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="example@email.com"
+                      registerProps={register("email")}
+                      error={errors.email?.message}
                     />
                   )}
                 </>
@@ -350,13 +343,13 @@ export default function Register() {
           <CardFooter className="flex flex-col gap-2 px-6 pb-8 sm:px-10">
             <Button
               type="submit"
-              disabled={registerState.loading || !isFormValid()}
+              disabled={registerState.loading || !isValid}
               className={AUTH_CLASSES.button.primary}
               aria-label="Preview registration information"
             >
               Preview
             </Button>
-            {!isFormValid() && (
+            {!isValid && (
               <p className={AUTH_CLASSES.success}>
                 Please fill in all required fields correctly
               </p>

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import type { IBeneficiaryFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { Control, FieldErrors } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import { Trash2, Plus } from "lucide-react";
@@ -20,23 +22,28 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step3BeneficiaryProps {
-  data: IBeneficiaryFormData[];
-  onChange: (data: IBeneficiaryFormData[]) => void;
+  control: Control<IAngelicaLifePlanFormData>;
+  errors: FieldErrors<IAngelicaLifePlanFormData>;
   onBack: () => void;
   onNext: () => void;
 }
 
 export default function Step3Beneficiary({
-  data,
-  onChange,
+  control,
+  errors,
   onBack,
   onNext,
 }: Step3BeneficiaryProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "beneficiaries",
+  });
+
   const handleAddBeneficiary = () => {
-    const newBeneficiary: IBeneficiaryFormData = {
+    append({
       firstName: "",
       middleName: "",
       lastName: "",
@@ -45,46 +52,34 @@ export default function Step3Beneficiary({
       gender: "",
       address: "",
       relationship: "",
-    };
-    onChange([...data, newBeneficiary]);
-    setEditingIndex(data.length);
+    });
+    setEditingIndex(fields.length);
   };
 
   const handleRemoveBeneficiary = (index: number) => {
-    onChange(data.filter((_, i) => i !== index));
+    remove(index);
     setDeleteIndex(null);
     if (editingIndex === index) {
       setEditingIndex(null);
     }
   };
 
-  const handleBeneficiaryChange = (
-    index: number,
-    field: keyof IBeneficiaryFormData,
-    value: string | number,
-  ) => {
-    const updated = [...data];
-    updated[index] = {
-      ...updated[index],
-      [field]: value,
-    };
-    onChange(updated);
-  };
-
   const currentBeneficiary =
-    editingIndex !== null ? data[editingIndex] : data[0];
+    editingIndex !== null ? fields[editingIndex] : fields[0];
 
   const isComplete =
-    data.length > 0 &&
-    data.every(
-      (b) =>
-        b.firstName &&
-        b.lastName &&
-        b.age &&
-        b.gender &&
-        b.address &&
-        b.relationship,
-    );
+    fields.length > 0 &&
+    fields.every((field, index) => {
+      const beneficiary = control._formValues.beneficiaries?.[index];
+      return (
+        beneficiary?.firstName &&
+        beneficiary?.lastName &&
+        beneficiary?.age &&
+        beneficiary?.gender &&
+        beneficiary?.address &&
+        beneficiary?.relationship
+      );
+    });
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -93,10 +88,10 @@ export default function Step3Beneficiary({
           Beneficiaries Details
         </h2>
 
-        {data.length > 0 && (
+        {fields.length > 0 && (
           <div className="mb-6">
             <div className="flex gap-2 mb-4 overflow-x-auto items-center flex-wrap">
-              {data.map((_, index) => (
+              {fields.map((field, index) => (
                 <div
                   key={index}
                   className={`flex items-center rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-colors ${
@@ -135,16 +130,14 @@ export default function Step3Beneficiary({
                 id="firstName"
                 name="firstName"
                 type="text"
-                value={currentBeneficiary.firstName}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "firstName",
-                    e.target.value,
-                  )
-                }
                 placeholder="First Name"
                 required
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.firstName`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.firstName?.message
+                }
               />
 
               <FormField
@@ -152,15 +145,13 @@ export default function Step3Beneficiary({
                 id="middleName"
                 name="middleName"
                 type="text"
-                value={currentBeneficiary.middleName}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "middleName",
-                    e.target.value,
-                  )
-                }
                 placeholder="Middle Name"
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.middleName`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.middleName?.message
+                }
               />
 
               <FormField
@@ -168,16 +159,14 @@ export default function Step3Beneficiary({
                 id="lastName"
                 name="lastName"
                 type="text"
-                value={currentBeneficiary.lastName}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "lastName",
-                    e.target.value,
-                  )
-                }
                 placeholder="Last Name"
                 required
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.lastName`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.lastName?.message
+                }
               />
             </div>
 
@@ -187,15 +176,14 @@ export default function Step3Beneficiary({
                 id="nameExtension"
                 name="nameExtension"
                 type="text"
-                value={currentBeneficiary.nameExtension}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "nameExtension",
-                    e.target.value,
-                  )
-                }
                 placeholder="ex. Jr, Sr, III..."
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.nameExtension`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.nameExtension
+                    ?.message
+                }
               />
 
               <FormField
@@ -203,28 +191,25 @@ export default function Step3Beneficiary({
                 id="age"
                 name="age"
                 type="number"
-                value={currentBeneficiary.age}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "age",
-                    e.target.value,
-                  )
-                }
                 placeholder="ex. 24"
                 required
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.age`,
+                )}
+                error={errors.beneficiaries?.[editingIndex ?? 0]?.age?.message}
               />
 
               <FormSelect
                 label="Gender"
                 id="gender"
-                value={currentBeneficiary.gender}
-                onValueChange={(value) =>
-                  handleBeneficiaryChange(editingIndex ?? 0, "gender", value)
-                }
+                control={control}
+                name={`beneficiaries.${editingIndex ?? 0}.gender`}
                 options={GENDER_OPTIONS}
                 placeholder="Select Gender"
                 required
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.gender?.message
+                }
               />
             </div>
 
@@ -234,16 +219,14 @@ export default function Step3Beneficiary({
                 id="address"
                 name="address"
                 type="text"
-                value={currentBeneficiary.address}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "address",
-                    e.target.value,
-                  )
-                }
                 placeholder="Address"
                 required
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.address`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.address?.message
+                }
               />
 
               <FormField
@@ -251,16 +234,15 @@ export default function Step3Beneficiary({
                 id="relationship"
                 name="relationship"
                 type="text"
-                value={currentBeneficiary.relationship}
-                onChange={(e) =>
-                  handleBeneficiaryChange(
-                    editingIndex ?? 0,
-                    "relationship",
-                    e.target.value,
-                  )
-                }
                 placeholder="Relationship"
                 required
+                registerProps={control.register(
+                  `beneficiaries.${editingIndex ?? 0}.relationship`,
+                )}
+                error={
+                  errors.beneficiaries?.[editingIndex ?? 0]?.relationship
+                    ?.message
+                }
               />
             </div>
           </div>

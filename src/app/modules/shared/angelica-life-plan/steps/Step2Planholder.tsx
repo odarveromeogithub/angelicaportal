@@ -1,4 +1,6 @@
-import type { IPlanholderFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { Control, FieldErrors } from "react-hook-form";
+import { Controller } from "react-hook-form";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import { Label } from "@/app/core/components/ui/label";
@@ -21,54 +23,34 @@ import {
 import { cn } from "@/app/core/lib/utils";
 
 interface Step2PlanholderProps {
-  data: IPlanholderFormData;
-  onChange: (data: IPlanholderFormData) => void;
+  control: Control<IAngelicaLifePlanFormData>;
+  errors: FieldErrors<IAngelicaLifePlanFormData>;
   onBack: () => void;
   onNext: () => void;
 }
 
 export default function Step2Planholder({
-  data,
-  onChange,
+  control,
+  errors,
   onBack,
   onNext,
 }: Step2PlanholderProps) {
   const datePickerModal = useModal();
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    onChange({
-      ...data,
-      [name]: value,
-    });
-  };
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      const formattedDate = format(date, "yyyy-MM-dd");
-      onChange({
-        ...data,
-        dateOfBirth: formattedDate,
-      });
-    }
-    datePickerModal.close();
-  };
-
+  // Check if all required planholder fields are filled
   const isComplete =
-    data.firstName &&
-    data.lastName &&
-    data.dateOfBirth &&
-    data.gender &&
-    data.civilStatus &&
-    data.email &&
-    data.contactNumber &&
-    data.street &&
-    data.barangay &&
-    data.cityMunicipal &&
-    data.province &&
-    data.zipCode;
+    control._formValues.planholder?.firstName &&
+    control._formValues.planholder?.lastName &&
+    control._formValues.planholder?.dateOfBirth &&
+    control._formValues.planholder?.gender &&
+    control._formValues.planholder?.civilStatus &&
+    control._formValues.planholder?.email &&
+    control._formValues.planholder?.contactNumber &&
+    control._formValues.planholder?.street &&
+    control._formValues.planholder?.barangay &&
+    control._formValues.planholder?.cityMunicipal &&
+    control._formValues.planholder?.province &&
+    control._formValues.planholder?.zipCode;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -82,30 +64,30 @@ export default function Step2Planholder({
             label="First Name"
             id="firstName"
             name="firstName"
-            value={data.firstName}
-            onChange={handleInputChange}
             placeholder="First Name"
             required
             autoFocus
+            registerProps={control.register("planholder.firstName")}
+            error={errors.planholder?.firstName?.message}
           />
 
           <FormField
             label="Middle Name"
             id="middleName"
             name="middleName"
-            value={data.middleName}
-            onChange={handleInputChange}
             placeholder="Middle Name"
+            registerProps={control.register("planholder.middleName")}
+            error={errors.planholder?.middleName?.message}
           />
 
           <FormField
             label="Last Name"
             id="lastName"
             name="lastName"
-            value={data.lastName}
-            onChange={handleInputChange}
             placeholder="Last Name"
             required
+            registerProps={control.register("planholder.lastName")}
+            error={errors.planholder?.lastName?.message}
           />
         </div>
 
@@ -114,9 +96,9 @@ export default function Step2Planholder({
             label="Name Extension"
             id="nameExtension"
             name="nameExtension"
-            value={data.nameExtension}
-            onChange={handleInputChange}
             placeholder="ex. Jr, Sr, III..."
+            registerProps={control.register("planholder.nameExtension")}
+            error={errors.planholder?.nameExtension?.message}
           />
 
           <div className="flex flex-col gap-2">
@@ -126,37 +108,52 @@ export default function Step2Planholder({
             >
               Date of Birth
             </Label>
-            <Popover
-              open={datePickerModal.isOpen}
-              onOpenChange={datePickerModal.setIsOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="dateOfBirth"
-                  className="h-9 sm:h-10 w-full justify-between rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-normal text-xs sm:text-sm"
+            <Controller
+              name="planholder.dateOfBirth"
+              control={control}
+              render={({ field }) => (
+                <Popover
+                  open={datePickerModal.isOpen}
+                  onOpenChange={datePickerModal.setIsOpen}
                 >
-                  {data.dateOfBirth
-                    ? format(new Date(data.dateOfBirth), "MMM dd, yyyy")
-                    : "Select date"}
-                  <ChevronDownIcon className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                <Calendar
-                  mode="single"
-                  selected={
-                    data.dateOfBirth ? new Date(data.dateOfBirth) : undefined
-                  }
-                  captionLayout="dropdown"
-                  onSelect={handleDateSelect}
-                  disabled={(date) => date > new Date()}
-                />
-              </PopoverContent>
-            </Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="dateOfBirth"
+                      className="h-9 sm:h-10 w-full justify-between rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-normal text-xs sm:text-sm"
+                    >
+                      {field.value
+                        ? format(new Date(field.value), "MMM dd, yyyy")
+                        : "Select date"}
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={field.value ? new Date(field.value) : undefined}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        if (date) {
+                          const formattedDate = format(date, "yyyy-MM-dd");
+                          field.onChange(formattedDate);
+                        }
+                        datePickerModal.close();
+                      }}
+                      disabled={(date) => date > new Date()}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
+            />
+            {errors.planholder?.dateOfBirth && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.planholder.dateOfBirth.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -164,21 +161,23 @@ export default function Step2Planholder({
           <FormSelect
             label="Gender"
             id="gender"
-            value={data.gender}
-            onValueChange={(value) => onChange({ ...data, gender: value })}
+            control={control}
+            name="planholder.gender"
             options={GENDER_OPTIONS}
             placeholder="Select Gender"
             required
+            error={errors.planholder?.gender?.message}
           />
 
           <FormSelect
             label="Civil Status"
             id="civilStatus"
-            value={data.civilStatus}
-            onValueChange={(value) => onChange({ ...data, civilStatus: value })}
+            control={control}
+            name="planholder.civilStatus"
             options={CIVIL_STATUS_OPTIONS}
             placeholder="Select Civil Status"
             required
+            error={errors.planholder?.civilStatus?.message}
           />
         </div>
 
@@ -188,10 +187,10 @@ export default function Step2Planholder({
             id="email"
             name="email"
             type="email"
-            value={data.email}
-            onChange={handleInputChange}
             placeholder="Email Address"
             required
+            registerProps={control.register("planholder.email")}
+            error={errors.planholder?.email?.message}
           />
 
           <div className={FIELD_CLASSES.wrapper}>
@@ -199,27 +198,38 @@ export default function Step2Planholder({
               Contact Number
               <span className="text-red-600 ml-1">*</span>
             </Label>
-            <div className="flex items-center h-9 sm:h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3">
-              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mr-2">
-                {PHONE_CONFIG.countryCode}
-              </span>
-              <input
-                id="contactNumber"
-                name="contactNumber"
-                type="text"
-                value={data.contactNumber}
-                onChange={(e) => {
-                  const value = e.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, PHONE_CONFIG.maxLength);
-                  onChange({ ...data, contactNumber: value });
-                }}
-                placeholder={PHONE_CONFIG.placeholder}
-                maxLength={PHONE_CONFIG.maxLength}
-                className="flex-1 outline-none text-sm"
-                aria-label="Phone number without country code"
-              />
-            </div>
+            <Controller
+              name="planholder.contactNumber"
+              control={control}
+              render={({ field }) => (
+                <div className="flex items-center h-9 sm:h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mr-2">
+                    {PHONE_CONFIG.countryCode}
+                  </span>
+                  <input
+                    id="contactNumber"
+                    name="contactNumber"
+                    type="text"
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, PHONE_CONFIG.maxLength);
+                      field.onChange(value);
+                    }}
+                    placeholder={PHONE_CONFIG.placeholder}
+                    maxLength={PHONE_CONFIG.maxLength}
+                    className="flex-1 outline-none text-sm"
+                    aria-label="Phone number without country code"
+                  />
+                </div>
+              )}
+            />
+            {errors.planholder?.contactNumber && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.planholder.contactNumber.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -228,19 +238,19 @@ export default function Step2Planholder({
             label="Lot/House Number"
             id="lotHouseNumber"
             name="lotHouseNumber"
-            value={data.lotHouseNumber}
-            onChange={handleInputChange}
             placeholder="Lot House Number"
+            registerProps={control.register("planholder.lotHouseNumber")}
+            error={errors.planholder?.lotHouseNumber?.message}
           />
 
           <FormField
             label="Street"
             id="street"
             name="street"
-            value={data.street}
-            onChange={handleInputChange}
             placeholder="Street"
             required
+            registerProps={control.register("planholder.street")}
+            error={errors.planholder?.street?.message}
           />
         </div>
 
@@ -249,20 +259,20 @@ export default function Step2Planholder({
             label="Barangay"
             id="barangay"
             name="barangay"
-            value={data.barangay}
-            onChange={handleInputChange}
             placeholder="Barangay"
             required
+            registerProps={control.register("planholder.barangay")}
+            error={errors.planholder?.barangay?.message}
           />
 
           <FormField
             label="City/Municipal"
             id="cityMunicipal"
             name="cityMunicipal"
-            value={data.cityMunicipal}
-            onChange={handleInputChange}
             placeholder="City/Municipal"
             required
+            registerProps={control.register("planholder.cityMunicipal")}
+            error={errors.planholder?.cityMunicipal?.message}
           />
         </div>
 
@@ -271,20 +281,20 @@ export default function Step2Planholder({
             label="Province"
             id="province"
             name="province"
-            value={data.province}
-            onChange={handleInputChange}
             placeholder="Province"
             required
+            registerProps={control.register("planholder.province")}
+            error={errors.planholder?.province?.message}
           />
 
           <FormField
             label="Zip Code"
             id="zipCode"
             name="zipCode"
-            value={data.zipCode}
-            onChange={handleInputChange}
             placeholder="Zip Code"
             required
+            registerProps={control.register("planholder.zipCode")}
+            error={errors.planholder?.zipCode?.message}
           />
         </div>
       </div>
