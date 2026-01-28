@@ -86,7 +86,7 @@ export async function validateFaceInImage(
       return {
         valid: false,
         error:
-          "❌ No face detected in the uploaded photo. Please upload a clear photo of your face.",
+          "No face detected in the uploaded photo. Please upload a clear photo of your face.",
       };
     }
 
@@ -102,14 +102,14 @@ export async function validateFaceInImage(
     if (faceBox.width < minSize || faceBox.height < minSize) {
       return {
         valid: false,
-        error: "❌ Face is too small or unclear. Please upload a closer photo.",
+        error: "Face is too small or unclear. Please upload a closer photo.",
       };
     }
 
     if (faceBox.width > maxSize || faceBox.height > maxSize) {
       return {
         valid: false,
-        error: "❌ Face is too close to camera. Please take a step back.",
+        error: "Face is too close to camera. Please take a step back.",
       };
     }
 
@@ -117,7 +117,7 @@ export async function validateFaceInImage(
       return {
         valid: false,
         error:
-          "❌ Face is not centered. Please position your face in the center of the frame.",
+          "Face is not centered. Please position your face in the center of the frame.",
       };
     }
 
@@ -126,7 +126,7 @@ export async function validateFaceInImage(
     console.error("Face validation error:", err);
     return {
       valid: false,
-      error: "❌ Failed to validate face. Please try again.",
+      error: "Failed to validate face. Please try again.",
     };
   }
 }

@@ -51,7 +51,9 @@ export default function ProfilePage() {
   const [showCamera, setShowCamera] = useState(false);
   const [idImages, setIdImages] = useState<string[]>([]);
 
-  const signaturePad = useSignaturePad();
+  const signaturePad = useSignaturePad({
+    initialSignature: getSignaturePhoto(),
+  });
   const fileUpload = useFileUpload();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -93,7 +95,7 @@ export default function ProfilePage() {
     }
 
     if (savedSignaturePhoto) {
-      signaturePad.setSignatureImage(savedSignaturePhoto);
+      // Signature is now initialized via hook options
     } else if (getVerificationSignatures()) {
       setVerificationSignatures(false);
     }
@@ -103,7 +105,7 @@ export default function ProfilePage() {
     } else if (getVerificationID()) {
       setVerificationID(false);
     }
-  }, [signaturePad]); // Only run on mount
+  }, []); // Only run on mount
 
   // Check if all verifications are complete and update status
   useEffect(() => {
@@ -118,7 +120,7 @@ export default function ProfilePage() {
       // All verifications complete - status should be pending
       console.log("✓ All verifications complete - Status should be: PENDING");
     }
-  }, [facialPhoto, signaturePad.signatureImage, idImages]); // Trigger on photo changes
+  }, [facialPhoto, idImages]); // Trigger on photo changes
 
   const handleCopyReferralLink = async () => {
     if (!referralUrl) return;

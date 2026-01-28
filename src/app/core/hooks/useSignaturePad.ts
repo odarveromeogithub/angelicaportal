@@ -6,15 +6,23 @@ export interface UseSignaturePadOptions {
   throttle?: number;
   onSave?: (signature: string) => void;
   onClear?: () => void;
+  initialSignature?: string | null;
 }
 
 export function useSignaturePad(options: UseSignaturePadOptions = {}) {
-  const { throttle = SIGNATURE_CONFIG.throttle, onSave, onClear } = options;
+  const {
+    throttle = SIGNATURE_CONFIG.throttle,
+    onSave,
+    onClear,
+    initialSignature = null,
+  } = options;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const signaturePadRef = useRef<SignaturePad | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
-  const [signatureImage, setSignatureImage] = useState<string | null>(null);
+  const [signatureImage, setSignatureImage] = useState<string | null>(
+    initialSignature,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const initSignaturePad = useCallback(() => {
