@@ -118,7 +118,7 @@ export default function ProfilePage() {
 
     if (allComplete) {
       // All verifications complete - status should be pending
-      console.log("✓ All verifications complete - Status should be: PENDING");
+      console.log("✓ All verifications complete");
     }
   }, [facialPhoto, idImages]); // Trigger on photo changes
 

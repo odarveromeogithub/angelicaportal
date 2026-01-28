@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Search, Edit, Paperclip } from "lucide-react";
+import { Search, Edit, Upload } from "lucide-react";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
@@ -23,6 +23,8 @@ import {
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
 import { Button } from "../../../core/components/ui/button";
+import { FormDialog } from "../../../core/components/ui/form-dialog";
+import { Input } from "../../../core/components/ui/input";
 import { useToast } from "../../../core/hooks/useToast";
 import { useDebounce } from "../../../core/hooks/useDebounce";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
@@ -36,6 +38,41 @@ export function WaitingListTab() {
   } = dashboardApi.useGetWaitingListQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  // Attach dialog state
+  const [attachDialogOpen, setAttachDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle file selection and preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreviewUrl(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  // Handle submit (simulate upload)
+  const handleAttachSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFile || !selectedItem) return;
+    setIsSubmitting(true);
+    // Simulate upload delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setAttachDialogOpen(false);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      toast.success("Payment image attached successfully!");
+    }, 1200);
+  };
 
   // Show error toast when data fetch fails
   useEffect(() => {
@@ -131,12 +168,67 @@ export function WaitingListTab() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-9 w-9 hover:bg-purple-50 hover:text-purple-600 dark:hover:bg-purple-900/30 dark:hover:text-purple-300 transition-colors"
+                                  onClick={() => {
+                                    setSelectedItem(item);
+                                    setAttachDialogOpen(true);
+                                  }}
+                                  aria-label="Attach Payment Image"
                                 >
-                                  <Paperclip className="w-4 h-4" />
+                                  <Upload className="w-4 h-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>View Attachments</TooltipContent>
+                              <TooltipContent>
+                                Attach Payment Image
+                              </TooltipContent>
                             </Tooltip>
+                            {/* Attach Payment Image Dialog */}
+                            <FormDialog
+                              open={attachDialogOpen}
+                              onOpenChange={(open) => {
+                                setAttachDialogOpen(open);
+                                if (!open) {
+                                  setSelectedFile(null);
+                                  setPreviewUrl(null);
+                                }
+                              }}
+                              title="Upload Payment Image"
+                              description="Attach a payment proof image for this application."
+                              icon={<Upload className="w-6 h-6" />}
+                              cancelLabel="Cancel"
+                              submitLabel="Submit"
+                              isSubmitting={isSubmitting}
+                              isValid={!!selectedFile}
+                              onSubmit={handleAttachSubmit}
+                            >
+                              <div className="space-y-4">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                  Select an image:
+                                </label>
+                                <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 bg-gray-50 dark:bg-slate-800">
+                                  {previewUrl ? (
+                                    <img
+                                      src={previewUrl}
+                                      alt="Preview"
+                                      className="max-h-48 object-contain mb-2 rounded"
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center h-48 w-full">
+                                      <Upload className="w-20 h-20 text-gray-300 mb-2" />
+                                      <span className="text-gray-400">
+                                        No image selected
+                                      </span>
+                                    </div>
+                                  )}
+                                  <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="mt-2"
+                                    disabled={isSubmitting}
+                                  />
+                                </div>
+                              </div>
+                            </FormDialog>
                           </div>
                         </TableCell>
                         <TableCell className="font-medium">
