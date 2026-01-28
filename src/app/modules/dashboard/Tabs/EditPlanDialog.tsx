@@ -20,6 +20,40 @@ import Step3Beneficiary from "../../../modules/shared/angelica-life-plan/steps/S
 import Step4Submit from "../../../modules/shared/angelica-life-plan/steps/Step4Submit";
 import { useToast } from "../../../core/hooks/useToast";
 
+// Enhanced field classes for edit dialog - larger and more prominent
+const EDIT_DIALOG_FIELD_CLASSES = {
+  wrapper: "flex flex-col gap-3 w-full",
+  label: "text-sm font-semibold text-gray-700 dark:text-gray-300",
+  input:
+    "h-12 rounded-lg border-gray-200 dark:border-slate-700 dark:bg-slate-900/70 text-base w-full",
+  select:
+    "w-full h-12 rounded-lg border-gray-200 dark:border-slate-700 dark:bg-slate-900/70 text-base",
+  button: {
+    base: "rounded-lg text-sm font-semibold uppercase tracking-wide transition-all duration-200",
+    primary:
+      "h-12 px-8 !bg-blue-600 !text-white hover:!bg-blue-700 active:!bg-blue-800 disabled:!bg-gray-300 disabled:cursor-not-allowed",
+    secondary:
+      "h-12 px-8 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 active:bg-gray-100",
+    success:
+      "h-12 px-8 !bg-green-600 !text-white hover:!bg-green-700 active:!bg-green-800 disabled:!bg-gray-300 disabled:cursor-not-allowed",
+    danger:
+      "h-12 px-6 !bg-red-600 !text-white hover:!bg-red-700 active:!bg-red-800",
+    light:
+      "h-12 px-8 !bg-blue-100 !text-blue-600 hover:!bg-blue-200 active:!bg-blue-300 dark:!bg-blue-900/40 dark:!text-blue-300",
+  },
+};
+
+// Enhanced grid layouts for edit dialog - better spacing in modal context
+const EDIT_DIALOG_GRID_LAYOUTS = {
+  threeColumns:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6",
+  fourColumns:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6",
+  twoColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6",
+  spacing: "mb-6 md:mb-7 lg:mb-8",
+  section: "px-4 md:px-6 lg:px-8 py-5 md:py-6 lg:py-8",
+};
+
 interface EditPlanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -209,6 +243,8 @@ export function EditPlanDialog({
                             errors={errors}
                             onNext={() => {}} // No navigation in edit mode
                             showNavigation={false}
+                            customFieldClasses={EDIT_DIALOG_FIELD_CLASSES}
+                            customGridLayouts={EDIT_DIALOG_GRID_LAYOUTS}
                           />
                         )}
                         {step.number === 2 && (
@@ -219,6 +255,8 @@ export function EditPlanDialog({
                             onBack={() => {}} // No navigation in edit mode
                             onNext={() => {}} // No navigation in edit mode
                             showNavigation={false}
+                            customFieldClasses={EDIT_DIALOG_FIELD_CLASSES}
+                            customGridLayouts={EDIT_DIALOG_GRID_LAYOUTS}
                           />
                         )}
                         {step.number === 3 && (
@@ -228,6 +266,8 @@ export function EditPlanDialog({
                             onBack={() => {}} // No navigation in edit mode
                             onNext={() => {}} // No navigation in edit mode
                             showNavigation={false}
+                            customFieldClasses={EDIT_DIALOG_FIELD_CLASSES}
+                            customGridLayouts={EDIT_DIALOG_GRID_LAYOUTS}
                           />
                         )}
                         {step.number === 4 && (
@@ -239,6 +279,7 @@ export function EditPlanDialog({
                             onSubmit={handleSubmit(onSubmit)}
                             isLoading={isLoading}
                             showNavigation={false}
+                            customFieldClasses={EDIT_DIALOG_FIELD_CLASSES}
                           />
                         )}
                       </div>

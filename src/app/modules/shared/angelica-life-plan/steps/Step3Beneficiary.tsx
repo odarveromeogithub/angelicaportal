@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
 import { useFieldArray, useWatch } from "react-hook-form";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
@@ -27,6 +27,8 @@ interface Step3BeneficiaryProps {
   onBack: () => void;
   onNext: () => void;
   showNavigation?: boolean;
+  customFieldClasses?: typeof FIELD_CLASSES;
+  customGridLayouts?: typeof GRID_LAYOUTS;
 }
 
 export default function Step3Beneficiary({
@@ -35,7 +37,12 @@ export default function Step3Beneficiary({
   onBack,
   onNext,
   showNavigation = true,
+  customFieldClasses,
+  customGridLayouts,
 }: Step3BeneficiaryProps) {
+  // Use custom classes if provided, otherwise use defaults
+  const fieldClasses = customFieldClasses || FIELD_CLASSES;
+  const gridLayouts = customGridLayouts || GRID_LAYOUTS;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
@@ -43,6 +50,13 @@ export default function Step3Beneficiary({
     control,
     name: "beneficiaries",
   });
+
+  // Set initial editing index when beneficiaries are loaded
+  useEffect(() => {
+    if (fields.length > 0 && editingIndex === null) {
+      setEditingIndex(0);
+    }
+  }, [fields.length, editingIndex]);
 
   // Watch the beneficiaries form values
   const beneficiariesValues = useWatch({
@@ -61,6 +75,7 @@ export default function Step3Beneficiary({
       address: "",
       relationship: "",
     });
+    // Switch to the newly added beneficiary
     setEditingIndex(fields.length);
   };
 
@@ -68,12 +83,20 @@ export default function Step3Beneficiary({
     remove(index);
     setDeleteIndex(null);
     if (editingIndex === index) {
-      setEditingIndex(null);
+      // If we removed the currently editing beneficiary, switch to the first available one
+      const newFieldsLength = fields.length - 1;
+      if (newFieldsLength > 0) {
+        // Find the next available index
+        const newIndex = index === 0 ? 0 : Math.min(index, newFieldsLength - 1);
+        setEditingIndex(newIndex);
+      } else {
+        setEditingIndex(null);
+      }
+    } else if (editingIndex !== null && editingIndex > index) {
+      // If we removed a beneficiary before the currently editing one, adjust the index
+      setEditingIndex(editingIndex - 1);
     }
   };
-
-  const currentBeneficiary =
-    editingIndex !== null ? fields[editingIndex] : fields[0];
 
   // Check if all beneficiaries are filled and valid
   const beneficiaryErrors = errors.beneficiaries || [];
@@ -136,9 +159,9 @@ export default function Step3Beneficiary({
           </div>
         )}
 
-        {currentBeneficiary && (
+        {editingIndex !== null && (
           <div className="space-y-4 sm:space-y-6">
-            <div className={GRID_LAYOUTS.threeColumns}>
+            <div className={gridLayouts.threeColumns}>
               <FormField
                 label="First Name"
                 id="firstName"
@@ -146,12 +169,9 @@ export default function Step3Beneficiary({
                 type="text"
                 placeholder="First Name"
                 required
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.firstName`,
-                )}
-                error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.firstName?.message
-                }
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.firstName`}
+                error={errors.beneficiaries?.[editingIndex]?.firstName?.message}
               />
 
               <FormField
@@ -160,11 +180,10 @@ export default function Step3Beneficiary({
                 name="middleName"
                 type="text"
                 placeholder="Middle Name"
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.middleName`,
-                )}
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.middleName`}
                 error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.middleName?.message
+                  errors.beneficiaries?.[editingIndex]?.middleName?.message
                 }
               />
 
@@ -175,28 +194,23 @@ export default function Step3Beneficiary({
                 type="text"
                 placeholder="Last Name"
                 required
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.lastName`,
-                )}
-                error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.lastName?.message
-                }
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.lastName`}
+                error={errors.beneficiaries?.[editingIndex]?.lastName?.message}
               />
             </div>
 
-            <div className={GRID_LAYOUTS.threeColumns}>
+            <div className={gridLayouts.threeColumns}>
               <FormField
                 label="Name Extension"
                 id="nameExtension"
                 name="nameExtension"
                 type="text"
                 placeholder="ex. Jr, Sr, III..."
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.nameExtension`,
-                )}
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.nameExtension`}
                 error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.nameExtension
-                    ?.message
+                  errors.beneficiaries?.[editingIndex]?.nameExtension?.message
                 }
               />
 
@@ -207,27 +221,24 @@ export default function Step3Beneficiary({
                 type="number"
                 placeholder="ex. 24"
                 required
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.age`,
-                )}
-                error={errors.beneficiaries?.[editingIndex ?? 0]?.age?.message}
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.age`}
+                error={errors.beneficiaries?.[editingIndex]?.age?.message}
               />
 
               <FormSelect
                 label="Gender"
                 id="gender"
                 control={control}
-                name={`beneficiaries.${editingIndex ?? 0}.gender`}
+                name={`beneficiaries.${editingIndex}.gender`}
                 options={GENDER_OPTIONS}
                 placeholder="Select Gender"
                 required
-                error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.gender?.message
-                }
+                error={errors.beneficiaries?.[editingIndex]?.gender?.message}
               />
             </div>
 
-            <div className={GRID_LAYOUTS.twoColumns}>
+            <div className={gridLayouts.twoColumns}>
               <FormField
                 label="Address"
                 id="address"
@@ -235,12 +246,9 @@ export default function Step3Beneficiary({
                 type="text"
                 placeholder="Address"
                 required
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.address`,
-                )}
-                error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.address?.message
-                }
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.address`}
+                error={errors.beneficiaries?.[editingIndex]?.address?.message}
               />
 
               <FormField
@@ -250,12 +258,10 @@ export default function Step3Beneficiary({
                 type="text"
                 placeholder="Relationship"
                 required
-                registerProps={control.register(
-                  `beneficiaries.${editingIndex ?? 0}.relationship`,
-                )}
+                control={control}
+                controlName={`beneficiaries.${editingIndex}.relationship`}
                 error={
-                  errors.beneficiaries?.[editingIndex ?? 0]?.relationship
-                    ?.message
+                  errors.beneficiaries?.[editingIndex]?.relationship?.message
                 }
               />
             </div>
@@ -266,8 +272,8 @@ export default function Step3Beneficiary({
           onClick={handleAddBeneficiary}
           className={cn(
             "w-full mt-6 sm:mt-8 flex items-center justify-center gap-2",
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.light,
+            fieldClasses.button.base,
+            fieldClasses.button.light,
           )}
           aria-label="Add new beneficiary"
         >
@@ -282,8 +288,8 @@ export default function Step3Beneficiary({
             onClick={onBack}
             variant="outline"
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.secondary,
+              fieldClasses.button.base,
+              fieldClasses.button.secondary,
               "flex-1 sm:flex-none",
             )}
             aria-label="Go back to previous step"
@@ -294,8 +300,8 @@ export default function Step3Beneficiary({
             onClick={onNext}
             disabled={!isComplete}
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.primary,
+              fieldClasses.button.base,
+              fieldClasses.button.primary,
               "flex-1 sm:flex-none",
             )}
             aria-label="Proceed to final step"
@@ -320,7 +326,7 @@ export default function Step3Beneficiary({
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
             <AlertDialogCancel
-              className={cn(FIELD_CLASSES.button.secondary, "h-9 sm:h-10")}
+              className={cn(fieldClasses.button.secondary, "h-9 sm:h-10")}
             >
               Cancel
             </AlertDialogCancel>
@@ -328,7 +334,7 @@ export default function Step3Beneficiary({
               onClick={() =>
                 deleteIndex !== null && handleRemoveBeneficiary(deleteIndex)
               }
-              className={cn(FIELD_CLASSES.button.danger)}
+              className={cn(fieldClasses.button.danger)}
             >
               Delete
             </AlertDialogAction>

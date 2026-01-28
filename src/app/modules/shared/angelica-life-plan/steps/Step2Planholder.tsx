@@ -28,6 +28,8 @@ interface Step2PlanholderProps {
   onBack: () => void;
   onNext: () => void;
   showNavigation?: boolean;
+  customFieldClasses?: typeof FIELD_CLASSES;
+  customGridLayouts?: typeof GRID_LAYOUTS;
 }
 
 export default function Step2Planholder({
@@ -37,7 +39,12 @@ export default function Step2Planholder({
   onBack,
   onNext,
   showNavigation = true,
+  customFieldClasses,
+  customGridLayouts,
 }: Step2PlanholderProps) {
+  // Use custom classes if provided, otherwise use defaults
+  const fieldClasses = customFieldClasses || FIELD_CLASSES;
+  const gridLayouts = customGridLayouts || GRID_LAYOUTS;
   const datePickerModal = useModal();
 
   // Watch the planholder form values
@@ -72,7 +79,7 @@ export default function Step2Planholder({
           Planholder Details
         </h2>
 
-        <div className={cn(GRID_LAYOUTS.threeColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.threeColumns, gridLayouts.spacing)}>
           <FormField
             label="First Name"
             id="firstName"
@@ -104,7 +111,7 @@ export default function Step2Planholder({
           />
         </div>
 
-        <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.twoColumns, gridLayouts.spacing)}>
           <FormField
             label="Name Extension"
             id="nameExtension"
@@ -170,7 +177,7 @@ export default function Step2Planholder({
           </div>
         </div>
 
-        <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.twoColumns, gridLayouts.spacing)}>
           <FormSelect
             label="Gender"
             id="gender"
@@ -194,7 +201,7 @@ export default function Step2Planholder({
           />
         </div>
 
-        <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.twoColumns, gridLayouts.spacing)}>
           <FormField
             label="Email Address"
             id="email"
@@ -222,7 +229,7 @@ export default function Step2Planholder({
           />
         </div>
 
-        <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.twoColumns, gridLayouts.spacing)}>
           <FormField
             label="Lot/House Number"
             id="lotHouseNumber"
@@ -243,7 +250,7 @@ export default function Step2Planholder({
           />
         </div>
 
-        <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.twoColumns, gridLayouts.spacing)}>
           <FormField
             label="Barangay"
             id="barangay"
@@ -265,7 +272,7 @@ export default function Step2Planholder({
           />
         </div>
 
-        <div className={GRID_LAYOUTS.twoColumns}>
+        <div className={gridLayouts.twoColumns}>
           <FormField
             label="Province"
             id="province"
@@ -294,8 +301,8 @@ export default function Step2Planholder({
             onClick={onBack}
             variant="outline"
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.secondary,
+              fieldClasses.button.base,
+              fieldClasses.button.secondary,
               "flex-1 sm:flex-none",
             )}
             aria-label="Go back to previous step"
@@ -306,8 +313,8 @@ export default function Step2Planholder({
             onClick={onNext}
             disabled={!isComplete}
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.primary,
+              fieldClasses.button.base,
+              fieldClasses.button.primary,
               "flex-1 sm:flex-none",
             )}
             aria-label="Proceed to next step"

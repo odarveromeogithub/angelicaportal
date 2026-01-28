@@ -1,4 +1,5 @@
-import type { UseFormRegisterReturn } from "react-hook-form";
+import type { UseFormRegisterReturn, Control } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { Input } from "@/app/core/components/ui/input";
 import { Label } from "@/app/core/components/ui/label";
 import { FIELD_CLASSES } from "@/app/core/constants/angelica-life-plan";
@@ -20,6 +21,8 @@ interface FormFieldProps {
   autoFocus?: boolean;
   // React Hook Form props
   registerProps?: UseFormRegisterReturn;
+  control?: Control<any>;
+  controlName?: string;
 }
 
 export function FormField({
@@ -37,7 +40,56 @@ export function FormField({
   className,
   autoFocus = false,
   registerProps,
+  control,
+  controlName,
 }: FormFieldProps) {
+  // If using React Hook Form Controller, use Controller
+  if (control && controlName) {
+    return (
+      <div className={FIELD_CLASSES.wrapper}>
+        <Label
+          htmlFor={id}
+          className={cn(FIELD_CLASSES.label, error && "text-red-600")}
+        >
+          {label}
+          {required && <span className="text-red-600 ml-1">*</span>}
+        </Label>
+        <Controller
+          name={controlName}
+          control={control}
+          render={({ field }) => (
+            <Input
+              id={id}
+              type={type}
+              placeholder={placeholder}
+              disabled={disabled}
+              maxLength={maxLength}
+              autoFocus={autoFocus}
+              aria-invalid={!!error}
+              aria-describedby={error ? `${id}-error` : undefined}
+              className={cn(
+                FIELD_CLASSES.input,
+                error && "border-red-500 focus-visible:ring-red-500",
+                className,
+              )}
+              {...field}
+            />
+          )}
+        />
+        {error && (
+          <p
+            id={`${id}-error`}
+            className="text-xs text-red-600 mt-1"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Otherwise, use register props
   return (
     <div className={FIELD_CLASSES.wrapper}>
       <Label

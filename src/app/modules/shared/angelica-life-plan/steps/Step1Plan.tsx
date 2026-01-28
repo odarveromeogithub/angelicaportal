@@ -17,6 +17,8 @@ interface Step1PlanProps {
   errors: FieldErrors<IAngelicaLifePlanFormData>;
   onNext: () => void;
   showNavigation?: boolean;
+  customFieldClasses?: typeof FIELD_CLASSES;
+  customGridLayouts?: typeof GRID_LAYOUTS;
 }
 
 export default function Step1Plan({
@@ -24,7 +26,12 @@ export default function Step1Plan({
   errors,
   onNext,
   showNavigation = true,
+  customFieldClasses,
+  customGridLayouts,
 }: Step1PlanProps) {
+  // Use custom classes if provided, otherwise use defaults
+  const fieldClasses = customFieldClasses || FIELD_CLASSES;
+  const gridLayouts = customGridLayouts || GRID_LAYOUTS;
   // Watch the plan form values
   const planValues = useWatch({
     control,
@@ -56,7 +63,7 @@ export default function Step1Plan({
           Plan Data
         </h2>
 
-        <div className={cn(GRID_LAYOUTS.threeColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.threeColumns, gridLayouts.spacing)}>
           <FormField
             label="Sales Counselor Name"
             id="salesCounselorName"
@@ -89,7 +96,7 @@ export default function Step1Plan({
           />
         </div>
 
-        <div className={cn(GRID_LAYOUTS.fourColumns, GRID_LAYOUTS.spacing)}>
+        <div className={cn(gridLayouts.fourColumns, gridLayouts.spacing)}>
           <FormField
             label="Contact Price"
             id="contactPrice"
@@ -166,8 +173,8 @@ export default function Step1Plan({
           disabled={!isComplete}
           className={cn(
             "w-full",
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.primary,
+            fieldClasses.button.base,
+            fieldClasses.button.primary,
           )}
         >
           Next

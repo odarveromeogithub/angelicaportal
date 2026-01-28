@@ -23,6 +23,7 @@ interface Step4SubmitProps {
   onSubmit: () => void;
   isLoading?: boolean;
   showNavigation?: boolean;
+  customFieldClasses?: typeof FIELD_CLASSES;
 }
 
 export default function Step4Submit({
@@ -33,7 +34,10 @@ export default function Step4Submit({
   onSubmit,
   isLoading = false,
   showNavigation = true,
+  customFieldClasses,
 }: Step4SubmitProps) {
+  // Use custom classes if provided, otherwise use defaults
+  const fieldClasses = customFieldClasses || FIELD_CLASSES;
   const [idPreview, setIdPreview] = useState<string>("");
   const [hasSignature, setHasSignature] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -166,7 +170,7 @@ export default function Step4Submit({
               onClick={clearSignature}
               variant="outline"
               className={cn(
-                FIELD_CLASSES.button.secondary,
+                fieldClasses.button.secondary,
                 "flex-1 sm:flex-none",
               )}
               aria-label="Clear signature"
@@ -176,10 +180,7 @@ export default function Step4Submit({
             <Button
               type="button"
               onClick={confirmSignature}
-              className={cn(
-                FIELD_CLASSES.button.primary,
-                "flex-1 sm:flex-none",
-              )}
+              className={cn(fieldClasses.button.primary, "flex-1 sm:flex-none")}
               aria-label="Confirm signature"
             >
               {hasSignature ? "✓ Signature Confirmed" : "Confirm Signature"}
@@ -322,8 +323,8 @@ export default function Step4Submit({
             onClick={onBack}
             variant="outline"
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.secondary,
+              fieldClasses.button.base,
+              fieldClasses.button.secondary,
               "flex-1 sm:flex-none",
             )}
             aria-label="Go back to previous step"
@@ -334,8 +335,8 @@ export default function Step4Submit({
             onClick={onSubmit}
             disabled={!isComplete || isLoading}
             className={cn(
-              FIELD_CLASSES.button.base,
-              FIELD_CLASSES.button.success,
+              fieldClasses.button.base,
+              fieldClasses.button.success,
               "flex-1 sm:flex-none",
             )}
             aria-label="Submit form"
