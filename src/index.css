@@ -225,6 +225,13 @@ main {
   background-color: var(--card) !important;
   color: var(--card-foreground) !important;
 }
+
+/* Fix Select dropdown background */
+[data-slot="select-content"] {
+  background-color: var(--popover) !important;
+  color: var(--popover-foreground) !important;
+}
+
 /* Hide scrollbar utility */
 .scrollbar-hide {
   -ms-overflow-style: none;

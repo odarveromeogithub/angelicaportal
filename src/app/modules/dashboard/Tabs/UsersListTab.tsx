@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from "lucide-react";
+
+import { AddUserDialog } from "./AddUserDialog";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -28,6 +30,7 @@ import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 export function UsersListTab() {
   const { data: users = [], isLoading: loading } =
     dashboardApi.useGetUsersQuery();
+  const [addUserOpen, setAddUserOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
@@ -60,7 +63,11 @@ export function UsersListTab() {
                 <Users className="w-4 h-4" />
                 Batch Create
               </Button>
-              <Button className="gap-2 shadow-sm">
+              <Button
+                className="gap-2 shadow-sm"
+                onClick={() => setAddUserOpen(true)}
+                type="button"
+              >
                 <UserPlus className="w-4 h-4" />
                 Add New User
               </Button>
@@ -193,6 +200,7 @@ export function UsersListTab() {
           )}
         </div>
       </motion.div>
+      <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
     </TooltipProvider>
   );
 }

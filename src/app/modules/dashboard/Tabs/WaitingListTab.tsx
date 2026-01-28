@@ -24,6 +24,7 @@ import {
 } from "../../../core/components/ui/tooltip";
 import { Button } from "../../../core/components/ui/button";
 import { useToast } from "../../../core/hooks/useToast";
+import { useDebounce } from "../../../core/hooks/useDebounce";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 
 export function WaitingListTab() {
@@ -34,6 +35,7 @@ export function WaitingListTab() {
     isError,
   } = dashboardApi.useGetWaitingListQuery();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Show error toast when data fetch fails
   useEffect(() => {
@@ -48,11 +50,13 @@ export function WaitingListTab() {
   const filteredItems = useMemo(() => {
     return waitingList.filter(
       (item: any) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.policyNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.lpafNo.toLowerCase().includes(searchQuery.toLowerCase()),
+        item.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        item.policyNo
+          .toLowerCase()
+          .includes(debouncedSearchQuery.toLowerCase()) ||
+        item.lpafNo.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
     );
-  }, [waitingList, searchQuery]);
+  }, [waitingList, debouncedSearchQuery]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);

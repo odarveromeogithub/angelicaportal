@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import {
   loadFaceApiModels,
   validateFaceInImage,
+  isFaceInCenter,
 } from "@/app/core/lib/faceValidation";
-import { useFaceDetection } from "@/app/core/hooks/useFaceDetection";
+import * as faceapi from "face-api.js";
 
 interface FacialVerificationCameraProps {
   onCapture: (imageData: string) => void;
@@ -20,8 +21,18 @@ export const FacialVerificationCamera: React.FC<
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  // Face detection state and refs
+  const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const steadyCounterRef = useRef(0);
+  const autoCaptureTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasTriggeredCaptureRef = useRef(false);
+  const isCountdownActiveRef = useRef(false);
+
   const [isLoading, setIsLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [isFaceCentered, setIsFaceCentered] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState<number | null>(null);
 
   const captureSelfie = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -40,15 +51,143 @@ export const FacialVerificationCamera: React.FC<
     onClose();
   }, [onCapture, onClose]);
 
-  const {
-    isFaceCentered,
-    isCapturing,
-    countdownSeconds,
-    startDetection,
-    stopDetection,
-  } = useFaceDetection(videoRef, canvasRef, {
-    onAutoCapture: captureSelfie,
-  });
+  const startAutoCaptureCountdown = useCallback(() => {
+    if (hasTriggeredCaptureRef.current || isCountdownActiveRef.current) return;
+
+    isCountdownActiveRef.current = true;
+    let timeLeft = 3;
+    setCountdownSeconds(timeLeft);
+    setIsCapturing(true);
+
+    const countdown = setInterval(() => {
+      timeLeft -= 1;
+      setCountdownSeconds(timeLeft);
+
+      if (timeLeft === 0) {
+        clearInterval(countdown);
+        hasTriggeredCaptureRef.current = true;
+
+        // Stop detection immediately after capture
+        if (detectionIntervalRef.current) {
+          clearInterval(detectionIntervalRef.current);
+          detectionIntervalRef.current = null;
+        }
+
+        captureSelfie();
+        steadyCounterRef.current = 0;
+      }
+    }, 1000);
+
+    autoCaptureTimerRef.current = countdown as unknown as NodeJS.Timeout;
+  }, [captureSelfie]);
+
+  const detectFace = useCallback(async () => {
+    if (
+      !videoRef.current ||
+      !canvasRef.current ||
+      hasTriggeredCaptureRef.current
+    )
+      return;
+
+    try {
+      const detections = await faceapi
+        .detectSingleFace(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions({
+            inputSize: 416,
+            scoreThreshold: 0.4,
+          }),
+        )
+        .withFaceLandmarks();
+
+      const canvas = canvasRef.current;
+      const displaySize = {
+        width: videoRef.current.videoWidth || videoRef.current.width,
+        height: videoRef.current.videoHeight || videoRef.current.height,
+      };
+
+      if (!canvas.width) canvas.width = displaySize.width;
+      if (!canvas.height) canvas.height = displaySize.height;
+
+      faceapi.matchDimensions(canvas, displaySize);
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (resizedDetections) {
+        const box = resizedDetections.detection.box;
+        const isInCenter = isFaceInCenter(box, displaySize);
+        setIsFaceCentered(isInCenter);
+
+        if (isInCenter) {
+          steadyCounterRef.current += 1;
+        } else {
+          // Face moved out of center - reset countdown if active
+          if (isCountdownActiveRef.current) {
+            // Cancel countdown if face moves away
+            if (autoCaptureTimerRef.current) {
+              clearInterval(autoCaptureTimerRef.current);
+              autoCaptureTimerRef.current = null;
+              isCountdownActiveRef.current = false;
+              setCountdownSeconds(null);
+              setIsCapturing(false);
+            }
+          }
+          // Reset counter for next detection
+          steadyCounterRef.current = 0;
+        }
+
+        if (
+          steadyCounterRef.current >= 7 && // steadyThreshold
+          !autoCaptureTimerRef.current &&
+          !hasTriggeredCaptureRef.current
+        ) {
+          startAutoCaptureCountdown();
+        }
+      } else {
+        // No face detected - reset everything
+        setIsFaceCentered(false);
+
+        if (isCountdownActiveRef.current) {
+          if (autoCaptureTimerRef.current) {
+            clearInterval(autoCaptureTimerRef.current);
+            autoCaptureTimerRef.current = null;
+            isCountdownActiveRef.current = false;
+            setCountdownSeconds(null);
+            setIsCapturing(false);
+          }
+        }
+
+        steadyCounterRef.current = 0;
+      }
+    } catch (err) {
+      // Silent catch - detection can fail occasionally
+    }
+  }, [startAutoCaptureCountdown]);
+
+  const startDetection = useCallback(() => {
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+    }
+    detectionIntervalRef.current = setInterval(detectFace, 150); // detectionInterval
+  }, [detectFace]);
+
+  const stopDetection = useCallback(() => {
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+      detectionIntervalRef.current = null;
+    }
+    if (autoCaptureTimerRef.current) {
+      clearTimeout(autoCaptureTimerRef.current);
+      autoCaptureTimerRef.current = null;
+    }
+    steadyCounterRef.current = 0;
+    setCountdownSeconds(null);
+    setIsCapturing(false);
+  }, []);
 
   // Load face-api models
   useEffect(() => {
@@ -64,6 +203,13 @@ export const FacialVerificationCamera: React.FC<
 
     loadModels();
   }, []);
+
+  // Cleanup face detection on unmount
+  useEffect(() => {
+    return () => {
+      stopDetection();
+    };
+  }, [stopDetection]);
 
   // Start camera and face detection
   useEffect(() => {

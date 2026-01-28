@@ -1,12 +1,11 @@
-import { useRef, useState, useEffect, useCallback } from "react";
-import SignaturePad from "signature_pad";
+import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/app/core/components/ui/button";
 import { Label } from "@/app/core/components/ui/label";
 import { Checkbox } from "@/app/core/components/ui/checkbox";
 import { UploadCloud, X, CheckCircle2 } from "lucide-react";
+import { useSignaturePad } from "@/app/core/hooks/useSignaturePad";
 import {
-  SIGNATURE_CONFIG,
   MAX_FILE_SIZE_BYTES,
   ACCEPTED_FILE_TYPES,
   FIELD_CLASSES,
@@ -28,13 +27,11 @@ export default function Step4Submit({
   onSubmit,
   isLoading = false,
 }: Step4SubmitProps) {
-  const [signature, setSignature] = useState<string>("");
   const [idFile, setIdFile] = useState<File | null>(null);
   const [idPreview, setIdPreview] = useState<string>("");
   const [agreeToConsent, setAgreeToConsent] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const signaturePadRef = useRef<SignaturePad | null>(null);
-  const [signatureConfirmed, setSignatureConfirmed] = useState(false);
+
+  const signaturePad = useSignaturePad();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -60,70 +57,21 @@ export default function Step4Submit({
     maxSize: MAX_FILE_SIZE_BYTES,
   });
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      // Set canvas size to match displayed size
-      const resizeCanvas = () => {
-        if (!canvasRef.current) return;
-        const rect = canvasRef.current.getBoundingClientRect();
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-        canvasRef.current.width = rect.width * ratio;
-        canvasRef.current.height = 200 * ratio;
-        canvasRef.current.style.width = `${rect.width}px`;
-        canvasRef.current.style.height = "200px";
-
-        const ctx = canvasRef.current.getContext("2d");
-        if (ctx) {
-          ctx.scale(ratio, ratio);
-        }
-
-        // Reinitialize signature pad after resize
-        if (signaturePadRef.current) {
-          const data = signaturePadRef.current.toData();
-          signaturePadRef.current.clear();
-          signaturePadRef.current.fromData(data);
-        }
-      };
-
-      resizeCanvas();
-
-      signaturePadRef.current = new SignaturePad(canvasRef.current, {
-        penColor: SIGNATURE_CONFIG.penColor,
-        backgroundColor: SIGNATURE_CONFIG.backgroundColor,
-        minWidth: SIGNATURE_CONFIG.minWidth,
-        maxWidth: SIGNATURE_CONFIG.maxWidth,
-        throttle: SIGNATURE_CONFIG.throttle,
-      });
-
-      window.addEventListener("resize", resizeCanvas);
-      return () => window.removeEventListener("resize", resizeCanvas);
-    }
-  }, []);
-
   const clearSignature = () => {
-    if (signaturePadRef.current) {
-      signaturePadRef.current.clear();
-      signaturePadRef.current.on(); // Enable drawing
-      setSignature("");
-      setSignatureConfirmed(false);
-    }
+    signaturePad.clear();
   };
 
   const confirmSignature = () => {
-    if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
-      const dataURL = signaturePadRef.current.toDataURL("image/png");
-      setSignature(dataURL);
-      setSignatureConfirmed(true);
-      signaturePadRef.current.off(); // Disable drawing
-    }
+    signaturePad.saveSignature(() => {
+      // Signature confirmed callback if needed
+    });
   };
 
-  const isComplete = signatureConfirmed && idFile && agreeToConsent;
+  const isComplete = signaturePad.signatureImage && idFile && agreeToConsent;
   const handleSubmit = () => {
     if (isComplete) {
       onSubmit({
-        planholder_signature: signature,
+        planholder_signature: signaturePad.signatureImage || "",
         id_upload: idFile,
         agree_to_consent: agreeToConsent,
       });
@@ -140,16 +88,16 @@ export default function Step4Submit({
           <div
             className={cn(
               "border-2 rounded-lg bg-white dark:bg-slate-900 overflow-hidden",
-              signatureConfirmed
+              signaturePad.signatureImage
                 ? "border-emerald-500"
                 : "border-slate-200 dark:border-slate-800",
             )}
           >
             <canvas
-              ref={canvasRef}
+              ref={signaturePad.canvasRef}
               className={cn(
                 "w-full block bg-white dark:bg-slate-900",
-                signatureConfirmed
+                signaturePad.signatureImage
                   ? "cursor-not-allowed opacity-90 pointer-events-none"
                   : "cursor-crosshair touch-none",
               )}
@@ -178,7 +126,7 @@ export default function Step4Submit({
               )}
               aria-label="Confirm signature"
             >
-              {signatureConfirmed
+              {signaturePad.signatureImage
                 ? "✓ Signature Confirmed"
                 : "Confirm Signature"}
             </Button>

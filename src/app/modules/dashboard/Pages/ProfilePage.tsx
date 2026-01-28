@@ -16,7 +16,6 @@ import {
   selectIsFullyVerified,
   selectMissingVerificationItems,
 } from "../../../core/state/selector/auth.selector";
-import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
 import { ErrorBoundary } from "../../../core/components/error";
 import { ProfileSkeleton } from "../../../core/components/ui/skeleton";
 import {
@@ -33,11 +32,12 @@ import {
   getIdPhotos,
   setIdPhotos as saveIdPhotosToStorage,
 } from "../../../core/helpers/auth-storage";
-import SignaturePad from "signature_pad";
 import { toast } from "sonner";
-import { SIGNATURE_CONFIG } from "../../../core/constants/angelica-life-plan";
 import { validateFaceInImage } from "../../../core/lib/faceValidation";
 import { FacialVerificationCamera } from "../../../core/components/verification/FacialVerificationCamera";
+import { usePermissions } from "../../../core/hooks/usePermissions";
+import { useSignaturePad } from "../../../core/hooks/useSignaturePad";
+import { useFileUpload } from "../../../core/hooks/useFileUpload";
 
 export default function ProfilePage() {
   const currentUser = useAppSelector(selectAuthUser);
@@ -49,12 +49,11 @@ export default function ProfilePage() {
   // Verification state
   const [facialPhoto, setFacialPhoto] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [signatureImage, setSignatureImage] = useState<string | null>(null);
-  const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [idImages, setIdImages] = useState<string[]>([]);
 
-  const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
-  const signaturePadRef = useRef<SignaturePad | null>(null);
+  const signaturePad = useSignaturePad();
+  const fileUpload = useFileUpload();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const signatureFileInputRef = useRef<HTMLInputElement>(null);
   const idFileInputRef = useRef<HTMLInputElement>(null);
@@ -65,22 +64,20 @@ export default function ProfilePage() {
     signatures: "Provide 3 specimen signatures",
   };
 
-  // Get user role from Redux auth state (not from pathname)
-  const authenticatedUserRole = currentUser?.role || "client";
-  const userRole = getDashboardRoleFromUser(
-    authenticatedUserRole as "admin" | "client" | "sc" | "um",
-  );
+  // Permissions and user data
+  const permissions = usePermissions();
+  const {
+    user: userFromPermissions,
+    dashboardRole: userRole,
+    isNonClientRole,
+    referralCode,
+    referralUrl,
+  } = permissions;
 
-  // Get user data from current user
-  const email = currentUser?.email || "user@example.com";
-  const fullName = currentUser?.name || "User";
-  const phoneNumber = currentUser?.contact_number || "+63 912 345 6789";
-  const isNonClientRole = userRole !== "client";
-  const referralCode =
-    currentUser?.referral_code || currentUser?.referral_link_code || "";
-  const referralUrl = referralCode
-    ? `https://sc.cclpi.com.ph/#/referral/${referralCode}`
-    : "";
+  // Get user data from permissions
+  const email = userFromPermissions?.email || "user@example.com";
+  const fullName = userFromPermissions?.name || "User";
+  const phoneNumber = userFromPermissions?.contact_number || "+63 912 345 6789";
 
   // Clear verification state on mount if there's no actual photo data
   useEffect(() => {
@@ -96,7 +93,7 @@ export default function ProfilePage() {
     }
 
     if (savedSignaturePhoto) {
-      setSignatureImage(savedSignaturePhoto);
+      signaturePad.setSignatureImage(savedSignaturePhoto);
     } else if (getVerificationSignatures()) {
       setVerificationSignatures(false);
     }
@@ -121,7 +118,7 @@ export default function ProfilePage() {
       // All verifications complete - status should be pending
       console.log("✓ All verifications complete - Status should be: PENDING");
     }
-  }, [facialPhoto, signatureImage, idImages]); // Trigger on photo changes
+  }, [facialPhoto, signaturePad.signatureImage, idImages]); // Trigger on photo changes
 
   const handleCopyReferralLink = async () => {
     if (!referralUrl) return;
@@ -155,177 +152,76 @@ export default function ProfilePage() {
 
       e.target.value = "";
 
-      toast.loading("Validating face in photo...", { id: "upload-facial" });
-
       try {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageData = event.target?.result as string;
-
-          const result = await validateFaceInImage(imageData);
-
-          if (!result.valid) {
-            toast.error(result.error || "Validation failed", {
-              id: "upload-facial",
-            });
-            return;
+        const result = await fileUpload.uploadFile(file);
+        if (result) {
+          const validationResult = await validateFaceInImage(result);
+          if (!validationResult.valid) {
+            throw new Error(validationResult.error || "Validation failed");
           }
 
-          setFacialPhoto(imageData);
-          saveFacialPhotoToStorage(imageData);
+          setFacialPhoto(result);
+          saveFacialPhotoToStorage(result);
           setVerificationFacial(true);
-          toast.success("✓ Facial verification completed!", {
-            id: "upload-facial",
-          });
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        console.error("Upload error:", err);
-        toast.error("❌ Failed to upload photo", { id: "upload-facial" });
+          toast.success("✓ Facial verification completed!");
+        }
+      } catch (error) {
+        toast.error(
+          `❌ ${error instanceof Error ? error.message : "Failed to upload photo"}`,
+        );
       }
     },
-    [],
+    [fileUpload],
   );
 
   // Signature Handlers
   const initSignaturePad = useCallback(() => {
-    setShowSignaturePad(true);
-  }, []);
-
-  // Initialize signature pad when canvas becomes available
-  useEffect(() => {
-    if (
-      !showSignaturePad ||
-      !signatureCanvasRef.current ||
-      signaturePadRef.current
-    )
-      return;
-
-    const rect = signatureCanvasRef.current.getBoundingClientRect();
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-    signatureCanvasRef.current.width = rect.width * ratio;
-    signatureCanvasRef.current.height = 200 * ratio;
-    signatureCanvasRef.current.style.width = `${rect.width}px`;
-    signatureCanvasRef.current.style.height = "200px";
-
-    const ctx = signatureCanvasRef.current.getContext("2d");
-    if (ctx) {
-      ctx.scale(ratio, ratio);
-    }
-
-    signaturePadRef.current = new SignaturePad(signatureCanvasRef.current, {
-      penColor: SIGNATURE_CONFIG.penColor,
-      backgroundColor: SIGNATURE_CONFIG.backgroundColor,
-      minWidth: SIGNATURE_CONFIG.minWidth,
-      maxWidth: SIGNATURE_CONFIG.maxWidth,
-      throttle: SIGNATURE_CONFIG.throttle,
-    });
-  }, [showSignaturePad]);
-
-  // Handle signature pad resize
-  useEffect(() => {
-    if (
-      !showSignaturePad ||
-      !signatureCanvasRef.current ||
-      !signaturePadRef.current
-    )
-      return;
-
-    const resizeCanvas = () => {
-      if (!signatureCanvasRef.current || !signaturePadRef.current) return;
-      const rect = signatureCanvasRef.current.getBoundingClientRect();
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-      signatureCanvasRef.current.width = rect.width * ratio;
-      signatureCanvasRef.current.height = 200 * ratio;
-      signatureCanvasRef.current.style.width = `${rect.width}px`;
-      signatureCanvasRef.current.style.height = "200px";
-
-      const ctx = signatureCanvasRef.current.getContext("2d");
-      if (ctx) {
-        ctx.scale(ratio, ratio);
-      }
-
-      const data = signaturePadRef.current.toData();
-      signaturePadRef.current.clear();
-      signaturePadRef.current.fromData(data);
-    };
-
-    window.addEventListener("resize", resizeCanvas);
-    return () => window.removeEventListener("resize", resizeCanvas);
-  }, [showSignaturePad]);
+    signaturePad.openModal();
+  }, [signaturePad]);
 
   const clearSignaturePad = useCallback(() => {
-    signaturePadRef.current?.clear();
-  }, []);
+    signaturePad.clear();
+  }, [signaturePad]);
 
   const saveSignature = useCallback(() => {
-    if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
-      const imageData = signaturePadRef.current.toDataURL("image/png");
-      setSignatureImage(imageData);
-      saveSignaturePhotoToStorage(imageData);
+    signaturePad.saveSignature(() => {
       setVerificationSignatures(true);
       toast.success("Signature saved!");
-      setShowSignaturePad(false);
-    } else {
-      toast.error("Please provide a signature first");
-    }
-  }, []);
+    });
+  }, [signaturePad]);
 
   const handleUploadSignature = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const imageData = reader.result as string;
-          setSignatureImage(imageData);
-          saveSignaturePhotoToStorage(imageData);
-          setVerificationSignatures(true);
-          toast.success("Signature uploaded!");
-        };
-        reader.readAsDataURL(file);
-      }
+      signaturePad.uploadSignature(e.target.files?.[0] || null, () => {
+        setVerificationSignatures(true);
+        toast.success("Signature uploaded!");
+      });
     },
-    [],
+    [signaturePad],
   );
 
   // ID Upload Handlers
   const handleUploadID = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-      const file = files[0]; // Get the first (and only) file
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        try {
-          const imageData = reader.result as string;
-          if (imageData) {
-            const imageArray = [imageData];
-            setIdImages(imageArray);
-            saveIdPhotosToStorage(imageArray);
-            setVerificationID(true);
-            toast.success("ID with 3 specimen signatures uploaded!");
-            // Reset the input value after successful read
-            e.target.value = "";
-          }
-        } catch (error) {
-          console.error("Error reading file:", error);
-          toast.error("Failed to upload image. Please try again.");
+      try {
+        const result = await fileUpload.uploadFile(file);
+        if (result) {
+          const imageArray = [result];
+          setIdImages(imageArray);
+          saveIdPhotosToStorage(imageArray);
+          setVerificationID(true);
+          toast.success("ID with 3 specimen signatures uploaded!");
         }
-      };
-
-      reader.onerror = () => {
-        console.error("FileReader error:", reader.error);
-        toast.error("Failed to read the file. Please try again.");
-      };
-
-      reader.readAsDataURL(file);
+      } catch (error) {
+        toast.error(
+          `Failed to upload image: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
     },
-    [],
+    [fileUpload],
   );
 
   const handleDownloadQR = async () => {
@@ -645,14 +541,13 @@ export default function ProfilePage() {
                           <Check className="w-5 h-5 text-green-600" />
                         )}
                       </CardTitle>
-                      {signatureImage && (
+                      {signaturePad.signatureImage && (
                         <Button
                           size="sm"
                           onClick={() => {
-                            setSignatureImage(null);
+                            signaturePad.setSignatureImage(null);
                             saveSignaturePhotoToStorage(null);
                             setVerificationSignatures(false);
-                            signaturePadRef.current = null;
                           }}
                         >
                           <Edit className="w-4 h-4 mr-2" />
@@ -661,11 +556,11 @@ export default function ProfilePage() {
                       )}
                     </CardHeader>
                     <CardContent>
-                      {signatureImage ? (
+                      {signaturePad.signatureImage ? (
                         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                           <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-6 md:p-8 h-40 md:h-48 flex items-center justify-center bg-white dark:bg-slate-950">
                             <img
-                              src={signatureImage}
+                              src={signaturePad.signatureImage}
                               alt="Signature"
                               className="max-h-full"
                             />
@@ -682,11 +577,11 @@ export default function ProfilePage() {
                             </ul>
                           </div>
                         </div>
-                      ) : showSignaturePad ? (
+                      ) : signaturePad.isModalOpen ? (
                         <div className="space-y-4">
                           <div className="border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
                             <canvas
-                              ref={signatureCanvasRef}
+                              ref={signaturePad.canvasRef}
                               className="w-full"
                               style={{ display: "block" }}
                             />
@@ -708,10 +603,7 @@ export default function ProfilePage() {
                             </Button>
                             <Button
                               variant="outline"
-                              onClick={() => {
-                                setShowSignaturePad(false);
-                                signaturePadRef.current = null;
-                              }}
+                              onClick={signaturePad.closeModal}
                               className="w-full sm:w-auto"
                             >
                               Cancel

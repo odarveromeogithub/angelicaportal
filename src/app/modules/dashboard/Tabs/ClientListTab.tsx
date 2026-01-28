@@ -8,7 +8,7 @@ import {
   ChevronUp,
   MoreVertical,
 } from "lucide-react";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -23,47 +23,41 @@ import {
   DropdownMenuTrigger,
 } from "../../../core/components/ui/dropdown-menu";
 import { Button } from "../../../core/components/ui/button";
-import { useToast } from "../../../core/hooks/useToast";
+import { useTableData } from "../../../core/hooks/useTableData";
 import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
 
 export function ClientListTab() {
-  const toast = useToast();
-  const {
-    data: clients = [],
-    isLoading,
-    isError,
-  } = dashboardApi.useGetClientsQuery();
+  const { data: clients = [], isLoading } = dashboardApi.useGetClientsQuery();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
 
-  useEffect(() => {
-    if (isError) {
-      toast.error(
-        "Failed to load clients",
-        "Unable to fetch client list. Please try again later.",
-      );
-    }
-  }, [isError, toast]);
+  const {
+    data: filteredItems,
+    filteredCount,
+    searchQuery,
+    handleSearch,
+    filters,
+    setFilter,
+  } = useTableData(clients, {
+    searchFields: ["name"],
+    customFilter: (client, filters) => {
+      const statusFilter = filters.status || "all";
+      return statusFilter === "all" || client.accountStatus === statusFilter;
+    },
+  });
 
-  const filteredItems = useMemo(() => {
-    return clients.filter((client: any) => {
-      const matchesSearch = client.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || client.accountStatus === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [clients, searchQuery, statusFilter]);
+  const handleStatusFilterChange = useCallback(
+    (value: string) => {
+      setFilter("status", value);
+    },
+    [setFilter],
+  );
 
-  const handleStatusFilterChange = useCallback((value: string) => {
-    setStatusFilter(value);
-  }, []);
-
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchQuery(value);
-  }, []);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleSearch(value);
+    },
+    [handleSearch],
+  );
 
   const handleToggleExpand = useCallback(
     (id: string) => {
@@ -77,7 +71,7 @@ export function ClientListTab() {
       <TabsHeader
         title="List of Client Plans"
         description="View and manage all client plans"
-        count={filteredItems.length}
+        count={filteredCount}
         countLabel="Clients"
       />
 
@@ -85,7 +79,7 @@ export function ClientListTab() {
         searchValue={searchQuery}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or LPAF number..."
-        filterValue={statusFilter}
+        filterValue={filters.status || "all"}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
         filterOptions={[

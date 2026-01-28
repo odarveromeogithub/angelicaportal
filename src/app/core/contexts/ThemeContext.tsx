@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 type Theme = "light" | "dark" | "system";
 
@@ -16,7 +17,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const PUBLIC_ROUTES_NO_THEME = ["/login", "/register", "/otp", "/angelica"];
 
 function ThemeProviderContent({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
+  const [theme, setThemePreference] = useLocalStorage<Theme>(
+    "theme-preference",
+    "system",
+  );
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
   const location = useLocation();
@@ -29,17 +33,14 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
   // Initialize theme from localStorage and system preference
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("theme-preference") as Theme | null;
-    const initialTheme = stored || "system";
-    setThemeState(initialTheme);
 
     // Apply theme if on authenticated routes
     if (shouldApplyTheme) {
-      applyTheme(initialTheme);
+      applyTheme(theme);
     } else {
       removeTheme();
     }
-  }, [shouldApplyTheme]);
+  }, [shouldApplyTheme, theme]);
 
   // Watch for system theme changes
   useEffect(() => {
@@ -86,8 +87,7 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
   };
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme-preference", newTheme);
+    setThemePreference(newTheme);
     if (shouldApplyTheme) {
       applyTheme(newTheme);
     }

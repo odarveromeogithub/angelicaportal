@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { IPlanholderFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
@@ -11,6 +10,7 @@ import {
 } from "@/app/core/components/ui/popover";
 import { format } from "date-fns";
 import { ChevronDownIcon } from "lucide-react";
+import { useModal } from "@/app/core/hooks";
 import {
   GENDER_OPTIONS,
   CIVIL_STATUS_OPTIONS,
@@ -33,7 +33,7 @@ export default function Step2Planholder({
   onBack,
   onNext,
 }: Step2PlanholderProps) {
-  const [openDatePicker, setOpenDatePicker] = useState(false);
+  const datePickerModal = useModal();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -53,7 +53,7 @@ export default function Step2Planholder({
         dateOfBirth: formattedDate,
       });
     }
-    setOpenDatePicker(false);
+    datePickerModal.close();
   };
 
   const isComplete =
@@ -126,7 +126,10 @@ export default function Step2Planholder({
             >
               Date of Birth
             </Label>
-            <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
+            <Popover
+              open={datePickerModal.isOpen}
+              onOpenChange={datePickerModal.setIsOpen}
+            >
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
