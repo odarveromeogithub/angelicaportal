@@ -1,8 +1,8 @@
-import type { Control, FieldErrors } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import type { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
-import { FormField, FormSelect } from "@/app/core/components/form";
+import { FormField, FormSelect, PhoneInput } from "@/app/core/components/form";
 import { Label } from "@/app/core/components/ui/label";
 import { Calendar } from "@/app/core/components/ui/calendar";
 import {
@@ -16,7 +16,6 @@ import { useModal } from "@/app/core/hooks";
 import {
   GENDER_OPTIONS,
   CIVIL_STATUS_OPTIONS,
-  PHONE_CONFIG,
   GRID_LAYOUTS,
   FIELD_CLASSES,
 } from "@/app/core/constants/angelica-life-plan";
@@ -25,32 +24,46 @@ import { cn } from "@/app/core/lib/utils";
 interface Step2PlanholderProps {
   control: Control<IAngelicaLifePlanFormData>;
   errors: FieldErrors<IAngelicaLifePlanFormData>;
+  setValue: UseFormSetValue<IAngelicaLifePlanFormData>;
   onBack: () => void;
   onNext: () => void;
+  showNavigation?: boolean;
 }
 
 export default function Step2Planholder({
   control,
   errors,
+  setValue,
   onBack,
   onNext,
+  showNavigation = true,
 }: Step2PlanholderProps) {
   const datePickerModal = useModal();
 
-  // Check if all required planholder fields are filled
+  // Watch the planholder form values
+  const planholderValues = useWatch({
+    control,
+    name: "planholder",
+  });
+
+  // Check if all required planholder fields are filled and valid
+  const planholderErrors = errors.planholder || {};
+  const hasPlanholderErrors = Object.keys(planholderErrors).length > 0;
   const isComplete =
-    control._formValues.planholder?.firstName &&
-    control._formValues.planholder?.lastName &&
-    control._formValues.planholder?.dateOfBirth &&
-    control._formValues.planholder?.gender &&
-    control._formValues.planholder?.civilStatus &&
-    control._formValues.planholder?.email &&
-    control._formValues.planholder?.contactNumber &&
-    control._formValues.planholder?.street &&
-    control._formValues.planholder?.barangay &&
-    control._formValues.planholder?.cityMunicipal &&
-    control._formValues.planholder?.province &&
-    control._formValues.planholder?.zipCode;
+    planholderValues?.firstName &&
+    planholderValues?.lastName &&
+    planholderValues?.dateOfBirth &&
+    planholderValues?.gender &&
+    planholderValues?.civilStatus &&
+    planholderValues?.email &&
+    planholderValues?.contactNumber &&
+    planholderValues?.contactNumberCountryCode &&
+    planholderValues?.street &&
+    planholderValues?.barangay &&
+    planholderValues?.cityMunicipal &&
+    planholderValues?.province &&
+    planholderValues?.zipCode &&
+    !hasPlanholderErrors;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -193,44 +206,20 @@ export default function Step2Planholder({
             error={errors.planholder?.email?.message}
           />
 
-          <div className={FIELD_CLASSES.wrapper}>
-            <Label htmlFor="contactNumber" className={cn(FIELD_CLASSES.label)}>
-              Contact Number
-              <span className="text-red-600 ml-1">*</span>
-            </Label>
-            <Controller
-              name="planholder.contactNumber"
-              control={control}
-              render={({ field }) => (
-                <div className="flex items-center h-9 sm:h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3">
-                  <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mr-2">
-                    {PHONE_CONFIG.countryCode}
-                  </span>
-                  <input
-                    id="contactNumber"
-                    name="contactNumber"
-                    type="text"
-                    value={field.value || ""}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, PHONE_CONFIG.maxLength);
-                      field.onChange(value);
-                    }}
-                    placeholder={PHONE_CONFIG.placeholder}
-                    maxLength={PHONE_CONFIG.maxLength}
-                    className="flex-1 outline-none text-sm"
-                    aria-label="Phone number without country code"
-                  />
-                </div>
-              )}
-            />
-            {errors.planholder?.contactNumber && (
-              <p className="text-xs text-red-600 mt-1">
-                {errors.planholder.contactNumber.message}
-              </p>
-            )}
-          </div>
+          <PhoneInput
+            label="Contact Number"
+            id="contactNumber"
+            name="planholder.contactNumber"
+            control={control}
+            required
+            countryCode={
+              control._formValues.planholder?.contactNumberCountryCode || "+63"
+            }
+            onCountryCodeChange={(value) => {
+              setValue("planholder.contactNumberCountryCode", value);
+            }}
+            error={errors.planholder?.contactNumber?.message}
+          />
         </div>
 
         <div className={cn(GRID_LAYOUTS.twoColumns, GRID_LAYOUTS.spacing)}>
@@ -299,32 +288,34 @@ export default function Step2Planholder({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <Button
-          onClick={onBack}
-          variant="outline"
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.secondary,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Go back to previous step"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={onNext}
-          disabled={!isComplete}
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.primary,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Proceed to next step"
-        >
-          Next
-        </Button>
-      </div>
+      {showNavigation && (
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.secondary,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Go back to previous step"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={onNext}
+            disabled={!isComplete}
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.primary,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Proceed to next step"
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

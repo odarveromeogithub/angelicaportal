@@ -1,13 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
+import SignaturePad from "signature_pad";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { Label } from "@/app/core/components/ui/label";
 import { Checkbox } from "@/app/core/components/ui/checkbox";
 import { UploadCloud, X, CheckCircle2 } from "lucide-react";
-import { useSignaturePad } from "@/app/core/hooks/useSignaturePad";
 import {
   MAX_FILE_SIZE_BYTES,
   ACCEPTED_FILE_TYPES,
@@ -22,6 +22,7 @@ interface Step4SubmitProps {
   onBack: () => void;
   onSubmit: () => void;
   isLoading?: boolean;
+  showNavigation?: boolean;
 }
 
 export default function Step4Submit({
@@ -31,11 +32,55 @@ export default function Step4Submit({
   onBack,
   onSubmit,
   isLoading = false,
+  showNavigation = true,
 }: Step4SubmitProps) {
   const [idPreview, setIdPreview] = useState<string>("");
   const [hasSignature, setHasSignature] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const signaturePadRef = useRef<SignaturePad | null>(null);
 
-  const { canvasRef, signatureImage, clear, saveSignature } = useSignaturePad();
+  // Initialize signature pad when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+        canvasRef.current.width = rect.width * ratio;
+        canvasRef.current.height = 200 * ratio;
+        canvasRef.current.style.width = `${rect.width}px`;
+        canvasRef.current.style.height = "200px";
+
+        const ctx = canvasRef.current.getContext("2d");
+        if (ctx) {
+          ctx.scale(ratio, ratio);
+        }
+
+        // Initialize SignaturePad
+        const signaturePad = new SignaturePad(canvasRef.current, {
+          penColor: "#000",
+          backgroundColor: "#fff",
+          minWidth: 1.5,
+          maxWidth: 3,
+          throttle: 16,
+        });
+
+        // Store signature pad instance
+        signaturePadRef.current = signaturePad;
+
+        signaturePad.addEventListener("beginStroke", () => {
+          setHasSignature(false); // Reset confirmed state when drawing starts
+        });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Watch form values for completion check
+  const watchedValues = useWatch({
+    control,
+  });
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -66,24 +111,28 @@ export default function Step4Submit({
   });
 
   const clearSignature = () => {
-    clear();
+    if (signaturePadRef.current) {
+      signaturePadRef.current.clear();
+    }
     setValue("planholder_signature", "");
     setHasSignature(false);
   };
 
   const confirmSignature = () => {
-    saveSignature(() => {
-      if (signatureImage) {
-        setValue("planholder_signature", signatureImage);
-        setHasSignature(true);
-      }
-    });
+    if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
+      const imageData = signaturePadRef.current.toDataURL("image/png");
+      setValue("planholder_signature", imageData);
+      setHasSignature(true);
+    }
   };
 
   const isComplete =
-    control._formValues.planholder_signature &&
-    control._formValues.id_upload &&
-    control._formValues.agree_to_consent;
+    watchedValues.planholder_signature &&
+    watchedValues.id_upload &&
+    watchedValues.agree_to_consent &&
+    !errors.planholder_signature &&
+    !errors.id_upload &&
+    !errors.agree_to_consent;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -267,32 +316,34 @@ export default function Step4Submit({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <Button
-          onClick={onBack}
-          variant="outline"
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.secondary,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Go back to previous step"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={onSubmit}
-          disabled={!isComplete || isLoading}
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.success,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Submit form"
-        >
-          {isLoading ? "Submitting..." : "Submit"}
-        </Button>
-      </div>
+      {showNavigation && (
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.secondary,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Go back to previous step"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={!isComplete || isLoading}
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.success,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Submit form"
+          >
+            {isLoading ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

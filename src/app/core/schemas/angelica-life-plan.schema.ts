@@ -6,7 +6,6 @@ import {
   MAX_FILE_SIZE_BYTES,
   PAYMENT_MODES,
   PAYMENT_TERMS,
-  PHONE_CONFIG,
   PLAN_TYPES,
 } from "../constants/angelica-life-plan";
 
@@ -27,10 +26,7 @@ const numericString = (label: string) =>
 export const planFormSchema = yup.object().shape({
   salesCounselorName: yup.string().required("Sales Counselor Name is required"),
   salesCounselorCode: yup.string().required("Sales Counselor Code is required"),
-  salesCounselorReferral: yup
-    .string()
-    .url("Referral must be a valid URL")
-    .required("Referral is required"),
+  salesCounselorReferral: yup.string().required("Referral is required"),
   contactPrice: numericString("Contact Price"),
   planType: yup
     .string()
@@ -73,12 +69,10 @@ export const planholderFormSchema = yup.object().shape({
     .string()
     .email("Invalid email address")
     .required("Email is required"),
+  contactNumberCountryCode: yup.string().required("Country code is required"),
   contactNumber: yup
     .string()
-    .matches(
-      new RegExp(`^\\d{${PHONE_CONFIG.maxLength}}$`),
-      `Contact Number must be exactly ${PHONE_CONFIG.maxLength} digits`
-    )
+    .matches(/^\d{1,14}$/, "Contact Number must be 1-14 digits")
     .required("Contact Number is required"),
   lotHouseNumber: yup.string().notRequired(),
   street: yup.string().required("Street is required"),
@@ -112,15 +106,19 @@ const fileValidation = yup
   .mixed()
   .nullable()
   .typeError("File must be a valid file")
-  .test("file-size", `File must be ${Math.floor(MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB or less`, (value) => {
-    if (!value || !(value instanceof File)) return true;
-    return value.size <= MAX_FILE_SIZE_BYTES;
-  })
+  .test(
+    "file-size",
+    `File must be ${Math.floor(MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB or less`,
+    (value) => {
+      if (!value || !(value instanceof File)) return true;
+      return value.size <= MAX_FILE_SIZE_BYTES;
+    },
+  )
   .test("file-type", "Unsupported file type", (value) => {
     if (!value || !(value instanceof File)) return true;
     const isAllowedMime = ACCEPTED_MIME_TYPES.includes(value.type);
     const isAllowedExt = ACCEPTED_EXTENSIONS.some((ext) =>
-      value.name.toLowerCase().endsWith(ext)
+      value.name.toLowerCase().endsWith(ext),
     );
     return isAllowedMime || isAllowedExt;
   }) as yup.Schema<File | null>;
@@ -153,4 +151,6 @@ export type PlanFormSchema = yup.InferType<typeof planFormSchema>;
 export type PlanholderFormSchema = yup.InferType<typeof planholderFormSchema>;
 export type BeneficiaryFormSchema = yup.InferType<typeof beneficiaryFormSchema>;
 export type SubmitFormSchema = yup.InferType<typeof submitFormSchema>;
-export type AngelicaLifePlanSchema = yup.InferType<typeof angelicaLifePlanSchema>;
+export type AngelicaLifePlanSchema = yup.InferType<
+  typeof angelicaLifePlanSchema
+>;

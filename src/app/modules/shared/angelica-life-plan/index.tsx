@@ -50,6 +50,7 @@ export default function AngelicaLifePlan() {
         civilStatus: "",
         email: "",
         contactNumber: "",
+        contactNumberCountryCode: "+63",
         lotHouseNumber: "",
         street: "",
         barangay: "",
@@ -98,8 +99,20 @@ export default function AngelicaLifePlan() {
       // Add plan data
       formDataToSend.append("plan", JSON.stringify(data.plan));
 
-      // Add planholder data
-      formDataToSend.append("planholder", JSON.stringify(data.planholder));
+      // Add planholder data (combine country code and phone number)
+      const planholderData = {
+        ...data.planholder,
+        contactNumber:
+          data.planholder.contactNumberCountryCode +
+          data.planholder.contactNumber,
+      };
+      // Remove the separate country code field
+      const { contactNumberCountryCode, ...planholderDataWithoutCountryCode } =
+        planholderData;
+      formDataToSend.append(
+        "planholder",
+        JSON.stringify(planholderDataWithoutCountryCode),
+      );
 
       // Add beneficiaries data
       formDataToSend.append(
@@ -213,6 +226,7 @@ export default function AngelicaLifePlan() {
               <Step2Planholder
                 control={control}
                 errors={errors}
+                setValue={setValue}
                 onBack={handlePrevStep}
                 onNext={handleNextStep}
               />

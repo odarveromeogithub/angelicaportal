@@ -1,4 +1,5 @@
 import type { Control, FieldErrors } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
@@ -15,20 +16,38 @@ interface Step1PlanProps {
   control: Control<IAngelicaLifePlanFormData>;
   errors: FieldErrors<IAngelicaLifePlanFormData>;
   onNext: () => void;
+  showNavigation?: boolean;
 }
 
-export default function Step1Plan({ control, errors, onNext }: Step1PlanProps) {
-  // Check if all required plan fields are filled
+export default function Step1Plan({
+  control,
+  errors,
+  onNext,
+  showNavigation = true,
+}: Step1PlanProps) {
+  // Watch the plan form values
+  const planValues = useWatch({
+    control,
+    name: "plan",
+  });
+
+  // Check if all required plan fields are filled and valid
+  const planErrors = errors.plan || {};
+  const hasPlanErrors = Object.values(planErrors).some(
+    (error) =>
+      error && typeof error === "object" && "message" in error && error.message,
+  );
   const isComplete =
-    control._formValues.plan?.salesCounselorName &&
-    control._formValues.plan?.salesCounselorCode &&
-    control._formValues.plan?.salesCounselorReferral &&
-    control._formValues.plan?.contactPrice &&
-    control._formValues.plan?.planType &&
-    control._formValues.plan?.modeOfPayment &&
-    control._formValues.plan?.termOfPay &&
-    control._formValues.plan?.installment &&
-    control._formValues.plan?.docStamp;
+    planValues?.salesCounselorName?.trim() &&
+    planValues?.salesCounselorCode?.trim() &&
+    planValues?.salesCounselorReferral?.trim() &&
+    planValues?.contactPrice?.trim() &&
+    planValues?.planType &&
+    planValues?.modeOfPayment &&
+    planValues?.termOfPay &&
+    planValues?.installment?.trim() &&
+    planValues?.docStamp?.trim() &&
+    !hasPlanErrors;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -141,17 +160,19 @@ export default function Step1Plan({ control, errors, onNext }: Step1PlanProps) {
         </div>
       </div>
 
-      <Button
-        onClick={onNext}
-        disabled={!isComplete}
-        className={cn(
-          "w-full",
-          FIELD_CLASSES.button.base,
-          FIELD_CLASSES.button.primary,
-        )}
-      >
-        Next
-      </Button>
+      {showNavigation && (
+        <Button
+          onClick={onNext}
+          disabled={!isComplete}
+          className={cn(
+            "w-full",
+            FIELD_CLASSES.button.base,
+            FIELD_CLASSES.button.primary,
+          )}
+        >
+          Next
+        </Button>
+      )}
     </div>
   );
 }

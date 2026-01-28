@@ -52,11 +52,11 @@ export const CIVIL_STATUS_OPTIONS = [
   { value: "Divorced", label: "Divorced" },
 ];
 
-// Contact Number Configuration
+// Contact Number Configuration - Updated for international numbers
 export const PHONE_CONFIG = {
-  countryCode: "+63",
-  maxLength: 10,
-  placeholder: "9150125456",
+  countryCode: "+63", // Default, but input will be flexible
+  maxLength: 15, // Increased to allow international numbers
+  placeholder: "Enter phone number with country code",
 };
 
 // Form Steps

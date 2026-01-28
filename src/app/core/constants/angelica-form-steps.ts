@@ -15,19 +15,19 @@ export interface FormStep {
 export const ANGELICA_FORM_STEPS: FormStep[] = [
   {
     number: 1,
-    label: 'Plan',
+    label: "Plan",
   },
   {
     number: 2,
-    label: 'Planholder',
+    label: "Planholder",
   },
   {
     number: 3,
-    label: 'Beneficiary',
+    label: "Beneficiary",
   },
   {
     number: 4,
-    label: 'Submit',
+    label: "ID & Signature",
   },
 ] as const;
 

@@ -17,7 +17,7 @@ export interface IPlanFormData {
 
 /**
  * Planholder form data - step 2
- * contactNumber must be exactly 10 digits (PH format without country code)
+ * contactNumber must be valid international phone number
  * zipCode must be 4-6 digits
  * dateOfBirth must be valid past date (yyyy-MM-dd format)
  * gender, civilStatus must be from allowed options
@@ -31,7 +31,8 @@ export interface IPlanholderFormData {
   gender: string; // Must be one of: "Male", "Female"
   civilStatus: string; // Must be one of: "Single", "Married", "Widowed", "Separated", "Divorced"
   email: string;
-  contactNumber: string; // Exactly 10 digits (PH format)
+  contactNumber: string; // International phone number with country code
+  contactNumberCountryCode: string; // Country code (e.g., "+63", "+1")
   lotHouseNumber: string; // Optional
   street: string;
   barangay: string;

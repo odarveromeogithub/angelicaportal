@@ -28,6 +28,7 @@ import { Input } from "../../../core/components/ui/input";
 import { useToast } from "../../../core/hooks/useToast";
 import { useDebounce } from "../../../core/hooks/useDebounce";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
+import { EditPlanDialog } from "./EditPlanDialog";
 
 export function WaitingListTab() {
   const toast = useToast();
@@ -45,6 +46,12 @@ export function WaitingListTab() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedPlanForEdit, setSelectedPlanForEdit] = useState<any | null>(
+    null,
+  );
 
   // Handle file selection and preview
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +79,12 @@ export function WaitingListTab() {
       setPreviewUrl(null);
       toast.success("Payment image attached successfully!");
     }, 1200);
+  };
+
+  // Handle edit plan
+  const handleEditPlan = (item: any) => {
+    setSelectedPlanForEdit(item);
+    setEditDialogOpen(true);
   };
 
   // Show error toast when data fetch fails
@@ -155,6 +168,7 @@ export function WaitingListTab() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-300 transition-colors"
+                                  onClick={() => handleEditPlan(item)}
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
@@ -262,6 +276,13 @@ export function WaitingListTab() {
           )}
         </div>
       </div>
+
+      {/* Edit Plan Dialog */}
+      <EditPlanDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        planData={selectedPlanForEdit}
+      />
     </TooltipProvider>
   );
 }

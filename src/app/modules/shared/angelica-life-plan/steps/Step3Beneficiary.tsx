@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, useWatch } from "react-hook-form";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
@@ -26,6 +26,7 @@ interface Step3BeneficiaryProps {
   errors: FieldErrors<IAngelicaLifePlanFormData>;
   onBack: () => void;
   onNext: () => void;
+  showNavigation?: boolean;
 }
 
 export default function Step3Beneficiary({
@@ -33,11 +34,18 @@ export default function Step3Beneficiary({
   errors,
   onBack,
   onNext,
+  showNavigation = true,
 }: Step3BeneficiaryProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
   const { fields, append, remove } = useFieldArray({
+    control,
+    name: "beneficiaries",
+  });
+
+  // Watch the beneficiaries form values
+  const beneficiariesValues = useWatch({
     control,
     name: "beneficiaries",
   });
@@ -67,10 +75,15 @@ export default function Step3Beneficiary({
   const currentBeneficiary =
     editingIndex !== null ? fields[editingIndex] : fields[0];
 
+  // Check if all beneficiaries are filled and valid
+  const beneficiaryErrors = errors.beneficiaries || [];
+  const hasBeneficiaryErrors =
+    Array.isArray(beneficiaryErrors) &&
+    beneficiaryErrors.some((error) => error && Object.keys(error).length > 0);
   const isComplete =
     fields.length > 0 &&
     fields.every((field, index) => {
-      const beneficiary = control._formValues.beneficiaries?.[index];
+      const beneficiary = beneficiariesValues?.[index];
       return (
         beneficiary?.firstName &&
         beneficiary?.lastName &&
@@ -79,7 +92,8 @@ export default function Step3Beneficiary({
         beneficiary?.address &&
         beneficiary?.relationship
       );
-    });
+    }) &&
+    !hasBeneficiaryErrors;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -262,32 +276,34 @@ export default function Step3Beneficiary({
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <Button
-          onClick={onBack}
-          variant="outline"
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.secondary,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Go back to previous step"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={onNext}
-          disabled={!isComplete}
-          className={cn(
-            FIELD_CLASSES.button.base,
-            FIELD_CLASSES.button.primary,
-            "flex-1 sm:flex-none",
-          )}
-          aria-label="Proceed to final step"
-        >
-          Next
-        </Button>
-      </div>
+      {showNavigation && (
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.secondary,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Go back to previous step"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={onNext}
+            disabled={!isComplete}
+            className={cn(
+              FIELD_CLASSES.button.base,
+              FIELD_CLASSES.button.primary,
+              "flex-1 sm:flex-none",
+            )}
+            aria-label="Proceed to final step"
+          >
+            Next
+          </Button>
+        </div>
+      )}
 
       <AlertDialog
         open={deleteIndex !== null}

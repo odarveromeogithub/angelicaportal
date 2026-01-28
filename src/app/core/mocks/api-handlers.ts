@@ -193,6 +193,7 @@ const MOCK_LIFE_PLAN_DETAIL: Record<string, IAngelicaLifePlanFormData> = {
       civilStatus: "Single",
       email: "jane.doe@example.com",
       contactNumber: "9123456789",
+      contactNumberCountryCode: "+63",
       lotHouseNumber: "123",
       street: "Mango Ave",
       barangay: "Lahug",

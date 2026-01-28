@@ -2,32 +2,25 @@ import * as yup from "yup";
 
 // Login Schema - Request
 export const loginSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address"),
-  password: yup
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
+  email: yup.string().required("Email is required"),
+  password: yup.string().required("Password is required"),
 });
 
 // Register Schema - Request
 // Matches IUserRegisterRequest interface - user info collection before OTP
-// Conditional validation: 
+// Conditional validation:
 // - If area is Luzon, Visayas, or Mindanao: contact_no is required, email is optional
 // - If area is Other (abroad): email is required, contact_no is optional
 export const registerSchema = yup.object().shape({
-  area: yup
-    .string()
-    .required("Please select an area"),
+  area: yup.string().required("Please select an area"),
   email: yup
     .string()
     .transform((value) => value || undefined)
     .email("Please enter a valid email address (e.g., user@example.com)")
     .when("area", {
       is: "Other",
-      then: (schema) => schema.required("Email is required for international registration"),
+      then: (schema) =>
+        schema.required("Email is required for international registration"),
       otherwise: (schema) => schema.optional(),
     }),
   first_name: yup
@@ -44,16 +37,19 @@ export const registerSchema = yup.object().shape({
     .min(2, "Last name must be at least 2 characters")
     .matches(/^[a-zA-Z\s]+$/, "Last name must contain only letters")
     .required("Last name is required"),
-  contact_no: yup
-    .string()
-    .when("area", {
-      is: (val: string) => val === "Luzon" || val === "Visayas" || val === "Mindanao",
-      then: (schema) => schema
+  contact_no: yup.string().when("area", {
+    is: (val: string) =>
+      val === "Luzon" || val === "Visayas" || val === "Mindanao",
+    then: (schema) =>
+      schema
         .length(10, "Contact number must be exactly 10 digits")
-        .matches(/^\d{10}$/, "Contact number must contain only digits (without the 0)")
+        .matches(
+          /^\d{10}$/,
+          "Contact number must contain only digits (without the 0)",
+        )
         .required("Contact number is required for Philippines registration"),
-      otherwise: (schema) => schema.optional(),
-    }),
+    otherwise: (schema) => schema.optional(),
+  }),
   country_code: yup.string().optional(),
   username: yup.string().optional(),
   gender: yup.string().optional(),
