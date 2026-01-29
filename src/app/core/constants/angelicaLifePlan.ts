@@ -95,12 +95,9 @@ export const FIELD_CLASSES = {
 
 // Grid Layout Classes - Enhanced Mobile-First Responsive
 export const GRID_LAYOUTS = {
-  threeColumns:
-    "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6",
-  fourColumns:
-    "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6",
-  twoColumns:
-    "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6",
+  threeColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
+  fourColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
+  twoColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
   spacing: "mb-4 sm:mb-6 md:mb-7 lg:mb-8",
   section: "px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 lg:py-8",
 };

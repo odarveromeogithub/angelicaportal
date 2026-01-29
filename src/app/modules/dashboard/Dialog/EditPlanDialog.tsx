@@ -45,11 +45,9 @@ const EDIT_DIALOG_FIELD_CLASSES = {
 
 // Enhanced grid layouts for edit dialog - better spacing in modal context
 const EDIT_DIALOG_GRID_LAYOUTS = {
-  threeColumns:
-    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6",
-  fourColumns:
-    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6",
-  twoColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6",
+  threeColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
+  fourColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
+  twoColumns: "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6",
   spacing: "mb-6 md:mb-7 lg:mb-8",
   section: "px-4 md:px-6 lg:px-8 py-5 md:py-6 lg:py-8",
 };
@@ -158,7 +156,7 @@ export function EditPlanDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
-        className="max-w-4xl max-h-[90vh] overflow-y-auto p-0"
+        className="max-w-[95vw] sm:max-w-2xl md:max-w-4xl lg:max-w-6xl max-h-[90vh] overflow-y-auto p-0"
         showCloseButton={false}
       >
         {/* Screen reader only DialogHeader for accessibility */}
