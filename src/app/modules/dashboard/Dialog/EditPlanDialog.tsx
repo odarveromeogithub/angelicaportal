@@ -14,10 +14,10 @@ import { Button } from "../../../core/components/ui/button";
 import { ANGELICA_FORM_STEPS } from "../../../core/constants/angelicaFormSteps";
 import { angelicaLifePlanSchema } from "../../../core/schemas/angelicaLifePlan.schema";
 import type { IAngelicaLifePlanFormData } from "../../../core/interfaces/angelicaLifePlan.interface";
-import Step1Plan from "../../../modules/shared/angelica-life-plan/steps/Step1Plan";
-import Step2Planholder from "../../../modules/shared/angelica-life-plan/steps/Step2Planholder";
-import Step3Beneficiary from "../../../modules/shared/angelica-life-plan/steps/Step3Beneficiary";
-import Step4Submit from "../../../modules/shared/angelica-life-plan/steps/Step4Submit";
+import Step1Plan from "../../shared/angelica-life-plan/steps/Step1Plan";
+import Step2Planholder from "../../shared/angelica-life-plan/steps/Step2Planholder";
+import Step3Beneficiary from "../../shared/angelica-life-plan/steps/Step3Beneficiary";
+import Step4Submit from "../../shared/angelica-life-plan/steps/Step4Submit";
 import { useToast } from "../../../core/hooks/useToast";
 
 // Enhanced field classes for edit dialog - larger and more prominent

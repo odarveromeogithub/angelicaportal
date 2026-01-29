@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from "lucide-react";
 
-import { AddUserDialog } from "./AddUserDialog";
+import { AddUserDialog } from "../Dialog/AddUserDialog";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,

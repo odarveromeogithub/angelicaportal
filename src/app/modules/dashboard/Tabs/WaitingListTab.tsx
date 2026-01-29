@@ -28,7 +28,7 @@ import { Input } from "../../../core/components/ui/input";
 import { useToast } from "../../../core/hooks/useToast";
 import { useDebounce } from "../../../core/hooks/useDebounce";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
-import { EditPlanDialog } from "./EditPlanDialog";
+import { EditPlanDialog } from "../Dialog/EditPlanDialog";
 
 export function WaitingListTab() {
   const toast = useToast();
