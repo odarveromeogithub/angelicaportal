@@ -1,4 +1,4 @@
-import type { Control } from "react-hook-form";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Label } from "@/app/core/components/ui/label";
 import {
@@ -11,7 +11,7 @@ import {
 import { FIELD_CLASSES } from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
-interface FormSelectProps {
+interface FormSelectProps<T extends FieldValues = FieldValues> {
   label: string;
   id: string;
   value?: string;
@@ -23,11 +23,11 @@ interface FormSelectProps {
   disabled?: boolean;
   className?: string;
   // React Hook Form props
-  control?: Control<any>;
-  name?: string;
+  control?: Control<T>;
+  name?: Path<T>;
 }
 
-export function FormSelect({
+export function FormSelect<T extends FieldValues = FieldValues>({
   label,
   id,
   value,
@@ -40,7 +40,7 @@ export function FormSelect({
   className,
   control,
   name,
-}: FormSelectProps) {
+}: FormSelectProps<T>) {
   // If using React Hook Form, use Controller
   if (control && name) {
     return (

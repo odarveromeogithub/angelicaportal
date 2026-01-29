@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { useLocation } from "react-router-dom";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
@@ -58,7 +63,8 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
   };
 
   // Initialize theme from localStorage and system preference
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     // Apply theme if on authenticated routes
     if (shouldApplyTheme) {
       applyTheme(theme);
@@ -68,7 +74,7 @@ function ThemeProviderContent({ children }: { children: React.ReactNode }) {
   }, [shouldApplyTheme, theme]);
 
   // Watch for system theme changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handleChange = () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
 import { useFieldArray, useWatch } from "react-hook-form";
 import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelicaLifePlan.interface";
@@ -52,7 +52,8 @@ export default function Step3Beneficiary({
   });
 
   // Set initial editing index when beneficiaries are loaded
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (fields.length > 0 && editingIndex === null) {
       setEditingIndex(0);
     }

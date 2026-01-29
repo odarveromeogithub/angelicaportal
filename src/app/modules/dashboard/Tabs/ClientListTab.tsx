@@ -83,7 +83,7 @@ export function ClientListTab() {
         searchValue={searchQuery}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or LPAF number..."
-        filterValue={filters.status || "all"}
+        filterValue={(filters.status as string) || "all"}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
         filterOptions={PLAN_STATUS_FILTER_OPTIONS}

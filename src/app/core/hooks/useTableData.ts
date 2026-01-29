@@ -8,7 +8,7 @@ export interface UseTableDataOptions<T> {
     field: keyof T;
     direction: "asc" | "desc";
   };
-  customFilter?: (item: T, filters: Record<string, any>) => boolean;
+  customFilter?: (item: T, filters: Record<string, unknown>) => boolean;
 }
 
 export function useTableData<T>(
@@ -23,7 +23,7 @@ export function useTableData<T>(
   } = options;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [sortField, setSortField] = useState<keyof T | null>(
     initialSort?.field || null,
   );
@@ -73,7 +73,7 @@ export function useTableData<T>(
     setSearchQuery(query);
   }, []);
 
-  const setFilter = useCallback((key: string, value: any) => {
+  const setFilter = useCallback((key: string, value: unknown) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 

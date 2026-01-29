@@ -1,4 +1,4 @@
-import type { Control } from "react-hook-form";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Label } from "@/app/core/components/ui/label";
 import {
@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/app/core/components/ui/select";
 
-interface PhoneInputProps {
+interface PhoneInputProps<T extends FieldValues = FieldValues> {
   label: string;
   id: string;
-  name: string;
+  name: Path<T>;
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
@@ -29,10 +29,10 @@ interface PhoneInputProps {
   countryCode?: string;
   onCountryCodeChange?: (value: string) => void;
   // React Hook Form props
-  control?: Control<any>;
+  control?: Control<T>;
 }
 
-export function PhoneInput({
+export function PhoneInput<T extends FieldValues = FieldValues>({
   label,
   id,
   name,
@@ -46,7 +46,7 @@ export function PhoneInput({
   countryCode = AUTH_PHONE_CONFIG.countryCode,
   onCountryCodeChange,
   control,
-}: PhoneInputProps) {
+}: PhoneInputProps<T>) {
   const renderPhoneInput = (
     fieldValue?: string,
     fieldOnChange?: (value: string) => void,

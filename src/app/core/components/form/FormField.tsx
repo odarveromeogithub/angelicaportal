@@ -1,11 +1,16 @@
-import type { UseFormRegisterReturn, Control } from "react-hook-form";
+import type {
+  UseFormRegisterReturn,
+  Control,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Input } from "@/app/core/components/ui/input";
 import { Label } from "@/app/core/components/ui/label";
 import { FIELD_CLASSES } from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
-interface FormFieldProps {
+interface FormFieldProps<T extends FieldValues = FieldValues> {
   label: string;
   id: string;
   name: string;
@@ -21,11 +26,11 @@ interface FormFieldProps {
   autoFocus?: boolean;
   // React Hook Form props
   registerProps?: UseFormRegisterReturn;
-  control?: Control<any>;
-  controlName?: string;
+  control?: Control<T>;
+  controlName?: Path<T>;
 }
 
-export function FormField({
+export function FormField<T extends FieldValues = FieldValues>({
   label,
   id,
   name,
@@ -42,7 +47,7 @@ export function FormField({
   registerProps,
   control,
   controlName,
-}: FormFieldProps) {
+}: FormFieldProps<T>) {
   // If using React Hook Form Controller, use Controller
   if (control && controlName) {
     return (

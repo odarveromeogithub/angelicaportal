@@ -35,6 +35,7 @@ export default function OtpVerification() {
   const {
     setValue,
     handleSubmit,
+    trigger,
     formState: { isValid },
   } = useForm<{ otp: string; email: string }>({
     resolver: yupResolver(otpSchema) as any,
@@ -86,7 +87,10 @@ export default function OtpVerification() {
 
   const handleOtpChange = (newOtp: string[]) => {
     setOtp(newOtp);
-    setValue("otp", newOtp.join(""));
+    const otpString = newOtp.join("");
+    setValue("otp", otpString);
+    // Trigger validation for the otp field
+    trigger("otp");
   };
 
   const onSubmit = async (data: { otp: string; email: string }) => {
@@ -110,6 +114,13 @@ export default function OtpVerification() {
             middle_name: "",
             is_active: true,
           }),
+        );
+
+        // Set mock tokens for authentication
+        localStorage.setItem("access_token", "mock_access_token_" + Date.now());
+        localStorage.setItem(
+          "refresh_token",
+          "mock_refresh_token_" + Date.now(),
         );
 
         setTimeout(() => {
