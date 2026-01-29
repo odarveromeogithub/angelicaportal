@@ -25,6 +25,10 @@ import {
 import { Button } from "../../../core/components/ui/button";
 import { useTableData } from "../../../core/hooks/useTableData";
 import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  PLAN_STATUS_FILTER_OPTIONS,
+  PLAN_STATUS,
+} from "../../../core/constants/dashboardStats";
 
 export function ClientListTab() {
   const { data: clients = [], isLoading } = dashboardApi.useGetClientsQuery();
@@ -82,12 +86,7 @@ export function ClientListTab() {
         filterValue={filters.status || "all"}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
-        filterOptions={[
-          { value: "all", label: "All Plans" },
-          { value: "Active", label: "Active Plan" },
-          { value: "Lapsed", label: "Lapsed Plan" },
-          { value: "Pending", label: "Pending Plan" },
-        ]}
+        filterOptions={PLAN_STATUS_FILTER_OPTIONS}
       />
 
       {isLoading ? (
@@ -138,9 +137,9 @@ export function ClientListTab() {
                     </p>
                     <Badge
                       variant={
-                        client.status === "Active"
+                        client.status === PLAN_STATUS.ACTIVE
                           ? "default"
-                          : client.status === "Lapsed"
+                          : client.status === PLAN_STATUS.LAPSED
                             ? "destructive"
                             : "secondary"
                       }

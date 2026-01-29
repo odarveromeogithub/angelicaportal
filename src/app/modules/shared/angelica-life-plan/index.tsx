@@ -8,10 +8,10 @@ import Step1Plan from "./steps/Step1Plan.tsx";
 import Step2Planholder from "./steps/Step2Planholder.tsx";
 import Step3Beneficiary from "./steps/Step3Beneficiary.tsx";
 import Step4Submit from "./steps/Step4Submit.tsx";
-import { ANGELICA_FORM_STEPS } from "@/app/core/constants/angelica-form-steps";
+import { ANGELICA_FORM_STEPS } from "@/app/core/constants/angelicaFormSteps.ts";
 import { angelicaLifePlanApi } from "@/app/core/state/api";
-import { angelicaLifePlanSchema } from "@/app/core/schemas/angelica-life-plan.schema";
-import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import { angelicaLifePlanSchema } from "@/app/core/schemas/angelicaLifePlan.schema.ts";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelicaLifePlan.interface.ts";
 
 export default function AngelicaLifePlan() {
   const navigate = useNavigate();

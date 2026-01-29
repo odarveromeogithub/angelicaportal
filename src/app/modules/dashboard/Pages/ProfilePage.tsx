@@ -31,7 +31,12 @@ import {
   setSignaturePhoto as saveSignaturePhotoToStorage,
   getIdPhotos,
   setIdPhotos as saveIdPhotosToStorage,
-} from "../../../core/helpers/auth-storage";
+} from "../../../core/helpers/authStorage";
+import { VERIFICATION_REQUIREMENT_LABELS } from "../../../core/constants/auth";
+import {
+  DEFAULT_USER_VALUES,
+  QR_CODE_CONFIG,
+} from "../../../core/constants/ui";
 import { toast } from "sonner";
 import { validateFaceInImage } from "../../../core/lib/faceValidation";
 import { FacialVerificationCamera } from "../../../core/components/verification/FacialVerificationCamera";
@@ -60,11 +65,7 @@ export default function ProfilePage() {
   const signatureFileInputRef = useRef<HTMLInputElement>(null);
   const idFileInputRef = useRef<HTMLInputElement>(null);
 
-  const requirementLabels: Record<string, string> = {
-    facial: "Facial verification (selfie)",
-    id: "Upload valid ID with 3 specimen signatures",
-    signatures: "Provide Signature",
-  };
+  const requirementLabels = VERIFICATION_REQUIREMENT_LABELS;
 
   // Permissions and user data
   const permissions = usePermissions();
@@ -77,9 +78,10 @@ export default function ProfilePage() {
   } = permissions;
 
   // Get user data from permissions
-  const email = userFromPermissions?.email || "user@example.com";
-  const fullName = userFromPermissions?.name || "User";
-  const phoneNumber = userFromPermissions?.contact_number || "+63 912 345 6789";
+  const email = userFromPermissions?.email || DEFAULT_USER_VALUES.EMAIL;
+  const fullName = userFromPermissions?.name || DEFAULT_USER_VALUES.NAME;
+  const phoneNumber =
+    userFromPermissions?.contact_number || DEFAULT_USER_VALUES.PHONE;
 
   // Clear verification state on mount if there's no actual photo data
   useEffect(() => {
@@ -228,7 +230,7 @@ export default function ProfilePage() {
 
   const handleDownloadQR = async () => {
     if (!referralUrl) return;
-    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(
+    const qrSrc = `${QR_CODE_CONFIG.BASE_URL}?size=${QR_CODE_CONFIG.SIZES.LARGE}&data=${encodeURIComponent(
       referralUrl,
     )}`;
     try {
@@ -374,7 +376,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col items-center gap-4">
                           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                             <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
+                              src={`${QR_CODE_CONFIG.BASE_URL}?size=${QR_CODE_CONFIG.SIZES.SMALL}&data=${encodeURIComponent(
                                 referralUrl,
                               )}`}
                               alt="Referral QR"

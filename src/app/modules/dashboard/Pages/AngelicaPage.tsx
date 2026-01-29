@@ -24,7 +24,7 @@ import {
   selectAuthUser,
 } from "../../../core/state/selector/auth.selector";
 import { getTabsForRole } from "../../../core/constants/navigation";
-import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboardPaths";
 import VerificationPrompt from "../../../core/components/verification/VerificationPrompt";
 import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";
 

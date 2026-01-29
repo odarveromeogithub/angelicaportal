@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
 import { useFieldArray, useWatch } from "react-hook-form";
-import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelicaLifePlan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import { Trash2, Plus } from "lucide-react";
@@ -18,7 +18,7 @@ import {
   FIELD_CLASSES,
   GENDER_OPTIONS,
   GRID_LAYOUTS,
-} from "@/app/core/constants/angelica-life-plan";
+} from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
 interface Step3BeneficiaryProps {

@@ -7,7 +7,7 @@
 export * from "./auth.schema";
 
 // Angelica Life Plan schemas
-export * from "./angelica-life-plan.schema";
+export * from "./angelicaLifePlan.schema";
 
 // Add User schema
-export * from "./add-user.schema";
+export * from "./addUser.schema";

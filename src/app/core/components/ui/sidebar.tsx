@@ -5,7 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 
-import { useIsMobile } from "@/app/core/hooks/use-mobile";
+import { useIsMobile } from "@/app/core/hooks/useMobile";
 import { cn } from "@/app/core/lib/utils";
 import { Button } from "@/app/core/components/ui/button";
 import { Input } from "@/app/core/components/ui/input";
@@ -24,13 +24,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/core/components/ui/tooltip";
+import { SIDEBAR_CONFIG } from "@/app/core/constants/ui";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "18rem";
-const SIDEBAR_WIDTH_ICON = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+const SIDEBAR_COOKIE_NAME = SIDEBAR_CONFIG.COOKIE_NAME;
+const SIDEBAR_COOKIE_MAX_AGE = SIDEBAR_CONFIG.COOKIE_MAX_AGE;
+const SIDEBAR_WIDTH = SIDEBAR_CONFIG.WIDTH;
+const SIDEBAR_WIDTH_MOBILE = SIDEBAR_CONFIG.WIDTH_MOBILE;
+const SIDEBAR_WIDTH_ICON = SIDEBAR_CONFIG.WIDTH_ICON;
+const SIDEBAR_KEYBOARD_SHORTCUT = SIDEBAR_CONFIG.KEYBOARD_SHORTCUT;
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";

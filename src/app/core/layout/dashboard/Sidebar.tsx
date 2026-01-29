@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAppSelector } from "../../state/hooks";
 import logo from "@/assets/cclpi-logo.png";
 import type { IUser } from "../../interfaces/user.interface";
-import type { MenuItem } from "../../constants/sidebar-menu";
+import type { MenuItem } from "../../constants/sidebarMenu";
 import {
   Avatar,
   AvatarFallback,
@@ -15,8 +15,8 @@ import {
   DASHBOARD_SEGMENTS,
   type DashboardRole,
   buildDashboardPath,
-} from "../../constants/dashboard-paths";
-import { buildMenuItems } from "../../constants/sidebar-menu";
+} from "../../constants/dashboardPaths";
+import { buildMenuItems } from "../../constants/sidebarMenu";
 import { useLogout } from "../../hooks/useLogout";
 import { useTheme } from "../../contexts/ThemeContext";
 

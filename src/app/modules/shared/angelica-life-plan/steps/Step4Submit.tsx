@@ -3,7 +3,7 @@ import type { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { Controller, useWatch } from "react-hook-form";
 import { useDropzone } from "react-dropzone";
 import SignaturePad from "signature_pad";
-import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelicaLifePlan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { Label } from "@/app/core/components/ui/label";
 import { Checkbox } from "@/app/core/components/ui/checkbox";
@@ -12,7 +12,7 @@ import {
   MAX_FILE_SIZE_BYTES,
   ACCEPTED_FILE_TYPES,
   FIELD_CLASSES,
-} from "@/app/core/constants/angelica-life-plan";
+} from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
 interface Step4SubmitProps {

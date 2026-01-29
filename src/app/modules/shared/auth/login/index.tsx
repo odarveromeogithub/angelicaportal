@@ -22,8 +22,8 @@ import { loginSchema } from "@/app/core/schemas/auth.schema";
 import {
   buildDashboardPath,
   DASHBOARD_SEGMENTS,
-} from "@/app/core/constants/dashboard-paths";
-import { APP_ROUTES } from "@/app/core/constants/routes";
+} from "@/app/core/constants/dashboardPaths";
+import { APP_ROUTES } from "@/app/core/constants/publicPaths";
 import {
   selectLoginState,
   selectAuthUser,

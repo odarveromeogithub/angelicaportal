@@ -21,8 +21,8 @@ import {
   OTP_CONFIG,
 } from "@/app/core/constants/auth";
 import { otpSchema } from "@/app/core/schemas/auth.schema";
-import { APP_ROUTES } from "@/app/core/constants/routes";
-import { DASHBOARD_ROOT } from "@/app/core/constants/dashboard-paths";
+import { APP_ROUTES } from "@/app/core/constants/publicPaths";
+import { DASHBOARD_ROOT } from "@/app/core/constants/dashboardPaths";
 import { useAppDispatch } from "@/app/core/state/hooks";
 import { setUser } from "@/app/core/state/reducer/auth";
 

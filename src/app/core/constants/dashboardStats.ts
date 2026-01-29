@@ -90,3 +90,28 @@ export const SALES_STATS_CONFIG = [
   STAT_CONFIG_TEMPLATES.pendingApplications,
   STAT_CONFIG_TEMPLATES.totalPlansAlt,
 ] as const;
+
+/**
+ * Plan Status Filter Options
+ * Used in PlanListTab and ClientListTab for filtering plans by status
+ */
+export const PLAN_STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Plans" },
+  { value: "Active", label: "Active Plan" },
+  { value: "Lapsed", label: "Lapsed Plan" },
+  { value: "Pending", label: "Pending Plan" },
+];
+
+/**
+ * Plan Status Values
+ * Standardized status values used throughout the application
+ */
+export const PLAN_STATUS = {
+  ACTIVE: "Active",
+  PENDING: "Pending",
+  LAPSED: "Lapsed",
+  DRAFT: "draft",
+  SUBMITTED: "submitted",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+} as const;

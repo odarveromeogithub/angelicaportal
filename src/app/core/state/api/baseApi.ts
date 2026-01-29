@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { FetchArgs } from "@reduxjs/toolkit/query";
 import { apiUrl, USE_MOCK_DATA } from "../../config/env";
-import { handleMockRequest } from "../../mocks/api-handlers";
+import { handleMockRequest } from "../../mocks/apiHandlers";
 
 /**
  * Base API configuration for RTK Query

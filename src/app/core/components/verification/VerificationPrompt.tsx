@@ -12,7 +12,8 @@ import { Button } from "@/app/core/components/ui/button";
 import {
   setVerificationCompleted,
   getVerificationCompleted,
-} from "@/app/core/helpers/auth-storage";
+} from "@/app/core/helpers/authStorage";
+import { VERIFICATION_REQUIREMENT_LABELS } from "@/app/core/constants/auth";
 import { useAppSelector } from "@/app/core/state/hooks";
 import {
   selectAuthUser,
@@ -22,7 +23,7 @@ import {
   getDashboardRoleFromUser,
   DASHBOARD_SEGMENTS,
   buildDashboardPath,
-} from "@/app/core/constants/dashboard-paths";
+} from "@/app/core/constants/dashboardPaths";
 
 interface VerificationPromptProps {
   open: boolean;
@@ -45,11 +46,7 @@ export default function VerificationPrompt({
 
   const missingItems = useMemo(() => selectMissingVerificationItems(), []);
 
-  const requirementLabels: Record<string, string> = {
-    facial: "Facial verification (selfie)",
-    id: "Upload a valid ID",
-    signatures: "Provide 3 specimen signatures",
-  };
+  const requirementLabels = VERIFICATION_REQUIREMENT_LABELS;
 
   useEffect(() => {
     // Prevent showing if already completed elsewhere

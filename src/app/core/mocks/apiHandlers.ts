@@ -6,17 +6,10 @@ import type {
   User,
   WaitingList,
 } from "../interfaces/dashboard.interface";
-import type { IAngelicaLifePlanFormData } from "../interfaces/angelica-life-plan.interface";
-
-interface AngelicaLifePlanListItem {
-  id: string;
-  planId: string;
-  status: "draft" | "submitted" | "approved" | "rejected";
-  planholderName: string;
-  planType: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type {
+  IAngelicaLifePlanFormData,
+  AngelicaLifePlanListItem,
+} from "../interfaces/angelicaLifePlan.interface";
 
 // Dashboard mock data
 const MOCK_PLANS: Plan[] = [

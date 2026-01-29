@@ -3,10 +3,10 @@
  * Centralized navigation menu items for different user roles
  */
 
-import { Home, Settings, User, LayoutGrid } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import type { DashboardRole } from './dashboard-paths';
-import { DASHBOARD_SEGMENTS, buildDashboardPath } from './dashboard-paths';
+import { Home, Settings, User, LayoutGrid } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { DashboardRole } from "./dashboardPaths";
+import { DASHBOARD_SEGMENTS, buildDashboardPath } from "./dashboardPaths";
 
 export interface MenuItem {
   icon: LucideIcon;
@@ -20,22 +20,22 @@ export interface MenuItem {
  * Base menu items configuration (without paths)
  * Paths are computed at runtime based on user role
  */
-export const BASE_MENU_ITEMS: Omit<MenuItem, 'path'>[] = [
+export const BASE_MENU_ITEMS: Omit<MenuItem, "path">[] = [
   {
     icon: Home,
-    label: 'Angelica',
+    label: "Angelica",
     badge: null,
     isSection: true,
   },
   {
     icon: Settings,
-    label: 'Settings',
+    label: "Settings",
     badge: null,
     isSection: false,
   },
   {
     icon: User,
-    label: 'Profile',
+    label: "Profile",
     badge: null,
     isSection: false,
   },
@@ -45,9 +45,9 @@ export const BASE_MENU_ITEMS: Omit<MenuItem, 'path'>[] = [
  * Dashboard menu item configuration
  * Only shown for admin and sales roles
  */
-export const DASHBOARD_MENU_ITEM: Omit<MenuItem, 'path'> = {
+export const DASHBOARD_MENU_ITEM: Omit<MenuItem, "path"> = {
   icon: LayoutGrid,
-  label: 'Dashboard',
+  label: "Dashboard",
   badge: null,
   isSection: true,
 };
@@ -72,7 +72,7 @@ export function buildMenuItems(userRole: DashboardRole): MenuItem[] {
   ];
 
   // Add dashboard menu for sales & admin roles at the beginning
-  if (userRole === 'admin' || userRole === 'sales') {
+  if (userRole === "admin" || userRole === "sales") {
     const dashboardItem: MenuItem = {
       ...DASHBOARD_MENU_ITEM,
       path: buildDashboardPath(userRole, DASHBOARD_SEGMENTS.DASHBOARD),

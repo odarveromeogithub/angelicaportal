@@ -114,6 +114,13 @@ export const AUTH_CLASSES = {
   link: "text-xs sm:text-sm text-blue-600 hover:text-blue-700 hover:underline font-semibold transition dark:text-blue-400 dark:hover:text-blue-300",
 };
 
+// Verification requirement labels for display
+export const VERIFICATION_REQUIREMENT_LABELS: Record<string, string> = {
+  facial: "Facial verification (selfie)",
+  id: "Upload a valid ID with 3 specimen signatures",
+  signatures: "Provide Signatures",
+} as const;
+
 // Toast Messages
 export const AUTH_MESSAGES = {
   login: {

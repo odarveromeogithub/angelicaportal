@@ -1,6 +1,6 @@
 import type { Control, FieldErrors } from "react-hook-form";
 import { useWatch } from "react-hook-form";
-import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelica-life-plan.interface";
+import type { IAngelicaLifePlanFormData } from "@/app/core/interfaces/angelicaLifePlan.interface";
 import { Button } from "@/app/core/components/ui/button";
 import { FormField, FormSelect } from "@/app/core/components/form";
 import {
@@ -9,7 +9,8 @@ import {
   PAYMENT_TERMS,
   GRID_LAYOUTS,
   FIELD_CLASSES,
-} from "@/app/core/constants/angelica-life-plan";
+} from "@/app/core/constants/angelicaLifePlan";
+import { REFERRAL_URL_PLACEHOLDER } from "@/app/core/constants/ui";
 import { cn } from "@/app/core/lib/utils";
 
 interface Step1PlanProps {
@@ -89,7 +90,7 @@ export default function Step1Plan({
             label="Sales Counselor Referral"
             id="salesCounselorReferral"
             name="salesCounselorReferral"
-            placeholder="https://sc.cclpi.com.ph:8080/#/referral/..."
+            placeholder={REFERRAL_URL_PLACEHOLDER}
             required
             registerProps={control.register("plan.salesCounselorReferral")}
             error={errors.plan?.salesCounselorReferral?.message}

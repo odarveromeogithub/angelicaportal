@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useAppSelector } from "../state/hooks";
 import { selectAuthUser } from "../state/selector/auth.selector";
-import { getDashboardRoleFromUser } from "../constants/dashboard-paths";
+import { getDashboardRoleFromUser } from "../constants/dashboardPaths";
 
 export type UserRole = "admin" | "client" | "sc" | "um";
 export type DashboardRole = "admin" | "client" | "sales";

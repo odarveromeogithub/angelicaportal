@@ -7,7 +7,7 @@ import {
   PAYMENT_MODES,
   PAYMENT_TERMS,
   PLAN_TYPES,
-} from "../constants/angelica-life-plan";
+} from "../constants/angelicaLifePlan";
 
 const PLAN_TYPE_VALUES = PLAN_TYPES.map((option) => option.value);
 const PAYMENT_MODE_VALUES = PAYMENT_MODES.map((option) => option.value);

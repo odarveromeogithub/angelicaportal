@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import SignaturePad from "signature_pad";
-import { SIGNATURE_CONFIG } from "../constants/angelica-life-plan";
+import { SIGNATURE_CONFIG } from "../constants/angelicaLifePlan";
 
 export interface UseSignaturePadOptions {
   throttle?: number;

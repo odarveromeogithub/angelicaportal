@@ -12,7 +12,8 @@ import {
 import {
   CLIENT_STATS_CONFIG,
   SALES_STATS_CONFIG,
-} from "../../../core/constants/dashboard-stats";
+  PLAN_STATUS,
+} from "../../../core/constants/dashboardStats";
 import { useAppSelector } from "../../../core/state/hooks";
 import { useToast } from "../../../core/hooks/useToast";
 
@@ -59,9 +60,15 @@ export function HomeTab({ userRole }: HomeTabProps) {
     }
   }, [clientsError, toast]);
 
-  const activePlans = plans.filter((p: any) => p.status === "Active").length;
-  const pendingPlans = plans.filter((p: any) => p.status === "Pending").length;
-  const lapsedPlans = plans.filter((p: any) => p.status === "Lapsed").length;
+  const activePlans = plans.filter(
+    (p: any) => p.status === PLAN_STATUS.ACTIVE,
+  ).length;
+  const pendingPlans = plans.filter(
+    (p: any) => p.status === PLAN_STATUS.PENDING,
+  ).length;
+  const lapsedPlans = plans.filter(
+    (p: any) => p.status === PLAN_STATUS.LAPSED,
+  ).length;
 
   // Build stats array with values from selectors
   const clientStats = CLIENT_STATS_CONFIG.map((config) => ({

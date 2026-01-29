@@ -6,7 +6,7 @@ import {
   getAccessToken,
   getVerificationCompleted,
   getMissingVerificationItems,
-} from "../../helpers/auth-storage";
+} from "../../helpers/authStorage";
 
 /**
  * Select the entire auth state

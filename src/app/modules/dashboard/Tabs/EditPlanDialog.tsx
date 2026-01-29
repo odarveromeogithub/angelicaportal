@@ -11,9 +11,9 @@ import {
   DialogDescription,
 } from "../../../core/components/ui/dialog";
 import { Button } from "../../../core/components/ui/button";
-import { ANGELICA_FORM_STEPS } from "../../../core/constants/angelica-form-steps";
-import { angelicaLifePlanSchema } from "../../../core/schemas/angelica-life-plan.schema";
-import type { IAngelicaLifePlanFormData } from "../../../core/interfaces/angelica-life-plan.interface";
+import { ANGELICA_FORM_STEPS } from "../../../core/constants/angelicaFormSteps";
+import { angelicaLifePlanSchema } from "../../../core/schemas/angelicaLifePlan.schema";
+import type { IAngelicaLifePlanFormData } from "../../../core/interfaces/angelicaLifePlan.interface";
 import Step1Plan from "../../../modules/shared/angelica-life-plan/steps/Step1Plan";
 import Step2Planholder from "../../../modules/shared/angelica-life-plan/steps/Step2Planholder";
 import Step3Beneficiary from "../../../modules/shared/angelica-life-plan/steps/Step3Beneficiary";

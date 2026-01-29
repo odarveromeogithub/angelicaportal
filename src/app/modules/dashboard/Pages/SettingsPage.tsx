@@ -4,7 +4,7 @@ import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import { useState } from "react";
 import { useAppSelector } from "../../../core/state/hooks";
 import { selectAuthUser } from "../../../core/state/selector/auth.selector";
-import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboardPaths";
 import { ErrorBoundary } from "../../../core/components/error";
 
 export default function SettingsPage() {

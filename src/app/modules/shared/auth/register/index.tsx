@@ -29,7 +29,7 @@ import {
   AUTH_MESSAGES,
 } from "@/app/core/constants/auth";
 import { registerSchema } from "@/app/core/schemas/auth.schema";
-import { APP_ROUTES } from "@/app/core/constants/routes";
+import { APP_ROUTES } from "@/app/core/constants/publicPaths";
 import { selectRegisterState } from "@/app/core/state/selector/auth.selector";
 
 export default function Register() {

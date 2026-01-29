@@ -4,7 +4,7 @@ import { Breadcrumb } from "../../../core/components/ui/breadcrumb";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../core/state/hooks";
 import { selectAuthUser } from "../../../core/state/selector/auth.selector";
-import { getDashboardRoleFromUser } from "../../../core/constants/dashboard-paths";
+import { getDashboardRoleFromUser } from "../../../core/constants/dashboardPaths";
 import { ErrorBoundary } from "../../../core/components/error";
 import VerificationPrompt from "../../../core/components/verification/VerificationPrompt";
 import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";

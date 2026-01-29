@@ -1,6 +1,6 @@
 import axios, { type AxiosError } from "axios";
 import { apiUrl } from "../config/env";
-import { getAccessToken, clearTokens } from "../helpers/auth-storage";
+import { getAccessToken, clearTokens } from "../helpers/authStorage";
 
 const httpClient = axios.create({
   baseURL: apiUrl,
@@ -22,7 +22,7 @@ httpClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - handle 401 errors
@@ -32,12 +32,12 @@ httpClient.interceptors.response.use(
     // Handle 401 Unauthorized - clear tokens and dispatch event
     if (error.response?.status === 401) {
       clearTokens();
-      const event = new CustomEvent('auth:unauthorized');
+      const event = new CustomEvent("auth:unauthorized");
       window.dispatchEvent(event);
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export default httpClient;

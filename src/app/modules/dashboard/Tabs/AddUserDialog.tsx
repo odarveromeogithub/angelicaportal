@@ -9,8 +9,8 @@ import type { Agent } from "@/app/core/interfaces/dashboard.interface";
 import {
   addUserSchema,
   type AddUserFormData,
-} from "@/app/core/schemas/add-user.schema";
-import { ADD_USER_INITIAL_FORM } from "@/app/core/constants/user-management";
+} from "@/app/core/schemas/addUser.schema";
+import { ADD_USER_INITIAL_FORM } from "@/app/core/constants/userManagement";
 import { dashboardApi } from "@/app/core/state/api";
 
 type AddUserDialogProps = {

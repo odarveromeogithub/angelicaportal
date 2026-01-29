@@ -18,6 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
+import { PLAN_STATUS_FILTER_OPTIONS } from "../../../core/constants/dashboardStats";
 
 export function PlanListTab() {
   const toast = useToast();
@@ -134,12 +135,7 @@ export function PlanListTab() {
         filterValue={statusFilter}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
-        filterOptions={[
-          { value: "all", label: "All Plans" },
-          { value: "Active", label: "Active Plan" },
-          { value: "Lapsed", label: "Lapsed Plan" },
-          { value: "Pending", label: "Pending Plan" },
-        ]}
+        filterOptions={PLAN_STATUS_FILTER_OPTIONS}
       />
 
       {/* Plans List */}

@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/core/components/ui/select";
-import { FIELD_CLASSES } from "@/app/core/constants/angelica-life-plan";
+import { FIELD_CLASSES } from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
 interface FormSelectProps {

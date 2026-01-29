@@ -1,61 +1,7 @@
 import type { Control, FieldErrors } from "react-hook-form";
 import { FormField, FormSelect } from "@/app/core/components/form";
-import type { AddUserFormData } from "@/app/core/schemas/add-user.schema";
-import {
-  AREA_OFFICE_OPTIONS,
-  USER_TYPE_OPTIONS,
-} from "@/app/core/constants/user-management";
-
-export interface FormFieldConfig {
-  name: keyof AddUserFormData;
-  label: string;
-  type?: "text" | "email" | "number" | "tel" | "password";
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  options?: Array<{ value: string; label: string }>;
-}
-
-export const ADD_USER_FIELD_CONFIGS: FormFieldConfig[] = [
-  {
-    name: "salesCounselorId",
-    label: "Sales Counselor",
-    placeholder: "Select Sales Counselor",
-    required: true,
-  },
-  {
-    name: "salesCounselorCode",
-    label: "Sales Counselor Code",
-    placeholder: "e.g., SC-001",
-    required: true,
-  },
-  {
-    name: "username",
-    label: "Username",
-    placeholder: "username",
-    required: true,
-  },
-  {
-    name: "contactNo",
-    label: "Contact Number",
-    type: "tel",
-    placeholder: "e.g., +63 912 345 6789",
-  },
-  {
-    name: "areaOffice",
-    label: "Area Office",
-    placeholder: "Select Area Office",
-    required: true,
-    options: AREA_OFFICE_OPTIONS,
-  },
-  {
-    name: "userType",
-    label: "User Type",
-    placeholder: "Select User Type",
-    required: true,
-    options: USER_TYPE_OPTIONS,
-  },
-];
+import type { AddUserFormData } from "@/app/core/schemas/addUser.schema";
+import { ADD_USER_FIELD_CONFIGS } from "@/app/core/constants/userManagement";
 
 interface AddUserFormFieldsProps {
   control: Control<AddUserFormData>;

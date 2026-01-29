@@ -2,7 +2,7 @@ import type { UseFormRegisterReturn, Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Input } from "@/app/core/components/ui/input";
 import { Label } from "@/app/core/components/ui/label";
-import { FIELD_CLASSES } from "@/app/core/constants/angelica-life-plan";
+import { FIELD_CLASSES } from "@/app/core/constants/angelicaLifePlan";
 import { cn } from "@/app/core/lib/utils";
 
 interface FormFieldProps {

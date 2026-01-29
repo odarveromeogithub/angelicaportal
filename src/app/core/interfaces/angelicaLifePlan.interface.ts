@@ -65,3 +65,27 @@ export interface IAngelicaLifePlanFormData {
   id_upload: File | null;
   agree_to_consent: boolean;
 }
+
+/**
+ * API Response interfaces for Angelica Life Plan operations
+ */
+export interface AngelicaLifePlanResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    planId: string;
+    status: "draft" | "submitted" | "approved" | "rejected";
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface AngelicaLifePlanListItem {
+  id: string;
+  planId: string;
+  status: "draft" | "submitted" | "approved" | "rejected";
+  planholderName: string;
+  planType: string;
+  createdAt: string;
+  updatedAt: string;
+}
