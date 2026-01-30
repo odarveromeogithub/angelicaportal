@@ -8,7 +8,7 @@ import {
   ChevronUp,
   MoreVertical,
 } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -23,45 +23,57 @@ import {
   DropdownMenuTrigger,
 } from "../../../core/components/ui/dropdown-menu";
 import { Button } from "../../../core/components/ui/button";
-import { useTableData } from "../../../core/hooks/useTableData";
 import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
 import {
   PLAN_STATUS_FILTER_OPTIONS,
   PLAN_STATUS,
 } from "../../../core/constants/dashboardStats";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
+import { usePagination } from "../../../core/hooks/usePagination";
 
 export function ClientListTab() {
   const { data: clients = [], isLoading } = dashboardApi.useGetClientsQuery();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const filteredItems = useMemo(() => {
+    return clients.filter((client: any) => {
+      const matchesSearch = client.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || client.accountStatus === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [clients, searchQuery, statusFilter]);
 
   const {
-    data: filteredItems,
-    filteredCount,
-    searchQuery,
-    handleSearch,
-    filters,
-    setFilter,
-  } = useTableData(clients, {
-    searchFields: ["name"],
-    customFilter: (client, filters) => {
-      const statusFilter = filters.status || "all";
-      return statusFilter === "all" || client.accountStatus === statusFilter;
-    },
-  });
+    paginatedData: paginatedClients,
+    currentPage,
+    totalPages,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    canGoNext,
+    canGoPrevious,
+    showingText,
+  } = usePagination(filteredItems, { pageSize: 4 });
 
-  const handleStatusFilterChange = useCallback(
-    (value: string) => {
-      setFilter("status", value);
-    },
-    [setFilter],
-  );
+  const handleStatusFilterChange = useCallback((value: string) => {
+    setStatusFilter(value);
+  }, []);
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      handleSearch(value);
-    },
-    [handleSearch],
-  );
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
 
   const handleToggleExpand = useCallback(
     (id: string) => {
@@ -75,7 +87,7 @@ export function ClientListTab() {
       <TabsHeader
         title="List of Client Plans"
         description="View and manage all client plans"
-        count={filteredCount}
+        count={filteredItems.length}
         countLabel="Clients"
       />
 
@@ -83,7 +95,7 @@ export function ClientListTab() {
         searchValue={searchQuery}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or LPAF number..."
-        filterValue={(filters.status as string) || "all"}
+        filterValue={statusFilter}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
         filterOptions={PLAN_STATUS_FILTER_OPTIONS}
@@ -105,7 +117,7 @@ export function ClientListTab() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredItems.map((client: any, index: number) => (
+          {paginatedClients.map((client: any, index: number) => (
             <motion.div
               key={client.id}
               initial={{ opacity: 0, y: 20 }}
@@ -280,6 +292,52 @@ export function ClientListTab() {
               )}
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!isLoading && filteredItems.length > 4 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            {showingText}
+          </p>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={goToPreviousPage}
+                  className={
+                    !canGoPrevious
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => goToPage(page)}
+                      isActive={currentPage === page}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={goToNextPage}
+                  className={
+                    !canGoNext
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
     </div>

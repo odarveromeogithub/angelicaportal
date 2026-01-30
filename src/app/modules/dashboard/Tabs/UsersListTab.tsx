@@ -26,6 +26,15 @@ import {
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
+import { usePagination } from "../../../core/hooks/usePagination";
 
 export function UsersListTab() {
   const { data: users = [], isLoading: loading } =
@@ -44,6 +53,18 @@ export function UsersListTab() {
         user.userType.toLowerCase().includes(query),
     );
   }, [users, searchQuery]);
+
+  const {
+    paginatedData: paginatedUsers,
+    currentPage,
+    totalPages,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    canGoNext,
+    canGoPrevious,
+    showingText,
+  } = usePagination(filteredUsers, { pageSize: 6 });
 
   return (
     <TooltipProvider>
@@ -99,7 +120,7 @@ export function UsersListTab() {
                 {loading ? (
                   <TableRowSkeleton />
                 ) : (
-                  filteredUsers.map((user: any, index: number) => (
+                  paginatedUsers.map((user: any, index: number) => (
                     <motion.tr
                       key={user.id}
                       initial={{ opacity: 0, y: 5 }}
@@ -199,6 +220,52 @@ export function UsersListTab() {
             />
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && filteredUsers.length > 6 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {showingText}
+            </p>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={goToPreviousPage}
+                    className={
+                      !canGoPrevious
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => goToPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ),
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={goToNextPage}
+                    className={
+                      !canGoNext
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </motion.div>
       <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
     </TooltipProvider>

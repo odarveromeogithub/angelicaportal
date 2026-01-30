@@ -28,6 +28,15 @@ import { Input } from "../../../core/components/ui/input";
 import { useToast } from "../../../core/hooks/useToast";
 import { useDebounce } from "../../../core/hooks/useDebounce";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
+import { usePagination } from "../../../core/hooks/usePagination";
 import { EditPlanDialog } from "../Dialog/EditPlanDialog";
 
 export function WaitingListTab() {
@@ -108,6 +117,18 @@ export function WaitingListTab() {
     );
   }, [waitingList, debouncedSearchQuery]);
 
+  const {
+    paginatedData: paginatedItems,
+    currentPage,
+    totalPages,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    canGoNext,
+    canGoPrevious,
+    showingText,
+  } = usePagination(filteredItems, { pageSize: 5 });
+
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
   }, []);
@@ -152,7 +173,7 @@ export function WaitingListTab() {
                   <TableRowSkeleton />
                 ) : (
                   <>
-                    {filteredItems.map((item: any, index: number) => (
+                    {paginatedItems.map((item: any, index: number) => (
                       <motion.tr
                         key={item.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -275,6 +296,52 @@ export function WaitingListTab() {
             />
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && filteredItems.length > 5 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {showingText}
+            </p>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={goToPreviousPage}
+                    className={
+                      !canGoPrevious
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => goToPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ),
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={goToNextPage}
+                    className={
+                      !canGoNext
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
 
       {/* Edit Plan Dialog */}

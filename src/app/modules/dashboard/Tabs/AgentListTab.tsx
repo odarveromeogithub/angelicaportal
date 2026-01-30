@@ -17,6 +17,15 @@ import {
   TableRow,
 } from "../../../core/components/ui/table";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
+import { usePagination } from "../../../core/hooks/usePagination";
 
 export function AgentListTab() {
   const { data: agents = [], isLoading: loading } =
@@ -33,6 +42,18 @@ export function AgentListTab() {
         agent.scStatus.toLowerCase().includes(query),
     );
   }, [agents, searchQuery]);
+
+  const {
+    paginatedData: paginatedAgents,
+    currentPage,
+    totalPages,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    canGoNext,
+    canGoPrevious,
+    showingText,
+  } = usePagination(filteredAgents, { pageSize: 7 });
 
   return (
     <motion.div
@@ -74,7 +95,7 @@ export function AgentListTab() {
               {loading ? (
                 <TableRowSkeleton />
               ) : (
-                filteredAgents.map((agent: any, index: number) => (
+                paginatedAgents.map((agent: any, index: number) => (
                   <motion.tr
                     key={agent.id}
                     initial={{ opacity: 0, y: 5 }}
@@ -111,6 +132,52 @@ export function AgentListTab() {
           />
         )}
       </div>
+
+      {/* Pagination */}
+      {!loading && filteredAgents.length > 7 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            {showingText}
+          </p>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={goToPreviousPage}
+                  className={
+                    !canGoPrevious
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => goToPage(page)}
+                      isActive={currentPage === page}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={goToNextPage}
+                  className={
+                    !canGoNext
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </motion.div>
   );
 }

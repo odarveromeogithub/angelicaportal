@@ -9,3 +9,5 @@ export { useSignaturePad } from "./useSignaturePad";
 export { usePermissions } from "./usePermissions";
 export { useFileUpload } from "./useFileUpload";
 export { useTableData } from "./useTableData";
+export { usePagination } from "./usePagination";
+export { usePaginatedData } from "./usePaginatedData";
