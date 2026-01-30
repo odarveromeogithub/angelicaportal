@@ -3,6 +3,9 @@ import { motion } from "motion/react";
 import { UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from "lucide-react";
 
 import { AddUserDialog } from "../Dialog/AddUserDialog";
+import { EditUserDialog } from "../Dialog/EditUserDialog";
+import { SendEmailDialog } from "../Dialog/SendEmailDialog";
+import { DeleteUserDialog } from "../Dialog/DeleteUserDialog";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -39,7 +42,13 @@ import { usePagination } from "../../../core/hooks/usePagination";
 export function UsersListTab() {
   const { data: users = [], isLoading: loading } =
     dashboardApi.useGetUsersQuery();
+  const [deleteUser, { isLoading: deletingUser }] =
+    dashboardApi.useDeleteUserMutation();
   const [addUserOpen, setAddUserOpen] = useState(false);
+  const [editUserOpen, setEditUserOpen] = useState(false);
+  const [sendEmailOpen, setSendEmailOpen] = useState(false);
+  const [deleteUserOpen, setDeleteUserOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
@@ -53,6 +62,34 @@ export function UsersListTab() {
         user.userType.toLowerCase().includes(query),
     );
   }, [users, searchQuery]);
+
+  const handleEditUser = (user: any) => {
+    setSelectedUser(user);
+    setEditUserOpen(true);
+  };
+
+  const handleSendEmail = (user: any) => {
+    setSelectedUser(user);
+    setSendEmailOpen(true);
+  };
+
+  const handleDeleteUser = (user: any) => {
+    setSelectedUser(user);
+    setDeleteUserOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      await deleteUser(selectedUser.id).unwrap();
+      setDeleteUserOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert("Failed to delete user. Please try again.");
+    }
+  };
 
   const {
     paginatedData: paginatedUsers,
@@ -136,6 +173,7 @@ export function UsersListTab() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 transition-colors"
+                                onClick={() => handleEditUser(user)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -162,6 +200,7 @@ export function UsersListTab() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
+                                onClick={() => handleSendEmail(user)}
                               >
                                 <Mail className="w-4 h-4" />
                               </Button>
@@ -176,6 +215,8 @@ export function UsersListTab() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-300 transition-colors"
+                                  onClick={() => handleDeleteUser(user)}
+                                  disabled={deletingUser}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -268,6 +309,23 @@ export function UsersListTab() {
         )}
       </motion.div>
       <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
+      <EditUserDialog
+        open={editUserOpen}
+        onOpenChange={setEditUserOpen}
+        userData={selectedUser}
+      />
+      <SendEmailDialog
+        open={sendEmailOpen}
+        onOpenChange={setSendEmailOpen}
+        user={selectedUser}
+      />
+      <DeleteUserDialog
+        open={deleteUserOpen}
+        onOpenChange={setDeleteUserOpen}
+        user={selectedUser}
+        onConfirm={confirmDeleteUser}
+        isDeleting={deletingUser}
+      />
     </TooltipProvider>
   );
 }
