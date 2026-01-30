@@ -19,12 +19,14 @@ import {
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
 import { PLAN_STATUS_FILTER_OPTIONS } from "../../../core/constants/dashboardStats";
+import { AddPlanDialog } from "../Dialog/AddPlanDialog";
 
 export function PlanListTab() {
   const toast = useToast();
   const isVerified = selectIsFullyVerified();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const {
     data: plans = [],
     isLoading: loading,
@@ -60,6 +62,10 @@ export function PlanListTab() {
     setSearchQuery(value);
   }, []);
 
+  const handleAddPlan = useCallback(() => {
+    setShowAddDialog(true);
+  }, []);
+
   return (
     <div className="py-3 sm:py-3 md:py-6 lg:py-10 xl:py-5 space-y-3 sm:space-y-3">
       <TabsHeader
@@ -70,7 +76,10 @@ export function PlanListTab() {
         actions={
           <div>
             {isVerified ? (
-              <Button className="w-full sm:w-auto shadow-sm">
+              <Button
+                className="w-full sm:w-auto shadow-sm"
+                onClick={handleAddPlan}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add New Plan
               </Button>
@@ -168,6 +177,8 @@ export function PlanListTab() {
           )}
         </div>
       )}
+
+      <AddPlanDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
     </div>
   );
 }
