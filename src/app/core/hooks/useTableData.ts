@@ -9,6 +9,7 @@ export interface UseTableDataOptions<T> {
     direction: "asc" | "desc";
   };
   customFilter?: (item: T, filters: Record<string, unknown>) => boolean;
+  pageSize?: number;
 }
 
 export function useTableData<T>(
@@ -20,6 +21,7 @@ export function useTableData<T>(
     debounceMs = 300,
     initialSort,
     customFilter,
+    pageSize = 10,
   } = options;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +32,7 @@ export function useTableData<T>(
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
     initialSort?.direction || "asc",
   );
+  const [currentPage, setCurrentPage] = useState(1);
 
   const debouncedSearchQuery = useDebounce(searchQuery, debounceMs);
 
@@ -69,13 +72,57 @@ export function useTableData<T>(
     });
   }, [filteredData, sortField, sortDirection]);
 
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedData.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = sortedData.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  const resetPage = useCallback(() => {
+    setCurrentPage(1);
   }, []);
 
-  const setFilter = useCallback((key: string, value: unknown) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  // Update current page, ensuring it's within bounds
+  const setPage = useCallback(
+    (page: number) => {
+      const validPage = Math.max(1, Math.min(page, totalPages));
+      setCurrentPage(validPage);
+    },
+    [totalPages],
+  );
+
+  const goToNextPage = useCallback(() => {
+    setPage(currentPage + 1);
+  }, [currentPage, setPage]);
+
+  const goToPreviousPage = useCallback(() => {
+    setPage(currentPage - 1);
+  }, [currentPage, setPage]);
+
+  const goToFirstPage = useCallback(() => {
+    setPage(1);
+  }, [setPage]);
+
+  const goToLastPage = useCallback(() => {
+    setPage(totalPages);
+  }, [totalPages, setPage]);
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      resetPage();
+    },
+    [resetPage],
+  );
+
+  const setFilter = useCallback(
+    (key: string, value: unknown) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+      resetPage();
+    },
+    [resetPage],
+  );
 
   const clearFilters = useCallback(() => {
     setFilters({});
@@ -106,7 +153,8 @@ export function useTableData<T>(
 
   return {
     // Data
-    data: sortedData,
+    data: paginatedData,
+    allData: sortedData,
     totalCount: data.length,
     filteredCount: sortedData.length,
 
@@ -125,6 +173,19 @@ export function useTableData<T>(
     sortDirection,
     handleSort,
     clearSort,
+
+    // Pagination
+    currentPage,
+    totalPages,
+    pageSize,
+    setPage,
+    goToNextPage,
+    goToPreviousPage,
+    goToFirstPage,
+    goToLastPage,
+    resetPage,
+    hasNextPage: currentPage < totalPages,
+    hasPreviousPage: currentPage > 1,
 
     // Computed
     isSearching: debouncedSearchQuery.length > 0,

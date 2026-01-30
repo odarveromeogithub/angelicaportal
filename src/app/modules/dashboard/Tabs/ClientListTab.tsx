@@ -29,6 +29,15 @@ import {
   PLAN_STATUS_FILTER_OPTIONS,
   PLAN_STATUS,
 } from "../../../core/constants/dashboardStats";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
 
 export function ClientListTab() {
   const { data: clients = [], isLoading } = dashboardApi.useGetClientsQuery();
@@ -41,8 +50,14 @@ export function ClientListTab() {
     handleSearch,
     filters,
     setFilter,
+    currentPage,
+    totalPages,
+    setPage,
+    hasNextPage,
+    hasPreviousPage,
   } = useTableData(clients, {
     searchFields: ["name"],
+    pageSize: 4, // 4 items per page as requested
     customFilter: (client, filters) => {
       const statusFilter = filters.status || "all";
       return statusFilter === "all" || client.accountStatus === statusFilter;
@@ -280,6 +295,77 @@ export function ClientListTab() {
               )}
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage(currentPage - 1)}
+                  className={
+                    !hasPreviousPage
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => {
+                  // Show first page, last page, current page, and pages around current
+                  const showPage =
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1);
+
+                  if (!showPage && page === currentPage - 2) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+
+                  if (!showPage && page === currentPage + 2) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+
+                  if (!showPage) return null;
+
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setPage(page)}
+                        isActive={page === currentPage}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                },
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage(currentPage + 1)}
+                  className={
+                    !hasNextPage
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
     </div>

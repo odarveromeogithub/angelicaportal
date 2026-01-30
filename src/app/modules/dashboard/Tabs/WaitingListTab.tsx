@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Search, Edit, Upload } from "lucide-react";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { dashboardApi } from "../../../core/state/api";
 import {
   TabsHeader,
@@ -26,9 +26,18 @@ import { Button } from "../../../core/components/ui/button";
 import { FormDialog } from "../../../core/components/ui/form-dialog";
 import { Input } from "../../../core/components/ui/input";
 import { useToast } from "../../../core/hooks/useToast";
-import { useDebounce } from "../../../core/hooks/useDebounce";
+import { useTableData } from "../../../core/hooks/useTableData";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
 import { EditPlanDialog } from "../Dialog/EditPlanDialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
 
 export function WaitingListTab() {
   const toast = useToast();
@@ -37,8 +46,22 @@ export function WaitingListTab() {
     isLoading: loading,
     isError,
   } = dashboardApi.useGetWaitingListQuery();
-  const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const {
+    data: paginatedItems,
+    filteredCount,
+    searchQuery,
+    handleSearch,
+    currentPage,
+    totalPages,
+    setPage,
+    hasNextPage,
+    hasPreviousPage,
+    hasResults,
+  } = useTableData(waitingList, {
+    searchFields: ["name", "policyNo", "lpafNo"],
+    pageSize: 5, // 5 items per page as requested
+  });
 
   // Attach dialog state
   const [attachDialogOpen, setAttachDialogOpen] = useState(false);
@@ -97,20 +120,12 @@ export function WaitingListTab() {
     }
   }, [isError, toast]);
 
-  const filteredItems = useMemo(() => {
-    return waitingList.filter(
-      (item: any) =>
-        item.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        item.policyNo
-          .toLowerCase()
-          .includes(debouncedSearchQuery.toLowerCase()) ||
-        item.lpafNo.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
-    );
-  }, [waitingList, debouncedSearchQuery]);
-
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchQuery(value);
-  }, []);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleSearch(value);
+    },
+    [handleSearch],
+  );
 
   return (
     <TooltipProvider>
@@ -118,7 +133,7 @@ export function WaitingListTab() {
         <TabsHeader
           title="Pending Plans"
           description="Review and manage pending applications"
-          count={filteredItems.length}
+          count={filteredCount}
           countLabel="Pending"
         />
 
@@ -152,7 +167,7 @@ export function WaitingListTab() {
                   <TableRowSkeleton />
                 ) : (
                   <>
-                    {filteredItems.map((item: any, index: number) => (
+                    {paginatedItems.map((item: any, index: number) => (
                       <motion.tr
                         key={item.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -267,7 +282,7 @@ export function WaitingListTab() {
             </Table>
           </div>
 
-          {filteredItems.length === 0 && !loading && (
+          {!hasResults && !loading && (
             <EmptyState
               icon={Search}
               title="No pending plans found"
@@ -275,6 +290,77 @@ export function WaitingListTab() {
             />
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage(currentPage - 1)}
+                    className={
+                      !hasPreviousPage
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and pages around current
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage && page === currentPage - 2) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
+                    if (!showPage && page === currentPage + 2) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
+                    if (!showPage) return null;
+
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setPage(page)}
+                          isActive={page === currentPage}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  },
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage(currentPage + 1)}
+                    className={
+                      !hasNextPage
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
 
       {/* Edit Plan Dialog */}

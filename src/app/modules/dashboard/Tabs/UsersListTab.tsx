@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "motion/react";
 import { UserPlus, Users, Edit, RotateCw, Mail, Trash2 } from "lucide-react";
 
@@ -25,25 +25,44 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../core/components/ui/tooltip";
+import { useTableData } from "../../../core/hooks/useTableData";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../core/components/ui/pagination";
 
 export function UsersListTab() {
   const { data: users = [], isLoading: loading } =
     dashboardApi.useGetUsersQuery();
   const [addUserOpen, setAddUserOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return users;
-    const query = searchQuery.toLowerCase();
-    return users.filter(
-      (user: any) =>
-        user.username.toLowerCase().includes(query) ||
-        user.name.toLowerCase().includes(query) ||
-        user.agentCode.toLowerCase().includes(query) ||
-        user.userType.toLowerCase().includes(query),
-    );
-  }, [users, searchQuery]);
+  const {
+    data: paginatedUsers,
+    filteredCount,
+    searchQuery,
+    handleSearch,
+    currentPage,
+    totalPages,
+    setPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = useTableData(users, {
+    searchFields: ["username", "name", "agentCode", "userType"],
+    pageSize: 5, // 5 items per page as requested
+  });
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      handleSearch(value);
+    },
+    [handleSearch],
+  );
 
   return (
     <TooltipProvider>
@@ -55,7 +74,7 @@ export function UsersListTab() {
         <TabsHeader
           title="Users Management"
           description="Manage system users and permissions"
-          count={filteredUsers.length}
+          count={filteredCount}
           countLabel="Users"
           actions={
             <>
@@ -77,7 +96,7 @@ export function UsersListTab() {
 
         <SearchBar
           value={searchQuery}
-          onChange={setSearchQuery}
+          onChange={handleSearchChange}
           placeholder="Search by username, name, agent code, or type..."
         />
 
@@ -99,7 +118,7 @@ export function UsersListTab() {
                 {loading ? (
                   <TableRowSkeleton />
                 ) : (
-                  filteredUsers.map((user: any, index: number) => (
+                  paginatedUsers.map((user: any, index: number) => (
                     <motion.tr
                       key={user.id}
                       initial={{ opacity: 0, y: 5 }}
@@ -191,7 +210,7 @@ export function UsersListTab() {
             </Table>
           </div>
 
-          {!loading && filteredUsers.length === 0 && (
+          {!loading && paginatedUsers.length === 0 && (
             <EmptyState
               icon={Users}
               title="No users found"
@@ -199,6 +218,77 @@ export function UsersListTab() {
             />
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage(currentPage - 1)}
+                    className={
+                      !hasPreviousPage
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and pages around current
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage && page === currentPage - 2) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
+                    if (!showPage && page === currentPage + 2) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
+                    if (!showPage) return null;
+
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setPage(page)}
+                          isActive={page === currentPage}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  },
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage(currentPage + 1)}
+                    className={
+                      !hasNextPage
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </motion.div>
       <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
     </TooltipProvider>
