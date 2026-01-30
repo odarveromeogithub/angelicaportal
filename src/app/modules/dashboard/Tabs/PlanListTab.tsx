@@ -201,10 +201,7 @@ export function PlanListTab() {
 
       {/* Pagination */}
       {!loading && filteredPlans.length > 4 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            {showingText}
-          </p>
+        <div className="flex flex-col items-center gap-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -242,6 +239,9 @@ export function PlanListTab() {
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+          <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
+            {showingText}
+          </p>
         </div>
       )}
 
