@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { Users } from "lucide-react";
 import { dashboardApi } from "../../../core/state/api";
@@ -16,43 +16,23 @@ import {
   TableHeader,
   TableRow,
 } from "../../../core/components/ui/table";
-import { useTableData } from "../../../core/hooks/useTableData";
 import { TableRowSkeleton } from "../../../core/components/ui/skeleton";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "../../../core/components/ui/pagination";
 
 export function AgentListTab() {
   const { data: agents = [], isLoading: loading } =
     dashboardApi.useGetAgentsQuery();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const {
-    data: paginatedAgents,
-    filteredCount,
-    searchQuery,
-    handleSearch,
-    currentPage,
-    totalPages,
-    setPage,
-    hasNextPage,
-    hasPreviousPage,
-  } = useTableData(agents, {
-    searchFields: ["salesCounselorCode", "name", "scStatus"],
-    pageSize: 5, // 5 items per page as requested
-  });
-
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      handleSearch(value);
-    },
-    [handleSearch],
-  );
+  const filteredAgents = useMemo(() => {
+    if (!searchQuery.trim()) return agents;
+    const query = searchQuery.toLowerCase();
+    return agents.filter(
+      (agent: any) =>
+        agent.salesCounselorCode.toLowerCase().includes(query) ||
+        agent.name.toLowerCase().includes(query) ||
+        agent.scStatus.toLowerCase().includes(query),
+    );
+  }, [agents, searchQuery]);
 
   return (
     <motion.div
@@ -63,13 +43,13 @@ export function AgentListTab() {
       <TabsHeader
         title="Agent List"
         description="Manage sales counselor agents"
-        count={filteredCount}
+        count={filteredAgents.length}
         countLabel="Agents"
       />
 
       <SearchBar
         value={searchQuery}
-        onChange={handleSearchChange}
+        onChange={setSearchQuery}
         placeholder="Search by code, name, or status..."
       />
 
@@ -94,7 +74,7 @@ export function AgentListTab() {
               {loading ? (
                 <TableRowSkeleton />
               ) : (
-                paginatedAgents.map((agent: any, index: number) => (
+                filteredAgents.map((agent: any, index: number) => (
                   <motion.tr
                     key={agent.id}
                     initial={{ opacity: 0, y: 5 }}
@@ -123,7 +103,7 @@ export function AgentListTab() {
           </Table>
         </div>
 
-        {!loading && paginatedAgents.length === 0 && (
+        {!loading && filteredAgents.length === 0 && (
           <EmptyState
             icon={Users}
             title="No agents found"
@@ -131,77 +111,6 @@ export function AgentListTab() {
           />
         )}
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage(currentPage - 1)}
-                  className={
-                    !hasPreviousPage
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => {
-                  // Show first page, last page, current page, and pages around current
-                  const showPage =
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1);
-
-                  if (!showPage && page === currentPage - 2) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-
-                  if (!showPage && page === currentPage + 2) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-
-                  if (!showPage) return null;
-
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => setPage(page)}
-                        isActive={page === currentPage}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                },
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage(currentPage + 1)}
-                  className={
-                    !hasNextPage
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
     </motion.div>
   );
 }

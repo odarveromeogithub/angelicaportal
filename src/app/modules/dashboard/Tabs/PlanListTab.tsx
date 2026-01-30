@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "../../../core/components/ui/button";
 import {
@@ -10,7 +10,6 @@ import {
 } from "../../../core/components/dashboard";
 import { dashboardApi } from "../../../core/state/api";
 import { useToast } from "../../../core/hooks/useToast";
-import { useTableData } from "../../../core/hooks/useTableData";
 import { ListItemSkeleton } from "../../../core/components/ui/skeleton";
 import { selectIsFullyVerified } from "../../../core/state/selector/auth.selector";
 import { Alert } from "../../../core/components/ui/alert";
@@ -21,46 +20,18 @@ import {
 } from "../../../core/components/ui/tooltip";
 import { PLAN_STATUS_FILTER_OPTIONS } from "../../../core/constants/dashboardStats";
 import { AddPlanDialog } from "../Dialog/AddPlanDialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "../../../core/components/ui/pagination";
 
 export function PlanListTab() {
   const toast = useToast();
   const isVerified = selectIsFullyVerified();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const {
     data: plans = [],
     isLoading: loading,
     isError,
   } = dashboardApi.useGetPlansQuery();
-
-  const {
-    data: paginatedPlans,
-    filteredCount,
-    searchQuery,
-    handleSearch,
-    filters,
-    setFilter,
-    currentPage,
-    totalPages,
-    setPage,
-    hasNextPage,
-    hasPreviousPage,
-  } = useTableData(plans, {
-    searchFields: ["fullName", "lpafNumber"],
-    pageSize: 4, // 4 plans per page as requested
-    customFilter: (plan, filters) => {
-      const statusFilter = filters.status || "all";
-      return statusFilter === "all" || plan.status === statusFilter;
-    },
-  });
 
   // Show error toast when data fetch fails
   useEffect(() => {
@@ -72,19 +43,24 @@ export function PlanListTab() {
     }
   }, [isError, toast]);
 
-  const handleStatusFilterChange = useCallback(
-    (value: string) => {
-      setFilter("status", value);
-    },
-    [setFilter],
-  );
+  const filteredPlans = useMemo(() => {
+    return plans.filter((plan: any) => {
+      const matchesSearch =
+        plan.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        plan.lpafNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || plan.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [plans, searchQuery, statusFilter]);
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      handleSearch(value);
-    },
-    [handleSearch],
-  );
+  const handleStatusFilterChange = useCallback((value: string) => {
+    setStatusFilter(value);
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
 
   const handleAddPlan = useCallback(() => {
     setShowAddDialog(true);
@@ -95,7 +71,7 @@ export function PlanListTab() {
       <TabsHeader
         title="List of Plans"
         description="Manage and view all your plans"
-        count={filteredCount}
+        count={filteredPlans.length}
         countLabel="Plans"
         actions={
           <div>
@@ -165,7 +141,7 @@ export function PlanListTab() {
         searchValue={searchQuery}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or LPAF number..."
-        filterValue={String(filters.status || "all")}
+        filterValue={statusFilter}
         onFilterChange={handleStatusFilterChange}
         filterPlaceholder="Filter by status"
         filterOptions={PLAN_STATUS_FILTER_OPTIONS}
@@ -180,7 +156,7 @@ export function PlanListTab() {
         </div>
       ) : (
         <div className="space-y-4">
-          {paginatedPlans.map((plan: any, index: number) => (
+          {filteredPlans.map((plan: any, index: number) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 20 }}
@@ -190,7 +166,7 @@ export function PlanListTab() {
               <PlanCard plan={plan} />
             </motion.div>
           ))}
-          {paginatedPlans.length === 0 && (
+          {filteredPlans.length === 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
               <EmptyState
                 icon={Search}
@@ -199,77 +175,6 @@ export function PlanListTab() {
               />
             </div>
           )}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage(currentPage - 1)}
-                  className={
-                    !hasPreviousPage
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => {
-                  // Show first page, last page, current page, and pages around current
-                  const showPage =
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1);
-
-                  if (!showPage && page === currentPage - 2) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-
-                  if (!showPage && page === currentPage + 2) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-
-                  if (!showPage) return null;
-
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => setPage(page)}
-                        isActive={page === currentPage}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                },
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage(currentPage + 1)}
-                  className={
-                    !hasNextPage
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </div>
       )}
 
